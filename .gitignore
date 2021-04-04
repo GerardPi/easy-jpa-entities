@@ -5,6 +5,7 @@ node_modules/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+jgiven-reports
 
 ### STS ###
 .apt_generated
