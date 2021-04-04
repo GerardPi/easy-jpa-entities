@@ -1,0 +1,10 @@
+arch: amd64
+
+language: java
+
+jdk:
+  - openjdkjdk11
+
+script:
+  - java --version
+  - mvn clean verify -B
