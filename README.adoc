@@ -1,0 +1,34 @@
+= Easy JPA Entities
+
+== Introduction
+
+Persistence in Java using JPA (Hibernate) using immutable entities that you don't write yourself.
+Instead, create a YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for your.
+
+PS: The artifact is not *yet* published to any maven repository.
+
+https://github.com/GerardPi/travis-status/actions?query=branch%3Amaster
+
+== Usage
+
+Include the easy-jpa-entities artifact in your build. For example in Maven:
+
+....
+        <dependency>
+            <groupId>com.github.gerardpi.easy-jpa-entities</groupId>
+            <artifactId>easy-jpa-entities-processor</artifactId>
+            <version>localbuild-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+....
+
+Create an interface, and include a YAML file with the same name with the entity definitions.
+
+.Example:
+* *Annotated file*: `easy-jpa-entities-test/src/main/java/com/github/gerardpi/easy/jpaentities/test1/_AnAnnotatedInterface.java` (this is the file to be found by the annotations processor)
+* *Definitions file*: `easy-jpa-entities-test/src/main/resources/com/github/gerardpi/easy/jpaentities/test1/_AnAnnotatedInterface.yaml` (this file contains the actual definitions)
+
+At compile time, the Java sources are being generated.
+
+Refer to the example code in easy-jpa-entities-test/ for details.
+
