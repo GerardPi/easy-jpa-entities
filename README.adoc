@@ -3,11 +3,21 @@
 == Introduction
 
 Persistence in Java using JPA (Hibernate) using immutable entities that you don't write yourself.
+
 Instead, create a YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for your.
 
-PS: The artifact is not *yet* published to any maven repository.
+.Notes:
+* Reason for this library: I like immutability a lot. I am aware of Immutables.js and Lombok , but these don't seem to play really well with JPA.
+* The ID for the entity is generated in the Java code, and is using UUID, in the examples. Generation of the UUID is not in the generated code, you should be able to replace it with anything immutable you like.
+* I could have left out the setters from an entity. But I don't think a Java Object is then really immutable.
+* Using this library can only be used for relatively simple entities. From what I understand from _Effective Aggregate Design_, that is how you should do it anyway: https://www.dddcommunity.org/library/vernon_2011/
+* This is *not* the same as @Immutable entities in Hibernate.
 
-https://github.com/GerardPi/travis-status/actions?query=branch%3Amaster
+.PS:
+* This is currently a _work in progress_
+* The artifact is not *yet* published to any maven repository.
+
+It should be compatible with JDK 8.
 
 == Usage
 
@@ -31,4 +41,8 @@ Create an interface, and include a YAML file with the same name with the entity 
 At compile time, the Java sources are being generated.
 
 Refer to the example code in easy-jpa-entities-test/ for details.
+Tests are written using https://jgiven.org/[jgiven]. These tests generate a scenario that looks a lot like https://en.wikipedia.org/wiki/Cucumber_(software)#Gherkin_language[Gherkin]. Have a look at the builds at Travis.
 
+== CI at travis-ci.com
+
+https://travis-ci.com/github/GerardPi/easy-jpa-entities
