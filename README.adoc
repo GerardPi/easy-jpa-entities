@@ -2,6 +2,9 @@
 
 == Introduction
 
+
+image::https://travis-ci.com/GerardPi/easy-jpa-entities.svg?branch=master[]
+
 Persistence in Java using JPA (Hibernate) using immutable entities that you don't write yourself.
 
 Instead, create a YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for your.
