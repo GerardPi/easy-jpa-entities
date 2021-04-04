@@ -1,0 +1,43 @@
+---
+entityClassDefs:
+  - name: "Address"
+    extendsFromClass: "RewritablePersistable"
+    fieldDefs:
+      - name: "countryCode"
+        type: "java.lang.String"
+      - name: "city"
+        type: "java.lang.String"
+      - name: "postalCode"
+        type: "java.lang.String"
+        notNull: true
+      - name: "street"
+        type: "java.lang.String"
+      - name: "houseNumber"
+        type: "java.lang.String"
+        notNull: true
+  - name: "Person"
+    extendsFromClass: "RewritablePersistable"
+    fieldDefs:
+      - name: "nameFirst"
+        type: "java.lang.String"
+      - name: "nameLast"
+        type: "java.lang.String"
+        notNull: true
+      - name: "dateOfBirth"
+        type: "java.time.LocalDate"
+  - name: "PersonAddress"
+    extendsFromClass: "RewritablePersistable"
+    fieldDefs:
+      - name: "addressId"
+        type: "java.util.UUID"
+        notNull: true
+        annotation: javax.persistence.JoinColumn(nullable = false, table = "address", referencedColumnName = "id")
+      - name: "personId"
+        type: "java.util.UUID"
+        notNull: true
+        annotation: javax.persistence.JoinColumn(nullable = false, table = "person", referencedColumnName = "id")
+      - name: "types"
+        singular: "type"
+        type: java.util.SortedSet<com.github.gerardpi.easy.jpaentities.test1.PersonAddressType>
+        annotation: javax.persistence.Convert(converter = com.github.gerardpi.easy.jpaentities.test1.SortedPersonAddressTypeSetConverter.class)
+        notNull: true

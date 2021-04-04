@@ -1,0 +1,747 @@
+{
+  "className": "com.github.gerardpi.easy.jpaentities.test1.AddressbookTest",
+  "name": "Addressbook",
+  "scenarios": [
+    {
+      "className": "com.github.gerardpi.easy.jpaentities.test1.AddressbookTest",
+      "testMethodName": "personAddressCanBeUsedToLinkAPersonToAnAddress",
+      "description": "Person address can be used to link a person to an address",
+      "tagIds": [],
+      "explicitParameters": [],
+      "derivedParameters": [],
+      "casesAsTable": false,
+      "scenarioCases": [
+        {
+          "caseNr": 1,
+          "steps": [
+            {
+              "name": "a person is created $ with first name $ and last name $ in the database",
+              "words": [
+                {
+                  "value": "Given",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "a person is created"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "with first name"
+                },
+                {
+                  "value": "Frits",
+                  "argumentInfo": {
+                    "argumentName": "nameFirst",
+                    "formattedValue": "\"Frits\""
+                  }
+                },
+                {
+                  "value": "and last name"
+                },
+                {
+                  "value": "Jansma",
+                  "argumentInfo": {
+                    "argumentName": "nameLast",
+                    "formattedValue": "\"Jansma\""
+                  }
+                },
+                {
+                  "value": "in the database"
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 89545
+            },
+            {
+              "name": "creating an address $ with data $ $ $ $ $",
+              "words": [
+                {
+                  "value": "and",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "creating an address"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "with data"
+                },
+                {
+                  "value": "NL",
+                  "argumentInfo": {
+                    "argumentName": "countryCode",
+                    "formattedValue": "\"NL\""
+                  }
+                },
+                {
+                  "value": "Amsterdam",
+                  "argumentInfo": {
+                    "argumentName": "city",
+                    "formattedValue": "\"Amsterdam\""
+                  }
+                },
+                {
+                  "value": "1234AA",
+                  "argumentInfo": {
+                    "argumentName": "postalCode",
+                    "formattedValue": "\"1234AA\""
+                  }
+                },
+                {
+                  "value": "Damstraat",
+                  "argumentInfo": {
+                    "argumentName": "street",
+                    "formattedValue": "\"Damstraat\""
+                  }
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "houseNumber",
+                    "formattedValue": "\"1\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 5524151
+            },
+            {
+              "name": "a relation is created $ between person $ and address $ with types",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "a relation is created"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "personAddressNumber",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "between person"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "personNumber",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "and address"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "addressNumber",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "with types"
+                },
+                {
+                  "value": "[RESIDENCE, PROPERTY]",
+                  "argumentInfo": {
+                    "argumentName": "personAddressTypes",
+                    "formattedValue": "\"[RESIDENCE, PROPERTY]\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 69772077
+            },
+            {
+              "name": "the person $ can be found via address $ using postal code $ and house number",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "the person"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "personNumber",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "can be found via address"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "addressNumber",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "using postal code"
+                },
+                {
+                  "value": "NL",
+                  "argumentInfo": {
+                    "argumentName": "countryCode",
+                    "formattedValue": "\"NL\""
+                  }
+                },
+                {
+                  "value": "and house number"
+                },
+                {
+                  "value": "1234AA",
+                  "argumentInfo": {
+                    "argumentName": "postalCode",
+                    "formattedValue": "\"1234AA\""
+                  }
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "houseNumber",
+                    "formattedValue": "\"1\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 143657253
+            }
+          ],
+          "explicitArguments": [],
+          "derivedArguments": [],
+          "status": "SUCCESS",
+          "durationInNanos": 587080924
+        }
+      ],
+      "durationInNanos": 587080924,
+      "executionStatus": "SUCCESS"
+    },
+    {
+      "className": "com.github.gerardpi.easy.jpaentities.test1.AddressbookTest",
+      "testMethodName": "optimisticLockingVersionNumberIncreasesWithUpdates",
+      "description": "Optimistic locking version number increases with updates",
+      "tagIds": [],
+      "explicitParameters": [],
+      "derivedParameters": [],
+      "casesAsTable": false,
+      "scenarioCases": [
+        {
+          "caseNr": 1,
+          "steps": [
+            {
+              "name": "a person is created $ with first name $ and last name $ in the database",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "a person is created"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "\"1\""
+                  }
+                },
+                {
+                  "value": "with first name"
+                },
+                {
+                  "value": "Frits",
+                  "argumentInfo": {
+                    "argumentName": "nameFirst",
+                    "formattedValue": "\"Frits\""
+                  }
+                },
+                {
+                  "value": "and last name"
+                },
+                {
+                  "value": "Jansma",
+                  "argumentInfo": {
+                    "argumentName": "nameLast",
+                    "formattedValue": "\"Jansma\""
+                  }
+                },
+                {
+                  "value": "in the database"
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 3770343
+            },
+            {
+              "name": "that $ $ has ID $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Person",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Person"
+                  }
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has ID"
+                },
+                {
+                  "value": "00000000-1111-2222-3333-444444444444",
+                  "argumentInfo": {
+                    "argumentName": "expectedId",
+                    "formattedValue": "\"00000000-1111-2222-3333-444444444444\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 6206725
+            },
+            {
+              "name": "that $ with number $ has optimistic locking version number $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Person",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Person"
+                  }
+                },
+                {
+                  "value": "with number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has optimistic locking version number"
+                },
+                {
+                  "value": "0",
+                  "argumentInfo": {
+                    "argumentName": "expectedOptLockVersion",
+                    "formattedValue": "\"0\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 4646436
+            },
+            {
+              "name": "updating a person $ with first name $",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "updating a person"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "with first name"
+                },
+                {
+                  "value": "Klaas",
+                  "argumentInfo": {
+                    "argumentName": "newNameFirst",
+                    "formattedValue": "\"Klaas\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 19279999
+            },
+            {
+              "name": "that $ with number $ has optimistic locking version number $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Person",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Person"
+                  }
+                },
+                {
+                  "value": "with number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has optimistic locking version number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "expectedOptLockVersion",
+                    "formattedValue": "\"1\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 3745818
+            },
+            {
+              "name": "updating a person $ with first name $",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "updating a person"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "with first name"
+                },
+                {
+                  "value": "Piet",
+                  "argumentInfo": {
+                    "argumentName": "newNameFirst",
+                    "formattedValue": "\"Piet\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 5960457
+            },
+            {
+              "name": "that $ with number $ has optimistic locking version number $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Person",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Person"
+                  }
+                },
+                {
+                  "value": "with number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has optimistic locking version number"
+                },
+                {
+                  "value": "2",
+                  "argumentInfo": {
+                    "argumentName": "expectedOptLockVersion",
+                    "formattedValue": "\"2\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 3201066
+            },
+            {
+              "name": "creating an address $ with data $ $ $ $ $",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "creating an address"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "with data"
+                },
+                {
+                  "value": "NL",
+                  "argumentInfo": {
+                    "argumentName": "countryCode",
+                    "formattedValue": "\"NL\""
+                  }
+                },
+                {
+                  "value": "Amsterdam",
+                  "argumentInfo": {
+                    "argumentName": "city",
+                    "formattedValue": "\"Amsterdam\""
+                  }
+                },
+                {
+                  "value": "1234AA",
+                  "argumentInfo": {
+                    "argumentName": "postalCode",
+                    "formattedValue": "\"1234AA\""
+                  }
+                },
+                {
+                  "value": "Damstraat",
+                  "argumentInfo": {
+                    "argumentName": "street",
+                    "formattedValue": "\"Damstraat\""
+                  }
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "houseNumber",
+                    "formattedValue": "\"1\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 4183669
+            },
+            {
+              "name": "that $ $ has ID $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Address",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Address"
+                  }
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has ID"
+                },
+                {
+                  "value": "00000001-1111-2222-3333-444444444444",
+                  "argumentInfo": {
+                    "argumentName": "expectedId",
+                    "formattedValue": "\"00000001-1111-2222-3333-444444444444\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 47228
+            },
+            {
+              "name": "that $ with number $ has optimistic locking version number $",
+              "words": [
+                {
+                  "value": "and",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Address",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Address"
+                  }
+                },
+                {
+                  "value": "with number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has optimistic locking version number"
+                },
+                {
+                  "value": "0",
+                  "argumentInfo": {
+                    "argumentName": "expectedOptLockVersion",
+                    "formattedValue": "\"0\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 2820382
+            },
+            {
+              "name": "updating an address $ with $ $",
+              "words": [
+                {
+                  "value": "When",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "updating an address"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "with"
+                },
+                {
+                  "value": "postalCode",
+                  "argumentInfo": {
+                    "argumentName": "propName",
+                    "formattedValue": "\"postalCode\""
+                  }
+                },
+                {
+                  "value": "1234AB",
+                  "argumentInfo": {
+                    "argumentName": "newValue",
+                    "formattedValue": "\"1234AB\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 7151056
+            },
+            {
+              "name": "that $ with number $ has optimistic locking version number $",
+              "words": [
+                {
+                  "value": "Then",
+                  "isIntroWord": true
+                },
+                {
+                  "value": "that"
+                },
+                {
+                  "value": "class com.github.gerardpi.easy.jpaentities.test1.Address",
+                  "argumentInfo": {
+                    "argumentName": "entityClass",
+                    "formattedValue": "class com.github.gerardpi.easy.jpaentities.test1.Address"
+                  }
+                },
+                {
+                  "value": "with number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "number",
+                    "formattedValue": "1"
+                  }
+                },
+                {
+                  "value": "has optimistic locking version number"
+                },
+                {
+                  "value": "1",
+                  "argumentInfo": {
+                    "argumentName": "expectedOptLockVersion",
+                    "formattedValue": "\"1\""
+                  }
+                }
+              ],
+              "status": "PASSED",
+              "durationInNanos": 3084318
+            }
+          ],
+          "explicitArguments": [],
+          "derivedArguments": [],
+          "status": "SUCCESS",
+          "durationInNanos": 85706589
+        }
+      ],
+      "durationInNanos": 85706589,
+      "executionStatus": "SUCCESS"
+    }
+  ],
+  "tagMap": {}
+}

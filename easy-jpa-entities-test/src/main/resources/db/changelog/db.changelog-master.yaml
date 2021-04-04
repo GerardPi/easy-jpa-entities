@@ -1,0 +1,114 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210308001
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name_first
+                  type: varchar(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name_last
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_of_birth
+                  type: Date
+                  constraints:
+                    nullable: true
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: "name_last, date_of_birth"
+            constraintName: "person_unique_constraint"
+            tableName: "person"
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: country_code
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: city
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: postal_code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: house_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: "country_code, postal_code, house_number"
+            constraintName: "address_unique_constraint"
+            tableName: "address"
+        - createTable:
+            tableName: person_address
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: person_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: types
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: "person_id, address_id"
+            constraintName: "person_address_unique_constraint"
+            tableName: "person_address"
