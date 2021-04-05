@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface EasyEntities {
+public @interface EasyJpaEntities {
     String name() default "";
     String targetPackage() default "";
     boolean slf4jLoggingEnabled() default true;

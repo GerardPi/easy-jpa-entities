@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndentationTest {
     @Test
-    public void test() {
+    public void testIndentations() {
         Indentation indentation = new Indentation(5, 2);
         assertThat(indentation.get()).isEqualTo("");
         indentation.inc();

@@ -1,6 +1,6 @@
 package com.github.gerardpi.easy.jpaentities.test1;
-import com.github.gerardpi.easy.jpaentities.annotation.EasyEntities;
+import com.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities;
 
-@EasyEntities
+@EasyJpaEntities
 public interface _AnAnnotatedInterface {
 }

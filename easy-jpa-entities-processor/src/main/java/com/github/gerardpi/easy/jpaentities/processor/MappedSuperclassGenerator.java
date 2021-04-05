@@ -1,6 +1,12 @@
 package com.github.gerardpi.easy.jpaentities.processor;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+
 public class MappedSuperclassGenerator {
     public static final String CLASSNAME_PERSISTABLE = "Persistable";
     public static final String CLASSNAME_REWRITABLE_PERSISTABLE = "RewritablePersistable";
@@ -11,111 +17,20 @@ public class MappedSuperclassGenerator {
     }
 
     void writePersistable(LineWriter writer) {
-        writer.line("package " + packageName + ";")
-                .emptyLine()
-                .line("@javax.persistence.MappedSuperclass")
-                .line("class " + CLASSNAME_PERSISTABLE + " implements java.io.Serializable {")
-                .incIndentation()
-                .line("public static final String PROPNAME_ID = \"id\";")
-                .line("@javax.persistence.Id")
-                .line("private final java.util.UUID id;")
-                .emptyLine()
-                .line(CLASSNAME_PERSISTABLE + "(java.util.UUID id) {")
-                .incIndentation()
-                .line("this.id = id;")
-                .decIndentation()
-                .line("}")
-                .emptyLine()
-                .line(CLASSNAME_PERSISTABLE + "() {")
-                .incIndentation()
-                .line("// ORM requires this default constructor")
-                .line("this.id = null;")
-                .decIndentation()
-                .line("}")
-                .emptyLine()
-                .line("public java.util.UUID getId() {")
-                .incIndentation()
-                .line("return this.id;")
-                .decIndentation()
-                .line("}")
-                .line("")
-                .line("@Override")
-                .line("public final boolean equals(Object otherObject) {")
-                .incIndentation()
-                .line("if (this == otherObject) {")
-                .incIndentation()
-                .line("return true;")
-                .decIndentation()
-                .line("}")
-                .line("if (!(otherObject instanceof Persistable)) {")
-                .incIndentation()
-                .line("return false;")
-                .decIndentation()
-                .line("}")
-                .line("")
-                .line("Persistable otherEntity = (Persistable) otherObject;")
-                .line("// Id is never null.")
-                .line("return getId().equals(otherEntity.getId());")
-                .line("}")
-                .decIndentation()
-                .line("")
-                .line("public final int hashCode() {")
-                .incIndentation()
-                .line("// Id is never null.")
-                .line("return id.hashCode();")
-                .line("}")
-                .decIndentation()
-                .line("")
-                .decIndentation()
-                .line("@Override")
-                .line("public String toString() {")
-                .incIndentation()
-                .line("return \"id=\" + id.toString();")
-                .decIndentation()
-                .line("}")
-                .decIndentation()
-                .line("}");
+        write(CLASSNAME_PERSISTABLE + "-java.txt", writer);
     }
 
     void writeRewritablePersistable(LineWriter writer) {
-        writer
-                .line("package " + packageName + ";")
-                .emptyLine()
-                .line("@javax.persistence.MappedSuperclass")
-                .line("class " + CLASSNAME_REWRITABLE_PERSISTABLE + " extends " + CLASSNAME_PERSISTABLE + " {")
-                .incIndentation()
-                .line("public static final String PROPNAME_OPT_LOCK_VERSION = \"optLockVersion\";")
-                .emptyLine()
-                .line("@javax.persistence.Version")
-                .line("private final java.lang.Integer optLockVersion;")
-                .emptyLine()
-                .line(CLASSNAME_REWRITABLE_PERSISTABLE + "(java.util.UUID id, Integer optLockVersion) {")
-                .incIndentation()
-                .line("super(id);")
-                .line("this.optLockVersion = optLockVersion;")
-                .decIndentation()
-                .line("}")
-                .emptyLine()
-                .line(CLASSNAME_REWRITABLE_PERSISTABLE + "() {")
-                .incIndentation()
-                .line("// ORM requires this default constructor")
-                .line("super(null);")
-                .line("this.optLockVersion = null;")
-                .decIndentation()
-                .line("}")
-                .emptyLine()
-                .line("public java.lang.Integer getOptLockVersion() {")
-                .incIndentation()
-                .line("return this.optLockVersion;")
-                .decIndentation()
-                .line("}")
-                .line("@Override")
-                .line("public String toString() {")
-                .incIndentation()
-                .line("return super.toString() + \"; optLockVersion=\" + optLockVersion;")
-                .decIndentation()
-                .line("}")
-                .decIndentation()
-                .line("}");
+        write(CLASSNAME_REWRITABLE_PERSISTABLE + "-java.txt", writer);
     }
+
+    private void write(String resourceName, LineWriter writer) {
+        writer.line("package " + packageName + ";");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
+            writer.lines(reader.lines());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
 }

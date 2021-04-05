@@ -1,0 +1,71 @@
+import java.util.UUID;
+import java.io.Serializable;
+
+import javax.persistence.Id;
+import javax.persistence.Version;
+import javax.persistence.MappedSuperclass;
+
+/**
+ * This is a base class for JPA rewritable entities to be used in Spring-data.
+ * It has an optimistic locking field that is initially null and is incremented by the ORM.
+ */
+@MappedSuperclass
+abstract class RewritablePersistable implements Serializable {
+  public static final String PROPNAME_ID = "id";
+  @Id
+  private final UUID id;
+
+  public static final String PROPNAME_OPT_LOCK_VERSION = "optLockVersion";
+  @Version
+  private final Integer optLockVersion;
+
+  RewritablePersistable(UUID id, Integer optLockVersion) {
+    this.id = id;
+    this.optLockVersion = optLockVersion;
+  }
+
+  RewritablePersistable() {
+    // ORM requires this default constructor
+    this.id = null;
+    this.optLockVersion = null;
+  }
+
+  public java.lang.Integer getOptLockVersion() {
+    return this.optLockVersion;
+  }
+
+  public UUID getId() {
+    return this.id;
+  }
+
+  @Override
+  public String toString() {
+    return "id=" + id.toString()
+      + "; optLockVersion=" + optLockVersion;
+  }
+
+  /**
+   * Object equality check, this is done using the ID property of the objects.
+   * Should be overriden with care, call super.equals if you want id equality
+   * to count.
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public final boolean equals(Object otherObject) {
+    if (this == otherObject) {
+      return true;
+    }
+    if (!(otherObject instanceof RewritablePersistable)) {
+      return false;
+    }
+
+    RewritablePersistable otherEntity = (RewritablePersistable) otherObject;
+    // Id is never null.
+    return getId().equals(otherEntity.getId());
+  }
+
+  public final int hashCode() {
+    // Id is never null.
+    return id.hashCode();
+  }
+}

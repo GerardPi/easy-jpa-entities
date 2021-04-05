@@ -3,6 +3,7 @@ package com.github.gerardpi.easy.jpaentities.processor;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.stream.Stream;
 
 class LineWriter implements AutoCloseable {
     private static final Indentation indentation = new Indentation(5, 2);
@@ -44,6 +45,11 @@ class LineWriter implements AutoCloseable {
 
     LineWriter endln() {
         write(lineSeparator);
+        return this;
+    }
+
+    LineWriter lines(Stream<String> lines) {
+        lines.forEach(this::line);
         return this;
     }
 
