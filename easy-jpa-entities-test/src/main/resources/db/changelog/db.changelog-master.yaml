@@ -112,3 +112,40 @@ databaseChangeLog:
             columnNames: "person_id, address_id"
             constraintName: "person_address_unique_constraint"
             tableName: "person_address"
+        - createTable:
+            tableName: transaction
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR
+              - column:
+                  name: source_account
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: target_account
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: "TIMESTAMP WITH TIMEZONE"
+                  constraints:
+                    nullable: false

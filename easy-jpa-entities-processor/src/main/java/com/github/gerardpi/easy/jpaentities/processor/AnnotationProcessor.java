@@ -83,7 +83,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         persistableDefs.getEntityClassDefs().forEach(classDef -> {
             String entityFqn = targetPackage + "." + classDef.getName();
             try (JavaSourceWriter writer = ProcessorUtils.createClassWriter(processingEnv, entityFqn)) {
-                new EntityClassGenerator(classDef, targetPackage, includeConstructorWithParameters).write(writer);
+                new EntityClassGenerator(classDef, targetPackage, includeConstructorWithParameters, persistableDefs.getIdClass()).write(writer);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -97,7 +97,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE + "...");
             String persistableFqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, persistableFqn)) {
-                mappedSuperclassGenerator.writePersistable(writer);
+                mappedSuperclassGenerator.writePersistable(writer, persistableDefs);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -107,7 +107,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_REWRITABLE_PERSISTABLE + "...");
             String rewritablePersistableFqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_REWRITABLE_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, rewritablePersistableFqn)) {
-                mappedSuperclassGenerator.writeRewritablePersistable(writer);
+                mappedSuperclassGenerator.writeRewritablePersistable(writer, persistableDefs);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

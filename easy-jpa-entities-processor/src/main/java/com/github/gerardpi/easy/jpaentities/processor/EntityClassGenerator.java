@@ -9,11 +9,13 @@ public class EntityClassGenerator {
     private final EntityClassDef classDef;
     private final String targetPackage;
     private final boolean includeConstructorWithParameters;
+    private final Class<?> idClass;
 
-    public EntityClassGenerator(EntityClassDef classDef, String targetPackage, boolean includeConstructorWithParameters) {
+    public EntityClassGenerator(EntityClassDef classDef, String targetPackage, boolean includeConstructorWithParameters, Class<?> idClass) {
         this.classDef = classDef;
         this.targetPackage = targetPackage;
         this.includeConstructorWithParameters = includeConstructorWithParameters;
+        this.idClass = idClass;
     }
 
     public void write(JavaSourceWriter writer) {
@@ -39,18 +41,20 @@ public class EntityClassGenerator {
     }
     private void writeBuilderParts(JavaSourceWriter writer) {
         writer
-                .writeCreateAndModifyWithBuilderMethods()
+                .writeCreateAndModifyWithBuilderMethods(idClass)
                 .writeBlockBeginln("public static class Builder")
                 .writeBuilderFieldDeclarations(classDef.getFieldDefs())
                 .writeFieldDeclaration(classDef.getName(), "existing", true, Collections.emptyList())
-                .writeFieldDeclaration(UUID.class.getName(), "id", true, Collections.emptyList());
+                .writeFieldDeclaration(idClass.getName(), "id", true, Collections.emptyList())
+                .writeFieldDeclaration("boolean", "isNew", true, Collections.emptyList());
         if (classDef.isRewritable()) {
             writer.writeFieldDeclaration(Integer.class.getName(), "optLockVersion", true, Collections.emptyList());
         }
         writer
                 .emptyLine()
-                .writeBlockBeginln("private Builder(java.util.UUID id)")
+                .writeBlockBeginln("private Builder(" + idClass.getName() + " id)")
                 .writeLine("this.id = java.util.Objects.requireNonNull(id);")
+                .writeLine("this.isNew = true;")
                 .writeLine("this.existing = null;");
 
         if (classDef.isRewritable()) {
@@ -62,6 +66,7 @@ public class EntityClassGenerator {
                 .emptyLine()
                 .writeBlockBeginln("private Builder(" + classDef.getName() + " existing)")
                 .writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
+                .writeLine("this.isNew = false;")
                 .writeLine("this.id = existing.getId();");
 
         if (classDef.isRewritable()) {

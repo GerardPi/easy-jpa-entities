@@ -1,4 +1,4 @@
-import java.util.UUID;
+import ##_ID_CLASS_WITH_PACKAGE_##;
 import java.io.Serializable;
 
 import javax.persistence.Id;
@@ -13,13 +13,13 @@ import javax.persistence.MappedSuperclass;
 abstract class RewritablePersistable implements Serializable {
   public static final String PROPNAME_ID = "id";
   @Id
-  private final UUID id;
+  private final ##_ID_CLASS_## id;
 
   public static final String PROPNAME_OPT_LOCK_VERSION = "optLockVersion";
   @Version
   private final Integer optLockVersion;
 
-  RewritablePersistable(UUID id, Integer optLockVersion) {
+  RewritablePersistable(##_ID_CLASS_## id, Integer optLockVersion) {
     this.id = id;
     this.optLockVersion = optLockVersion;
   }
@@ -34,7 +34,7 @@ abstract class RewritablePersistable implements Serializable {
     return this.optLockVersion;
   }
 
-  public UUID getId() {
+  public ##_ID_CLASS_## getId() {
     return this.id;
   }
 

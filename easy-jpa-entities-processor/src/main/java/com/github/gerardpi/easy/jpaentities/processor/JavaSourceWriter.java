@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableSortedSet;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 class JavaSourceWriter implements AutoCloseable {
@@ -48,7 +47,6 @@ class JavaSourceWriter implements AutoCloseable {
     JavaSourceWriter writeBuilderSetters(EntityClassDef classDef) {
         classDef.getFieldDefs().forEach(fieldDef -> {
             writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType() + " " + fieldDef.getName() + ")");
-            writer.emptyLine();
             assign("this.", fieldDef.getName(), "", fieldDef.getName());
             writer.line("return this;");
             writeBlockEnd();
@@ -61,9 +59,9 @@ class JavaSourceWriter implements AutoCloseable {
                         writer.line("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");");
                         writer.line("return this;");
                         writeBlockEnd();
-            });
+                    });
         });
-            return this;
+        return this;
     }
 
     JavaSourceWriter emptyLine() {
@@ -92,8 +90,8 @@ class JavaSourceWriter implements AutoCloseable {
     }
 
 
-    JavaSourceWriter writeCreateAndModifyWithBuilderMethods() {
-        writeBlockBeginln("public static Builder create(java.util.UUID id)");
+    JavaSourceWriter writeCreateAndModifyWithBuilderMethods(Class<?> idClass) {
+        writeBlockBeginln("public static Builder create(" + idClass.getName() + " id)");
         writer.line("return new Builder(id);");
         writeBlockEnd();
         writer.emptyLine();
@@ -138,7 +136,7 @@ class JavaSourceWriter implements AutoCloseable {
     }
 
     JavaSourceWriter writeAssignments(List<EntityFieldDef> fieldDefs, String assigneePrefix, String assignedValuePrefix) {
-        fieldDefs.forEach(fieldDef -> assign(assigneePrefix,  assignedValuePrefix, fieldDef));
+        fieldDefs.forEach(fieldDef -> assign(assigneePrefix, assignedValuePrefix, fieldDef));
         return this;
     }
 
@@ -217,7 +215,7 @@ class JavaSourceWriter implements AutoCloseable {
 
     JavaSourceWriter writeConstructorUsingBuilder(EntityClassDef classDef) {
         writeBlockBeginln(classDef.getName() + "(Builder builder)");
-        writer.line(classDef.isRewritable() ? "super(builder.id, builder.optLockVersion);" : "super(builder.id);");
+        writer.line(classDef.isRewritable() ? "super(builder.id, builder.optLockVersion);" : "super(builder.id, builder.isNew);");
         writeAssignments(classDef.getFieldDefs(), "this.", "builder.");
         writeBlockEnd();
         return this;

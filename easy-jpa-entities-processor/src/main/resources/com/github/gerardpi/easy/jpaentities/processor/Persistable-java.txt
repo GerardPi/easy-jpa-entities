@@ -1,5 +1,5 @@
 
-import java.util.UUID;
+import ##_ID_CLASS_WITH_PACKAGE_##;
 import java.io.Serializable;
 
 import javax.persistence.Id;
@@ -11,36 +11,32 @@ import javax.persistence.MappedSuperclass;
  * This is not very nice, but there is no way around it, as far as I know.
  */
 @MappedSuperclass
-abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<UUID> {
+abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<##_ID_CLASS_##> {
   public static final String PROPNAME_ID = "id";
   @Id
-  private final UUID id;
+  private final ##_ID_CLASS_## id;
 
   @javax.persistence.Transient
-  private boolean isNew = true;
+  private final boolean isNew;
 
-  RewritablePersistable(UUID id) {
+  Persistable(##_ID_CLASS_## id, boolean isNew) {
     this.id = id;
+    this.isNew = isNew;
   }
 
-  RewritablePersistable() {
+  Persistable() {
     // ORM requires this default constructor
     this.id = null;
+    this.isNew = false;
   }
 
-  public UUID getId() {
+  public ##_ID_CLASS_## getId() {
     return this.id;
   }
 
   @Override
   public String toString() {
     return "id=" + id.toString();
-  }
-
-  @javax.persistence.PrePersist
-  @javax.persistence.PostLoad
-  void markNotNew() {
-    this.isNew = false;
   }
 
   @Override

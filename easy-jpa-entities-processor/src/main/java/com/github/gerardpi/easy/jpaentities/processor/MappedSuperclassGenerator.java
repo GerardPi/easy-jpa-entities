@@ -1,11 +1,14 @@
 package com.github.gerardpi.easy.jpaentities.processor;
 
 
+import com.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefs;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class MappedSuperclassGenerator {
     public static final String CLASSNAME_PERSISTABLE = "Persistable";
@@ -16,21 +19,30 @@ public class MappedSuperclassGenerator {
         this.packageName = packageName;
     }
 
-    void writePersistable(LineWriter writer) {
-        write(CLASSNAME_PERSISTABLE + "-java.txt", writer);
+    void writePersistable(LineWriter writer, PersistableDefs persistableDefs) {
+        write(CLASSNAME_PERSISTABLE + "-java.txt", writer, persistableDefs);
     }
 
-    void writeRewritablePersistable(LineWriter writer) {
-        write(CLASSNAME_REWRITABLE_PERSISTABLE + "-java.txt", writer);
+    void writeRewritablePersistable(LineWriter writer, PersistableDefs persistableDefs) {
+        write(CLASSNAME_REWRITABLE_PERSISTABLE + "-java.txt", writer, persistableDefs);
     }
 
-    private void write(String resourceName, LineWriter writer) {
+    private void write(String resourceName, LineWriter writer, PersistableDefs persistableDefs) {
         writer.line("package " + packageName + ";");
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
-            writer.lines(reader.lines());
+            reader.lines()
+                    .map(line -> replace(line, persistableDefs))
+                    .forEach(writer::line);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    private String replace(String  line, PersistableDefs persistableDefs) {
+        String result = line;
+        for (Map.Entry<String, String> replacement : persistableDefs.getTagReplacementMap().entrySet()) {
+            result = result.replace(replacement.getKey(), replacement.getValue());
+        }
+        return result;
+    }
 }
