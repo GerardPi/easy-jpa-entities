@@ -113,6 +113,25 @@ databaseChangeLog:
             constraintName: "person_address_unique_constraint"
             tableName: "person_address"
         - createTable:
+            tableName: account
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: owner
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+        - createTable:
             tableName: transaction
             columns:
               - column:
@@ -136,12 +155,12 @@ databaseChangeLog:
                   type: VARCHAR
               - column:
                   name: source_account
-                  type: VARCHAR(50)
+                  type: UUID
                   constraints:
                     nullable: false
               - column:
                   name: target_account
-                  type: VARCHAR(50)
+                  type: UUID
                   constraints:
                     nullable: false
               - column:

@@ -41,6 +41,14 @@ entityClassDefs:
         type: java.util.SortedSet<com.github.gerardpi.easy.jpaentities.test1.PersonAddressType>
         annotation: javax.persistence.Convert(converter = com.github.gerardpi.easy.jpaentities.test1.SortedPersonAddressTypeSetConverter.class)
         notNull: true
+  - name: "Account"
+    extendsFromClass: "RewritablePersistable"
+    fieldDefs:
+      - name: "description"
+        type: "java.lang.String"
+      - name: "owner"
+        type: "java.util.UUID"
+        notNull: true
   - name: "Transaction"
     extendsFromClass: "Persistable"
     fieldDefs:
