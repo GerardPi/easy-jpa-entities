@@ -108,9 +108,21 @@ databaseChangeLog:
                   type: Integer
                   constraints:
                     nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_person_address_address
+            baseTableName: person_address
+            baseColumnNames: address_id
+            referencedTableName: address
+            referencedColumnName: id
+        - addForeignKeyConstraint:
+            constraintName: fk_person_address_person
+            baseTableName: person_address
+            baseColumnNames: person_id
+            referencedTableName: person
+            referencedColumnName: id
         - addUniqueConstraint:
-            columnNames: "person_id, address_id"
             constraintName: "person_address_unique_constraint"
+            columnNames: "person_id, address_id"
             tableName: "person_address"
         - createTable:
             tableName: account
@@ -136,6 +148,24 @@ databaseChangeLog:
                   type: Integer
                   constraints:
                     nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_account_owner
+            baseTableName: account_id
+            baseColumnNames: owner
+            referencedTableName: person
+            referencedColumnName: id
+        - addForeignKeyConstraint:
+            constraintName: fk_transaction_target_account
+            baseTableName: transaction
+            baseColumnNames: target_account
+            referencedTableName: account
+            referencedColumnName: id
+        - addForeignKeyConstraint:
+            constraintName: fk_transaction_source_account
+            baseTableName: transaction
+            baseColumnNames: source_account
+            referencedTableName: account
+            referencedColumnName: id
         - createTable:
             tableName: transaction
             columns:

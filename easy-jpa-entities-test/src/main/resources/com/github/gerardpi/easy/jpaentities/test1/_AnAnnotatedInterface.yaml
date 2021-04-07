@@ -49,6 +49,7 @@ entityClassDefs:
       - name: "ownerId"
         type: "java.util.UUID"
         notNull: true
+        annotation: javax.persistence.JoinColumn(nullable = false, table = "person", referencedColumnName = "id")
   - name: "Transaction"
     extendsFromClass: "Persistable"
     fieldDefs:
