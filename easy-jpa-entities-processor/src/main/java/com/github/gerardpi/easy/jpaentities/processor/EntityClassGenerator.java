@@ -45,8 +45,10 @@ public class EntityClassGenerator {
                 .writeBlockBeginln("public static class Builder")
                 .writeBuilderFieldDeclarations(classDef.getFieldDefs())
                 .writeFieldDeclaration(classDef.getName(), "existing", true, Collections.emptyList())
-                .writeFieldDeclaration(idClass.getName(), "id", true, Collections.emptyList())
-                .writeFieldDeclaration("boolean", "isNew", true, Collections.emptyList());
+                .writeFieldDeclaration(idClass.getName(), "id", true, Collections.emptyList());
+        if (!classDef.isRewritable()) {
+            writer.writeFieldDeclaration("boolean", "isNew", true, Collections.emptyList());
+        }
         if (classDef.isRewritable()) {
             writer.writeFieldDeclaration(Integer.class.getName(), "optLockVersion", true, Collections.emptyList());
         }
@@ -54,8 +56,10 @@ public class EntityClassGenerator {
                 .emptyLine()
                 .writeBlockBeginln("private Builder(" + idClass.getName() + " id)")
                 .writeLine("this.id = java.util.Objects.requireNonNull(id);")
-                .writeLine("this.isNew = true;")
                 .writeLine("this.existing = null;");
+        if (!classDef.isRewritable()) {
+            writer.writeLine("this.isNew = true;");
+        }
 
         if (classDef.isRewritable()) {
             writer.writeLine("this.optLockVersion = null;");
@@ -66,8 +70,10 @@ public class EntityClassGenerator {
                 .emptyLine()
                 .writeBlockBeginln("private Builder(" + classDef.getName() + " existing)")
                 .writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
-                .writeLine("this.isNew = false;")
                 .writeLine("this.id = existing.getId();");
+        if (!classDef.isRewritable()) {
+            writer.writeLine("this.isNew = false;");
+        }
 
         if (classDef.isRewritable()) {
             writer

@@ -122,13 +122,18 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: owner
+                  name: owner_id
                   type: UUID
                   constraints:
                     nullable: false
               - column:
                   name: description
                   type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
                   constraints:
                     nullable: false
         - createTable:
@@ -154,12 +159,12 @@ databaseChangeLog:
                   name: description
                   type: VARCHAR
               - column:
-                  name: source_account
+                  name: source_account_id
                   type: UUID
                   constraints:
                     nullable: false
               - column:
-                  name: target_account
+                  name: target_account_id
                   type: UUID
                   constraints:
                     nullable: false

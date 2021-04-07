@@ -46,7 +46,7 @@ entityClassDefs:
     fieldDefs:
       - name: "description"
         type: "java.lang.String"
-      - name: "owner"
+      - name: "ownerId"
         type: "java.util.UUID"
         notNull: true
   - name: "Transaction"
@@ -60,11 +60,11 @@ entityClassDefs:
         notNull: true
       - name: "description"
         type: "java.lang.String"
-      - name: "sourceAccount"
-        type: "java.lang.String"
+      - name: "sourceAccountId"
+        type: "java.util.UUID"
         notNull: true
-      - name: "targetAccount"
-        type: "java.lang.String"
+      - name: "targetAccountId"
+        type: "java.util.UUID"
         notNull: true
       - name: "timestamp"
         type: "java.time.OffsetDateTime"
