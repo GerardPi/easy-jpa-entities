@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210308001
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: country_code
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: city
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: postal_code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: house_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: "country_code, postal_code, house_number"
+            constraintName: "address_unique_constraint"
+            tableName: "address"

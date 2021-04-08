@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210308003
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: person_address
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: person_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: types
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: "person_address_unique_constraint"
+            columnNames: "person_id, address_id"
+            tableName: "person_address"
+        - addForeignKeyConstraint:
+            constraintName: fk_person_address_address
+            baseTableName: person_address
+            baseColumnNames: address_id
+            referencedTableName: address
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_person_address_person
+            baseTableName: person_address
+            baseColumnNames: person_id
+            referencedTableName: person
+            referencedColumnNames: id

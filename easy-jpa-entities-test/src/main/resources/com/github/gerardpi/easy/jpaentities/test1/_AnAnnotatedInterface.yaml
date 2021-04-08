@@ -41,33 +41,3 @@ entityClassDefs:
         type: java.util.SortedSet<com.github.gerardpi.easy.jpaentities.test1.PersonAddressType>
         annotation: javax.persistence.Convert(converter = com.github.gerardpi.easy.jpaentities.test1.SortedPersonAddressTypeSetConverter.class)
         notNull: true
-  - name: "Account"
-    extendsFromClass: "RewritablePersistable"
-    fieldDefs:
-      - name: "description"
-        type: "java.lang.String"
-      - name: "ownerId"
-        type: "java.util.UUID"
-        notNull: true
-        annotation: javax.persistence.JoinColumn(nullable = false, table = "person", referencedColumnName = "id")
-  - name: "Transaction"
-    extendsFromClass: "Persistable"
-    fieldDefs:
-      - name: "currencyCode"
-        type: "java.lang.String"
-        notNull: true
-      - name: "amount"
-        type: "java.math.BigDecimal"
-        notNull: true
-      - name: "description"
-        type: "java.lang.String"
-      - name: "sourceAccountId"
-        type: "java.util.UUID"
-        notNull: true
-      - name: "targetAccountId"
-        type: "java.util.UUID"
-        notNull: true
-      - name: "timestamp"
-        type: "java.time.OffsetDateTime"
-        notNull: true
-
