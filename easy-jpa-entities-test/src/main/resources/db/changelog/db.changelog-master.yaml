@@ -1,3 +1,7 @@
 databaseChangeLog:
-  - includeAll:
-      path: classpath*:db/changelog/changes/
+  - include:
+      file: /db/changelog/changes/0001-initial-create-address-table.sql
+  - include:
+      file: /db/changelog/changes/0002-initial-create-person-table.sql
+  - include:
+      file: /db/changelog/changes/0003-initial-create-person-address-table.sql
