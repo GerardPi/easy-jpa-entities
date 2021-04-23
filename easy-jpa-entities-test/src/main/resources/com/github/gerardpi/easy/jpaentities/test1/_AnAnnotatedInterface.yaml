@@ -64,16 +64,16 @@ entityClassDefs:
       - name: imageNames
         annotation: "javax.persistence.Convert(converter = SortedStringSetConverter.class)"
         type: "java.util.SortedSet<String>"
-  - name: "Order"
+  - name: "ItemOrder"
     extendsFromClass: RewritablePersistable
     fieldDefs:
       - name: personId
         type: java.util.UUID
         notNull: true
       - name: orderLines
-        type: "java.util.List<OrderLine>"
-        annotation: "javax.persistence.OneToMany(mappedBy = OrderLine.PROPNAME_ID, orphanRemoval = true)"
-  - name: "OrderLine"
+        type: "java.util.List<ItemOrderLine>"
+        annotation: "javax.persistence.OneToMany(mappedBy = ItemOrderLine.PROPNAME_ID, orphanRemoval = true)"
+  - name: "ItemOrderLine"
     extendsFromClass: Persistable
     fieldDefs:
       - name: itemId
