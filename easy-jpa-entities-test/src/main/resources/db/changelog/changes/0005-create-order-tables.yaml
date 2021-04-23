@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210308005
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: order
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: person_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_order_person
+            baseTableName: order
+            baseColumnNames: person_id
+            referencedTableName: person
+            referencedColumnNames: id
+        - createTable:
+            tableName: "order_line"
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: item_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: count
+                  type: Integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount_per_item
+                  type: DECIMAL
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_order_line_order
+            baseTableName: order_line
+            baseColumnNames: order_id
+            referencedTableName: order
+            referencedColumnNames: id

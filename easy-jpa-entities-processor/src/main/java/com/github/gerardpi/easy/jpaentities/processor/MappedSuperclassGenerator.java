@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class MappedSuperclassGenerator {
@@ -29,6 +31,7 @@ public class MappedSuperclassGenerator {
 
     private void write(String resourceName, LineWriter writer, PersistableDefs persistableDefs) {
         writer.line("package " + packageName + ";");
+        writer.line("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
             reader.lines()
                     .map(line -> replace(line, persistableDefs))

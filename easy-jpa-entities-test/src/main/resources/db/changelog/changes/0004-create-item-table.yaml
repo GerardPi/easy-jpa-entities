@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210308004
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: item
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: texts
+                  type: varchar
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attributes
+                  type: varchar
+                  constraints:
+                    nullable: false
+              - column:
+                  name: image_names
+                  type: varchar
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
+                  constraints:
+                    nullable: false

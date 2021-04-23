@@ -2,11 +2,11 @@ package com.github.gerardpi.easy.jpaentities.processor.entitydefs;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class EntityFieldDef {
     private final String name;
@@ -75,5 +75,14 @@ public class EntityFieldDef {
 
     public Optional<CollectionDef> getCollectionDef() {
         return Optional.ofNullable(this.collectionDef);
+    }
+
+    public static void main(String[] args) {
+        EntityFieldDef entityFieldDef = new EntityFieldDef("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true);
+        try {
+            System.out.println(new ObjectMapper(new YAMLFactory()).writeValueAsString(entityFieldDef));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

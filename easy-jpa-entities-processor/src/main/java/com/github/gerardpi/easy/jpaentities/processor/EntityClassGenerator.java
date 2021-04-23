@@ -2,6 +2,8 @@ package com.github.gerardpi.easy.jpaentities.processor;
 
 import com.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -21,6 +23,7 @@ public class EntityClassGenerator {
     public void write(JavaSourceWriter writer) {
         writer.writePackageLine(targetPackage)
                 .emptyLine()
+                .writeLine("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                 .writeLine("@javax.persistence.Entity")
                 .writeLine("@javax.persistence.Access(javax.persistence.AccessType.FIELD)");
         if (classDef.isReadOnly()) {
@@ -79,7 +82,7 @@ public class EntityClassGenerator {
             writer
                     .writeLine("this.optLockVersion = existing.getOptLockVersion();");
         }
-        writer.writeAssignments(classDef.getFieldDefs(), "this.", "existing.");
+        writer.writeAssignmentsInBuilderConstructor(classDef.getFieldDefs(), "this.", "existing.");
         writer.writeBlockEnd();
         writer.emptyLine();
         writer.writeBuilderSetters(classDef);
