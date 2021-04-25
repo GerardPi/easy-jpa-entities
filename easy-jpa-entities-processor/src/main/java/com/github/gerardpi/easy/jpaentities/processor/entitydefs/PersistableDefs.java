@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public class PersistableDefs {
     private final Class<?> idClass;
     private final List<EntityClassDef> entityClassDefs;
-    private boolean writeOptLockablePersistable;
-    private boolean writePersistable;
+    private boolean hasOptLockablePersistable;
+    private boolean hasPersistable;
 
     @JsonCreator
     public PersistableDefs(
@@ -27,8 +27,8 @@ public class PersistableDefs {
         List<EntityClassDef> optLockableClassDefs = this.entityClassDefs.stream()
                 .filter(EntityClassDef::isOptLockable)
                 .collect(Collectors.toList());
-        this.writeOptLockablePersistable = !optLockableClassDefs.isEmpty();
-        this.writePersistable = optLockableClassDefs.size() != entityClassDefs.size();
+        this.hasOptLockablePersistable = !optLockableClassDefs.isEmpty();
+        this.hasPersistable = optLockableClassDefs.size() != this.entityClassDefs.size();
 
         String classNameForId = idClass == null ? UUID.class.getName() : idClass;
         try {
@@ -46,12 +46,12 @@ public class PersistableDefs {
         return ImmutableMap.of("##_ID_CLASS_##", idClass.getSimpleName(), "##_ID_CLASS_WITH_PACKAGE_##", idClass.getName());
     }
 
-    public boolean isWriteOptLockablePersistable() {
-        return writeOptLockablePersistable;
+    public boolean hasOptLockablePersistable() {
+        return hasOptLockablePersistable;
     }
 
-    public boolean isWritePersistable() {
-        return writePersistable;
+    public boolean hasPersistable() {
+        return hasPersistable;
     }
 
     public List<EntityClassDef> getEntityClassDefs() {

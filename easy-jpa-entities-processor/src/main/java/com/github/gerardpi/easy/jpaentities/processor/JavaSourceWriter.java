@@ -53,9 +53,12 @@ class JavaSourceWriter implements AutoCloseable {
             fieldDef.getCollectionDef()
                     .ifPresent(collectionDef -> {
                         writeLine("/**");
-                        writeLine(" * CAUTION: If this collection is immutable.");
-                        writeLine(" * First replace it with a mutable copy using the setter and only then use this add method.");
-                        writeLine(" * If the collection contains nested objects, you probably want to create some algorithm specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
+                        writeLine(" * CAUTION: If the entity used to create the builder already contained this collection");
+                        writeLine(" * then that collection probably is immutable.");
+                        writeLine(" * Before using this add... method, first replace it with a mutable copy using the setter.");
+                        writeLine(" * and only then use this add... method.");
+                        writeLine(" * If the collection contains nested objects, you probably want to create some algorithm");
+                        writeLine(" * specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
                         writeLine(" */");
                         writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"));
                         writeBlockBeginln("if (this." + fieldDef.getName() + " == null)");

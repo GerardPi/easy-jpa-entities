@@ -81,9 +81,9 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     private void generateEntityClasses(PersistableDefs persistableDefs, String targetPackage, boolean includeConstructorWithParameters) {
         persistableDefs.getEntityClassDefs().forEach(classDef -> {
-            String entityFqn = targetPackage + "." + classDef.getName();
-            note(processingEnv, "Generating entity class " + entityFqn);
-            try (JavaSourceWriter writer = ProcessorUtils.createClassWriter(processingEnv, entityFqn)) {
+            String fqn = targetPackage + "." + classDef.getName();
+            note(processingEnv, "Generating entity class " + fqn);
+            try (JavaSourceWriter writer = ProcessorUtils.createClassWriter(processingEnv, fqn)) {
                 new EntityClassGenerator(classDef, targetPackage, includeConstructorWithParameters, persistableDefs.getIdClass()).write(writer);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -94,7 +94,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     private void generateMappedSuperclasses(String targetPackage, PersistableDefs persistableDefs) {
         MappedSuperclassGenerator mappedSuperclassGenerator = new MappedSuperclassGenerator(targetPackage);
 
-        if (persistableDefs.isWritePersistable()) {
+        if (persistableDefs.hasPersistable()) {
             note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE);
             String fqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
@@ -104,7 +104,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             }
         }
 
-        if (persistableDefs.isWriteOptLockablePersistable()) {
+        if (persistableDefs.hasOptLockablePersistable()) {
             note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE);
             String fqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {

@@ -38,7 +38,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
 
     @Test
     public void optimisticLockingVersionNumberIncreasesWithUpdates() {
-        when().a_person_is_created_$_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma");
+        when().person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma");
         then().that_$_$_has_ID_$(Person.class, 1, "00000000-1111-2222-3333-444444444444");
         then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 0);
         when().updating_a_person_$_with_first_name_$(1, "Klaas");
@@ -54,7 +54,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
 
     @Test
     public void personAddressCanBeUsedToLinkAPersonToAnAddress() {
-        given().a_person_is_created_$_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma")
+        given().person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma")
                 .and().creating_an_address_$_with_data_$_$_$_$_$(1, "NL", "Amsterdam", "1234AA", "Damstraat", "1");
         when().a_relation_is_created_$_between_person_$_and_address_$_with_types(1, 1, 1, Arrays.asList("RESIDENCE", "PROPERTY"));
         then().the_person_$_can_be_found_via_address_$_using_postal_code_$_and_house_number(1, 1, "NL" ,"1234AA", "1");
@@ -80,7 +80,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
             this.personRepository.deleteAll();
         }
 
-        State a_person_is_created_$_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
+        State person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
             Person person = Person.create(uuidGenerator.generate())
                     .setDateOfBirth(LocalDate.now())
                     .setNameFirst(nameFirst)
