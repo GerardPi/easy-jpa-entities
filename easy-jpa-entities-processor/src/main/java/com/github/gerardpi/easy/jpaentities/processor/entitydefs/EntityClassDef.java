@@ -3,11 +3,8 @@ package com.github.gerardpi.easy.jpaentities.processor.entitydefs;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.gerardpi.easy.jpaentities.processor.MappedSuperclassGenerator;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class EntityClassDef {
     private final String name;
@@ -44,9 +41,9 @@ public class EntityClassDef {
         return readOnly;
     }
 
-    public boolean isRewritable() {
+    public boolean isOptLockable() {
         if (extendsFromClass != null) {
-            return MappedSuperclassGenerator.CLASSNAME_REWRITABLE_PERSISTABLE.equals(extendsFromClass);
+            return MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE.equals(extendsFromClass);
         }
         return false;
     }

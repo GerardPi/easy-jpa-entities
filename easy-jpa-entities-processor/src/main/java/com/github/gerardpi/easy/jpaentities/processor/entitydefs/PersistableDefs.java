@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class PersistableDefs {
     private final Class<?> idClass;
     private final List<EntityClassDef> entityClassDefs;
-    private boolean writeRewritablePersistable;
+    private boolean writeOptLockablePersistable;
     private boolean writePersistable;
 
     @JsonCreator
@@ -24,11 +24,11 @@ public class PersistableDefs {
         @JsonProperty(value = "entityClassDefs", required = true) List<EntityClassDef> entityClassDefs) {
         this.entityClassDefs = entityClassDefs == null ? Collections.emptyList() : entityClassDefs;
 
-        List<EntityClassDef> rewritableEntityClassDefs = this.entityClassDefs.stream()
-                .filter(EntityClassDef::isRewritable)
+        List<EntityClassDef> optLockableClassDefs = this.entityClassDefs.stream()
+                .filter(EntityClassDef::isOptLockable)
                 .collect(Collectors.toList());
-        this.writeRewritablePersistable = !rewritableEntityClassDefs.isEmpty();
-        this.writePersistable = rewritableEntityClassDefs.size() != entityClassDefs.size();
+        this.writeOptLockablePersistable = !optLockableClassDefs.isEmpty();
+        this.writePersistable = optLockableClassDefs.size() != entityClassDefs.size();
 
         String classNameForId = idClass == null ? UUID.class.getName() : idClass;
         try {
@@ -46,8 +46,8 @@ public class PersistableDefs {
         return ImmutableMap.of("##_ID_CLASS_##", idClass.getSimpleName(), "##_ID_CLASS_WITH_PACKAGE_##", idClass.getName());
     }
 
-    public boolean isWriteRewritablePersistable() {
-        return writeRewritablePersistable;
+    public boolean isWriteOptLockablePersistable() {
+        return writeOptLockablePersistable;
     }
 
     public boolean isWritePersistable() {

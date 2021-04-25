@@ -28,7 +28,6 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        note(processingEnv, "Started " + getClass().getSimpleName());
         if (annotations.size() == 0) {
             return false;
         }
@@ -74,14 +73,16 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 
     private void generateClasses(PersistableDefs persistableDefs, String targetPackage, boolean includeConstructorWithParameters) {
+        note(processingEnv, "Generating entity classes ...");
         generateMappedSuperclasses(targetPackage, persistableDefs);
+        note(processingEnv, "Generating mapped superclasses ...");
         generateEntityClasses(persistableDefs, targetPackage, includeConstructorWithParameters);
     }
 
     private void generateEntityClasses(PersistableDefs persistableDefs, String targetPackage, boolean includeConstructorWithParameters) {
-        note(processingEnv, "Generating entity classes...");
         persistableDefs.getEntityClassDefs().forEach(classDef -> {
             String entityFqn = targetPackage + "." + classDef.getName();
+            note(processingEnv, "Generating entity class " + entityFqn);
             try (JavaSourceWriter writer = ProcessorUtils.createClassWriter(processingEnv, entityFqn)) {
                 new EntityClassGenerator(classDef, targetPackage, includeConstructorWithParameters, persistableDefs.getIdClass()).write(writer);
             } catch (IOException e) {
@@ -94,20 +95,20 @@ public class AnnotationProcessor extends AbstractProcessor {
         MappedSuperclassGenerator mappedSuperclassGenerator = new MappedSuperclassGenerator(targetPackage);
 
         if (persistableDefs.isWritePersistable()) {
-            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE + "...");
-            String persistableFqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
-            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, persistableFqn)) {
+            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE);
+            String fqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
+            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
                 mappedSuperclassGenerator.writePersistable(writer, persistableDefs);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
 
-        if (persistableDefs.isWriteRewritablePersistable()) {
-            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_REWRITABLE_PERSISTABLE + "...");
-            String rewritablePersistableFqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_REWRITABLE_PERSISTABLE;
-            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, rewritablePersistableFqn)) {
-                mappedSuperclassGenerator.writeRewritablePersistable(writer, persistableDefs);
+        if (persistableDefs.isWriteOptLockablePersistable()) {
+            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE);
+            String fqn = targetPackage + "." + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE;
+            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
+                mappedSuperclassGenerator.writeOptLockablePersistable(writer, persistableDefs);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

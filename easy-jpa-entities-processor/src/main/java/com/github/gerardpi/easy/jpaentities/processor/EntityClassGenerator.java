@@ -5,7 +5,6 @@ import com.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.UUID;
 
 public class EntityClassGenerator {
     private final EntityClassDef classDef;
@@ -34,7 +33,7 @@ public class EntityClassGenerator {
                 .writeEntityFieldDeclarations(classDef.getFieldDefs())
                 .writeConstructors(classDef, includeConstructorWithParameters)
                 .writeFieldGetters(classDef.getFieldDefs())
-                .writeToStringMethod(classDef.isRewritable(), classDef.getFieldDefs());
+                .writeToStringMethod(classDef.isOptLockable(), classDef.getFieldDefs());
 
         if (!classDef.isReadOnly()) {
             writeBuilderParts(writer);
@@ -49,10 +48,10 @@ public class EntityClassGenerator {
                 .writeBuilderFieldDeclarations(classDef.getFieldDefs())
                 .writeFieldDeclaration(classDef.getName(), "existing", true, Collections.emptyList())
                 .writeFieldDeclaration(idClass.getName(), "id", true, Collections.emptyList());
-        if (!classDef.isRewritable()) {
+        if (!classDef.isOptLockable()) {
             writer.writeFieldDeclaration("boolean", "isNew", true, Collections.emptyList());
         }
-        if (classDef.isRewritable()) {
+        if (classDef.isOptLockable()) {
             writer.writeFieldDeclaration(Integer.class.getName(), "optLockVersion", true, Collections.emptyList());
         }
         writer
@@ -60,11 +59,11 @@ public class EntityClassGenerator {
                 .writeBlockBeginln("private Builder(" + idClass.getName() + " id)")
                 .writeLine("this.id = java.util.Objects.requireNonNull(id);")
                 .writeLine("this.existing = null;");
-        if (!classDef.isRewritable()) {
+        if (!classDef.isOptLockable()) {
             writer.writeLine("this.isNew = true;");
         }
 
-        if (classDef.isRewritable()) {
+        if (classDef.isOptLockable()) {
             writer.writeLine("this.optLockVersion = null;");
         }
         writer
@@ -74,11 +73,11 @@ public class EntityClassGenerator {
                 .writeBlockBeginln("private Builder(" + classDef.getName() + " existing)")
                 .writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
                 .writeLine("this.id = existing.getId();");
-        if (!classDef.isRewritable()) {
+        if (!classDef.isOptLockable()) {
             writer.writeLine("this.isNew = false;");
         }
 
-        if (classDef.isRewritable()) {
+        if (classDef.isOptLockable()) {
             writer
                     .writeLine("this.optLockVersion = existing.getOptLockVersion();");
         }

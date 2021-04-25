@@ -6,7 +6,6 @@ import com.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -225,7 +224,7 @@ class JavaSourceWriter implements AutoCloseable {
 
     JavaSourceWriter writeConstructorUsingBuilder(EntityClassDef classDef) {
         writeBlockBeginln(classDef.getName() + "(Builder builder)");
-        writer.line(classDef.isRewritable() ? "super(builder.id, builder.optLockVersion);" : "super(builder.id, builder.isNew);");
+        writer.line(classDef.isOptLockable() ? "super(builder.id, builder.optLockVersion);" : "super(builder.id, builder.isNew);");
         writeAssignmentsInConstructor(classDef.getFieldDefs(), "this.", "builder.");
         writeBlockEnd();
         return this;

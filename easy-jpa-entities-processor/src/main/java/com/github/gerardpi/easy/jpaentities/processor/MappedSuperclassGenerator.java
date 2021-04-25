@@ -1,6 +1,5 @@
 package com.github.gerardpi.easy.jpaentities.processor;
 
-
 import com.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefs;
 
 import java.io.BufferedReader;
@@ -14,7 +13,7 @@ import java.util.Map;
 
 public class MappedSuperclassGenerator {
     public static final String CLASSNAME_PERSISTABLE = "Persistable";
-    public static final String CLASSNAME_REWRITABLE_PERSISTABLE = "RewritablePersistable";
+    public static final String CLASSNAME_OPT_LOCKABLE_PERSISTABLE = "OptLockablePersistable";
     private final String packageName;
 
     MappedSuperclassGenerator(String packageName) {
@@ -25,8 +24,8 @@ public class MappedSuperclassGenerator {
         write(CLASSNAME_PERSISTABLE + "-java.txt", writer, persistableDefs);
     }
 
-    void writeRewritablePersistable(LineWriter writer, PersistableDefs persistableDefs) {
-        write(CLASSNAME_REWRITABLE_PERSISTABLE + "-java.txt", writer, persistableDefs);
+    void writeOptLockablePersistable(LineWriter writer, PersistableDefs persistableDefs) {
+        write(CLASSNAME_OPT_LOCKABLE_PERSISTABLE + "-java.txt", writer, persistableDefs);
     }
 
     private void write(String resourceName, LineWriter writer, PersistableDefs persistableDefs) {
@@ -41,7 +40,7 @@ public class MappedSuperclassGenerator {
         }
     }
 
-    private String replace(String  line, PersistableDefs persistableDefs) {
+    private String replace(String line, PersistableDefs persistableDefs) {
         String result = line;
         for (Map.Entry<String, String> replacement : persistableDefs.getTagReplacementMap().entrySet()) {
             result = result.replace(replacement.getKey(), replacement.getValue());

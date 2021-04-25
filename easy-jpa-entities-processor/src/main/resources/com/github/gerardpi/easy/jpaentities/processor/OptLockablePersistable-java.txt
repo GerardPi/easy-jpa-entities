@@ -6,11 +6,11 @@ import javax.persistence.Version;
 import javax.persistence.MappedSuperclass;
 
 /**
- * This is a base class for JPA rewritable entities to be used in Spring-data.
+ * This is a base class for JPA Optimistic Lockable (= contains @Version field) entities to be used in Spring-data.
  * It has an optimistic locking field that is initially null and is incremented by the ORM.
  */
 @MappedSuperclass
-abstract class RewritablePersistable implements Serializable {
+abstract class OptLockablePersistable implements Serializable {
   public static final String PROPNAME_ID = "id";
   @Id
   private final ##_ID_CLASS_## id;
@@ -19,12 +19,12 @@ abstract class RewritablePersistable implements Serializable {
   @Version
   private final Integer optLockVersion;
 
-  RewritablePersistable(##_ID_CLASS_## id, Integer optLockVersion) {
+  OptLockablePersistable(##_ID_CLASS_## id, Integer optLockVersion) {
     this.id = id;
     this.optLockVersion = optLockVersion;
   }
 
-  RewritablePersistable() {
+  OptLockablePersistable() {
     // ORM requires this default constructor
     this.id = null;
     this.optLockVersion = null;
@@ -55,11 +55,11 @@ abstract class RewritablePersistable implements Serializable {
     if (this == otherObject) {
       return true;
     }
-    if (!(otherObject instanceof RewritablePersistable)) {
+    if (!(otherObject instanceof OptLockablePersistable)) {
       return false;
     }
 
-    RewritablePersistable otherEntity = (RewritablePersistable) otherObject;
+    OptLockablePersistable otherEntity = (OptLockablePersistable) otherObject;
     // Id is never null.
     return getId().equals(otherEntity.getId());
   }

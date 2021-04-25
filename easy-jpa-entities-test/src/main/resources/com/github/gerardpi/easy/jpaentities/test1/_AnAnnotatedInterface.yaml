@@ -1,7 +1,7 @@
 ---
 entityClassDefs:
   - name: "Address"
-    extendsFromClass: "RewritablePersistable"
+    extendsFromClass: "OptLockablePersistable"
     fieldDefs:
       - name: "countryCode"
         type: "java.lang.String"
@@ -16,7 +16,7 @@ entityClassDefs:
         type: "java.lang.String"
         notNull: true
   - name: "Person"
-    extendsFromClass: "RewritablePersistable"
+    extendsFromClass: "OptLockablePersistable"
     fieldDefs:
       - name: "nameFirst"
         type: "java.lang.String"
@@ -26,7 +26,7 @@ entityClassDefs:
       - name: "dateOfBirth"
         type: "java.time.LocalDate"
   - name: "PersonAddress"
-    extendsFromClass: "RewritablePersistable"
+    extendsFromClass: "OptLockablePersistable"
     fieldDefs:
       - name: "addressId"
         type: "java.util.UUID"
@@ -42,7 +42,7 @@ entityClassDefs:
         annotation: javax.persistence.Convert(converter = com.github.gerardpi.easy.jpaentities.test1.SortedPersonAddressTypeSetConverter.class)
         notNull: true
   - name: "Item"
-    extendsFromClass: "RewritablePersistable"
+    extendsFromClass: "OptLockablePersistable"
     fieldDefs:
       - name: "type"
         type: "ItemType"
@@ -65,7 +65,7 @@ entityClassDefs:
         annotation: "javax.persistence.Convert(converter = SortedStringSetConverter.class)"
         type: "java.util.SortedSet<String>"
   - name: "ItemOrder"
-    extendsFromClass: RewritablePersistable
+    extendsFromClass: OptLockablePersistable
     fieldDefs:
       - name: personId
         type: java.util.UUID

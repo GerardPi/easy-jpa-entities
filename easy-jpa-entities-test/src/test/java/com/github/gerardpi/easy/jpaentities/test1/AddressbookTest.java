@@ -112,7 +112,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
             return self();
         }
 
-        RewritablePersistable getEntity(Class<?> entityClass, int number) {
+        OptLockablePersistable getEntity(Class<?> entityClass, int number) {
             switch (entityClass.getSimpleName()) {
                 case "Person":
                     return personRepository.findById(savedPersons.get(number)).get();
