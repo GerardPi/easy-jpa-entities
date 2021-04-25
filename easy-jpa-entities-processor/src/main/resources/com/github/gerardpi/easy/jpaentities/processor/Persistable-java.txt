@@ -7,8 +7,7 @@ import javax.persistence.MappedSuperclass;
 
 /**
  * This is a base class for JPA write-once and read many times entities to be used in Spring-data.
- * It implements Spring's Persistable making it partly mutable.
- * This is not very nice, but there is no way around it, as far as I know.
+ * It implements Spring's Persistable so it can decide based on the isNew field to decide wether to use merge or persist.
  */
 @MappedSuperclass
 abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<##_ID_CLASS_##> {
