@@ -3,7 +3,7 @@
       
   
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.github.gerardpi</groupId>
+  <groupId>io.github.gerardpi</groupId>
   <artifactId>easy-jpa-entities</artifactId>
   <version>localbuild-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -15,8 +15,22 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
-  
 
+
+  <licenses>
+    <license>
+      <name>LGPL License</name>
+      <url>https://opensource.org/licenses/LGPL-3.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/GerardPi/easy-jpa-entities.git</connection>
+    <developerConnection>scm:git:ssh://github.com/GerardPi/easy-jpa-entities.git</developerConnection>
+    <url>https://github.com/GerardPi/easy-jpa-entities.git</url>
+    <tag>HEAD</tag>
+  </scm>
   
   <!--
   https://www.baeldung.com/maven-multi-module
@@ -34,3 +48,4 @@
     <module>easy-jpa-entities-test</module>
   </modules>
 </project>
+

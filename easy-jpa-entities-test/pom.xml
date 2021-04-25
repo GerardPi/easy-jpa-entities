@@ -2,13 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!--
-      <parent>
-        <artifactId>easy-jpa-entities</artifactId>
-        <groupId>com.github.gerardpi</groupId>
-        <version>localbuild-SNAPSHOT</version>
-      </parent>
-    -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.github.gerardpi.easy-jpa-entities</groupId>
+    <groupId>io.github.gerardpi.easy-jpa-entities</groupId>
     <artifactId>easy-jpa-entities-test</artifactId>
     <version>localbuild-SNAPSHOT</version>
 
@@ -57,7 +50,7 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.gerardpi.easy-jpa-entities</groupId>
+            <groupId>io.github.gerardpi.easy-jpa-entities</groupId>
             <artifactId>easy-jpa-entities-processor</artifactId>
             <version>localbuild-SNAPSHOT</version>
             <scope>compile</scope>
