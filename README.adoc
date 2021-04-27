@@ -39,6 +39,10 @@ Include the easy-jpa-entities artifact in your build. For example in Maven:
         </dependency>
 ....
 
+
+.This diagram indicates what is expected as input and what will be produced at build time
+image:doc/easy-jpa-entities-proces.svg[]
+
 Create an interface, and include a YAML file with the same name with the entity definitions.
 
 .Example:
