@@ -1,0 +1,9 @@
+name: "ItemOrder"
+extendsFromClass: OptLockablePersistable
+fieldDefs:
+  - name: personId
+    type: java.util.UUID
+    notNull: true
+  - name: orderLines
+    type: "java.util.List<ItemOrderLine>"
+    annotation: "javax.persistence.OneToMany(mappedBy = ItemOrderLine.PROPNAME_ID, orphanRemoval = true, cascade = javax.persistence.CascadeType.ALL)"

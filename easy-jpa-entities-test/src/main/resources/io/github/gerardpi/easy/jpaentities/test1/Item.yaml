@@ -1,0 +1,23 @@
+name: "Item"
+extendsFromClass: "OptLockablePersistable"
+fieldDefs:
+  - name: "type"
+    type: "ItemType"
+    notNull: true
+    annotation: javax.persistence.Enumerated(javax.persistence.EnumType.STRING)
+  - name: "name"
+    type: "java.lang.String"
+    notNull: true
+  - name: texts
+    annotations:
+      - "javax.persistence.Column(nullable = false, length = 4096)"
+      - "javax.persistence.Convert(converter = LocalizedTextsMapConverter.class)"
+    type: "java.util.SortedMap<Lang, java.util.SortedMap<ItemTextType, String>>"
+  - name: attributes
+    annotations:
+      - "javax.persistence.Column(nullable = false)"
+      - "javax.persistence.Convert(converter = AttributeKeyToStringMapConverter.class)"
+    type: "java.util.SortedMap<ItemAttributeKey, String>"
+  - name: imageNames
+    annotation: "javax.persistence.Convert(converter = SortedStringSetConverter.class)"
+    type: "java.util.SortedSet<String>"

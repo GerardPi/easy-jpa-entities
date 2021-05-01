@@ -1,6 +1,8 @@
 package io.github.gerardpi.easy.jpaentities.processor;
 
 import io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities;
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefNames;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefs;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -16,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import java.util.*;
 
 import static io.github.gerardpi.easy.jpaentities.processor.ProcessorUtils.error;
 
@@ -53,7 +55,10 @@ public class AnnotationProcessor extends AbstractProcessor {
                         easyJpaEntitiesAnnotation.targetPackage().length() > 0
                                 ? easyJpaEntitiesAnnotation.targetPackage()
                                 : element.getEnclosingElement().toString();
-                generate(yamlFile, targetPackage, easyJpaEntitiesAnnotation.includeConstructorWithParameters());
+                PersistableDefNames persistableDefNames = loadPersistableDefNames(yamlFile);
+                List<EntityClassDef> entityClassDefs = loadEntityClassDefs(persistableDefNames, targetPackage);
+                PersistableDefs persistableDefs = new PersistableDefs(UUID.class.getName(), entityClassDefs);
+                generateClasses(persistableDefs, targetPackage, easyJpaEntitiesAnnotation.includeConstructorWithParameters());
             } else {
                 ProcessorUtils.note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
             }
@@ -61,12 +66,28 @@ public class AnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void generate(FileObject inputYamlFileObject, String targetPackage, boolean includeConstructorWithParameters) {
+    private List<EntityClassDef> loadEntityClassDefs(PersistableDefNames persistableDefNames, String fullyQualifiedPackagename) {
+        List<EntityClassDef> entityClassDefs = new ArrayList<>();
+        for (String entityClassDefName : persistableDefNames.getEntityClassDefNames()) {
+            String yamlFileName = entityClassDefName + ".yaml";
+            FileObject yamlFileObject = ProcessorUtils.get(processingEnv, fullyQualifiedPackagename, yamlFileName)
+                    .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
+                entityClassDefs.add(PersistableDefsDeserializer.slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv));
+            } catch (IOException e) {
+                ProcessorUtils.error(processingEnv, "Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
+            }
+        }
+        return Collections.unmodifiableList(entityClassDefs);
+    }
+
+    private PersistableDefNames loadPersistableDefNames(FileObject inputYamlFileObject) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputYamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            PersistableDefs persistableDefs = PersistableDefsDeserializer.slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv);
-            generateClasses(persistableDefs, targetPackage, includeConstructorWithParameters);
+            return PersistableDefsDeserializer.slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv);
         } catch (IOException e) {
-            ProcessorUtils.error(processingEnv, "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'");
+            String msg = "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'";
+            ProcessorUtils.error(processingEnv, msg);
+            throw new IllegalStateException(msg);
         }
     }
 

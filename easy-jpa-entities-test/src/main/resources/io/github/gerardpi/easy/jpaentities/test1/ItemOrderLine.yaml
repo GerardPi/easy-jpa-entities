@@ -1,0 +1,15 @@
+name: "ItemOrderLine"
+extendsFromClass: Persistable
+fieldDefs:
+  - name: itemOrder
+    type: java.util.UUID
+    annotation: 'javax.persistence.JoinColumn(name = "item_order_id")'
+  - name: itemId
+    type: java.util.UUID
+    notNull: true
+  - name: count
+    type: java.lang.Integer
+  - name: currencyCode
+    type: java.lang.String
+  - name: amountPerItem
+    type: java.math.BigDecimal

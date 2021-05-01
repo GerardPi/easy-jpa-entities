@@ -1,0 +1,10 @@
+name: "Person"
+extendsFromClass: "OptLockablePersistable"
+fieldDefs:
+  - name: "nameFirst"
+    type: "java.lang.String"
+  - name: "nameLast"
+    type: "java.lang.String"
+    notNull: true
+  - name: "dateOfBirth"
+    type: "java.time.LocalDate"

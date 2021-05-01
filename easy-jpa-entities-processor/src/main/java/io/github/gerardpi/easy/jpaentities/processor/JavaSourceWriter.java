@@ -51,25 +51,30 @@ class JavaSourceWriter implements AutoCloseable {
             writer.line("return this;");
             writeBlockEnd();
             fieldDef.getCollectionDef()
-                    .ifPresent(collectionDef -> {
-                        writeLine("/**");
-                        writeLine(" * CAUTION: If the entity used to create the builder already contained this collection");
-                        writeLine(" * then that collection probably is immutable.");
-                        writeLine(" * Before using this add... method, first replace it with a mutable copy using the setter.");
-                        writeLine(" * and only then use this add... method.");
-                        writeLine(" * If the collection contains nested objects, you probably want to create some algorithm");
-                        writeLine(" * specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
-                        writeLine(" */");
-                        writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"));
-                        writeBlockBeginln("if (this." + fieldDef.getName() + " == null)");
-                        writer.line("this." + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();");
-                        writeBlockEnd();
-                        writer.line("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");");
-                        writer.line("return this;");
-                        writeBlockEnd();
-                    });
+                    .ifPresent(collectionDef -> writeBuilderAddToCollection(fieldDef, collectionDef));
         });
         return this;
+    }
+
+    void writeBuilderAddToCollection(EntityFieldDef fieldDef, CollectionDef collectionDef) {
+        if (collectionDef.isMappedSuperClass()) {
+        } else {
+            writeLine("/**");
+            writeLine(" * CAUTION: If the entity used to create the builder already contained this collection");
+            writeLine(" * then that collection probably is immutable.");
+            writeLine(" * Before using this add... method, first replace it with a mutable copy using the setter.");
+            writeLine(" * and only then use this add... method.");
+            writeLine(" * If the collection contains nested objects, you probably want to create some algorithm");
+            writeLine(" * specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
+            writeLine(" */");
+            writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"));
+            writeBlockBeginln("if (this." + fieldDef.getName() + " == null)");
+            writer.line("this." + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();");
+            writeBlockEnd();
+            writer.line("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");");
+            writer.line("return this;");
+            writeBlockEnd();
+        }
     }
 
     JavaSourceWriter emptyLine() {
