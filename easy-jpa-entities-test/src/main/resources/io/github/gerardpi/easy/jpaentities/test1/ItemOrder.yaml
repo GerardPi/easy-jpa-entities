@@ -4,6 +4,8 @@ fieldDefs:
   - name: personId
     type: java.util.UUID
     notNull: true
-  - name: orderLines
-    type: "java.util.List<ItemOrderLine>"
-    annotation: "javax.persistence.OneToMany(mappedBy = ItemOrderLine.PROPNAME_ID, orphanRemoval = true, cascade = javax.persistence.CascadeType.ALL)"
+  - name: itemOrderLines
+    type: java.util.List<ItemOrderLine>
+    annotations:
+      - 'javax.persistence.JoinColumn(name = "item_order_id")'
+      - 'javax.persistence.OneToMany(orphanRemoval = true, cascade = javax.persistence.CascadeType.ALL)'

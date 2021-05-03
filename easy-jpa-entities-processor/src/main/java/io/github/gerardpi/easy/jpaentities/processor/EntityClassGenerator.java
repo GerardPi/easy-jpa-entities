@@ -1,22 +1,28 @@
 package io.github.gerardpi.easy.jpaentities.processor;
 
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class EntityClassGenerator {
     private final EntityClassDef classDef;
     private final String targetPackage;
     private final boolean includeConstructorWithParameters;
     private final Class<?> idClass;
+    private final List<EntityClassDef> entityClassDefs;
 
-    public EntityClassGenerator(EntityClassDef classDef, String targetPackage, boolean includeConstructorWithParameters, Class<?> idClass) {
+    public EntityClassGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
         this.classDef = classDef;
-        this.targetPackage = targetPackage;
-        this.includeConstructorWithParameters = includeConstructorWithParameters;
-        this.idClass = idClass;
+        this.targetPackage = easyJpaEntitiesConfig.getTargetPackage();
+        this.includeConstructorWithParameters = easyJpaEntitiesConfig.isIncludeConstructorWithParameters();
+        this.entityClassDefs = easyJpaEntitiesConfig.getEntityClassDefs();
+        this.idClass = easyJpaEntitiesConfig.getIdClass();
     }
 
     public void write(JavaSourceWriter writer) {
@@ -42,17 +48,18 @@ public class EntityClassGenerator {
         writer.writeBlockEnd();
     }
     private void writeBuilderParts(JavaSourceWriter writer) {
+        List<String> otherEntityClassNames = entityClassDefs.stream().map(EntityClassDef::getName).collect(Collectors.toList());
         writer
                 .writeCreateAndModifyWithBuilderMethods(idClass)
                 .writeBlockBeginln("public static class Builder")
-                .writeBuilderFieldDeclarations(classDef.getFieldDefs())
-                .writeFieldDeclaration(classDef.getName(), "existing", true, Collections.emptyList())
-                .writeFieldDeclaration(idClass.getName(), "id", true, Collections.emptyList());
+                .writeBuilderFieldDeclarations(classDef.getFieldDefs(), otherEntityClassNames)
+                .writeFieldDeclarationWithoutPropName(new EntityFieldDef("existing", classDef.getName()), true, otherEntityClassNames, true)
+                .writeFieldDeclarationWithoutPropName(new EntityFieldDef("id", idClass.getName()), true, otherEntityClassNames, true);
         if (!classDef.isOptLockable()) {
-            writer.writeFieldDeclaration("boolean", "isNew", true, Collections.emptyList());
+            writer.writeFieldDeclarationWithoutPropName(new EntityFieldDef("isNew", "boolean"), true, otherEntityClassNames, true);
         }
         if (classDef.isOptLockable()) {
-            writer.writeFieldDeclaration(Integer.class.getName(), "optLockVersion", true, Collections.emptyList());
+            writer.writeFieldDeclarationWithoutPropName(new EntityFieldDef("optLockVersion" , Integer.class.getName()), true, otherEntityClassNames, true);
         }
         writer
                 .emptyLine()
@@ -81,12 +88,11 @@ public class EntityClassGenerator {
             writer
                     .writeLine("this.optLockVersion = existing.getOptLockVersion();");
         }
-        writer.writeAssignmentsInBuilderConstructor(classDef.getFieldDefs(), "this.", "existing.");
+        writer.writeAssignmentsInBuilderConstructor(classDef.getFieldDefs(), "this.", "existing.", otherEntityClassNames);
         writer.writeBlockEnd();
         writer.emptyLine();
         writer.writeBuilderSetters(classDef);
         writer.writeBuilderBuildMethod(classDef);
         writer.writeBlockEnd();
     }
-
 }

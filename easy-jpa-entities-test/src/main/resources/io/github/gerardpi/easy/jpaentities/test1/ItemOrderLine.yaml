@@ -1,9 +1,6 @@
 name: "ItemOrderLine"
 extendsFromClass: Persistable
 fieldDefs:
-  - name: itemOrder
-    type: java.util.UUID
-    annotation: 'javax.persistence.JoinColumn(name = "item_order_id")'
   - name: itemId
     type: java.util.UUID
     notNull: true

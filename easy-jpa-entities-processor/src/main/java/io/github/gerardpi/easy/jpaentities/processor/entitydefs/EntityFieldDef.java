@@ -16,6 +16,10 @@ public class EntityFieldDef {
     private final boolean notNull;
     private final CollectionDef collectionDef;
 
+    public EntityFieldDef(String name, String type) {
+        this(name, null, type, null, Collections.emptyList(), false);
+    }
+
     @JsonCreator
     public EntityFieldDef(@JsonProperty(value = "name", required = true) String name,
                           @JsonProperty(value = "singular") String singular,

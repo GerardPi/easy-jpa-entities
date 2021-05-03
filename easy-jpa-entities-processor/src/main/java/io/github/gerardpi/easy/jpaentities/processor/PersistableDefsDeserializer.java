@@ -3,8 +3,7 @@ package io.github.gerardpi.easy.jpaentities.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
-import io.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefNames;
-import io.github.gerardpi.easy.jpaentities.processor.entitydefs.PersistableDefs;
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import java.io.IOException;
@@ -24,27 +23,13 @@ public final class PersistableDefsDeserializer {
         YAMLFactory yamlFactory = new YAMLFactory();
         return new ObjectMapper(yamlFactory);
     }
-    static PersistableDefs slurpFromYamlOrig(Reader reader, String yamlFileName, ProcessingEnvironment procEnv) {
-        try {
-            PersistableDefs persistableDefs = createYamlObjectMapper().readValue(reader, PersistableDefs.class);
-            note(procEnv, "Loaded persistable defs from file '" + yamlFileName + "'");
-            List<String> entityClassNames = persistableDefs.getEntityClassDefs().stream()
-                    .map(EntityClassDef::getName)
-                    .collect(Collectors.toList());
-            note(procEnv, "It contains " + entityClassNames.size() + " persistable class defs: " + entityClassNames);
-            return persistableDefs;
-        } catch (IOException e) {
-            error(procEnv, "Error loading persistable defs from file '" + yamlFileName + "': " + e.getMessage());
-            throw new UncheckedIOException(e);
-        }
-    }
 
-    static PersistableDefNames slurpFromYaml(Reader reader, String yamlFileName, ProcessingEnvironment procEnv) {
+    static EasyJpaEntitiesConfig slurpFromYaml(Reader reader, String yamlFileName, ProcessingEnvironment procEnv) {
         try {
-            PersistableDefNames persistableDefNames = createYamlObjectMapper().readValue(reader, PersistableDefNames.class);
+            EasyJpaEntitiesConfig easyJpaEntitiesConfig = createYamlObjectMapper().readValue(reader, EasyJpaEntitiesConfig.class);
             note(procEnv, "Loading persistable defs reading file '" + yamlFileName + "'");
-            note(procEnv, "It contains " + persistableDefNames.getEntityClassDefNames().size() + " persistable class defs: " + persistableDefNames.getEntityClassDefNames());
-            return persistableDefNames;
+            note(procEnv, "It contains " + easyJpaEntitiesConfig.getEntityClassDefNames().size() + " persistable class defs: " + easyJpaEntitiesConfig.getEntityClassDefNames());
+            return easyJpaEntitiesConfig;
         } catch (IOException e) {
             error(procEnv, "Error loading persistable defs from file '" + yamlFileName + "': " + e.getMessage());
             throw new UncheckedIOException(e);

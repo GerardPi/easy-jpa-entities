@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 class JavaSourceWriter implements AutoCloseable {
@@ -57,24 +58,21 @@ class JavaSourceWriter implements AutoCloseable {
     }
 
     void writeBuilderAddToCollection(EntityFieldDef fieldDef, CollectionDef collectionDef) {
-        if (collectionDef.isMappedSuperClass()) {
-        } else {
-            writeLine("/**");
-            writeLine(" * CAUTION: If the entity used to create the builder already contained this collection");
-            writeLine(" * then that collection probably is immutable.");
-            writeLine(" * Before using this add... method, first replace it with a mutable copy using the setter.");
-            writeLine(" * and only then use this add... method.");
-            writeLine(" * If the collection contains nested objects, you probably want to create some algorithm");
-            writeLine(" * specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
-            writeLine(" */");
-            writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"));
-            writeBlockBeginln("if (this." + fieldDef.getName() + " == null)");
-            writer.line("this." + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();");
-            writeBlockEnd();
-            writer.line("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");");
-            writer.line("return this;");
-            writeBlockEnd();
-        }
+        writeLine("/**");
+        writeLine(" * CAUTION: If the entity used to create the builder already contained this collection");
+        writeLine(" * then that collection probably is immutable.");
+        writeLine(" * Before using this add... method, first replace it with a mutable copy using the setter.");
+        writeLine(" * and only then use this add... method.");
+        writeLine(" * If the collection contains nested objects, you probably want to create some algorithm");
+        writeLine(" * specifically to make it possible to manipulate it and then use the setter to put it into the builder.");
+        writeLine(" */");
+        writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"));
+        writeBlockBeginln("if (this." + fieldDef.getName() + " == null)");
+        writer.line("this." + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();");
+        writeBlockEnd();
+        writer.line("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");");
+        writer.line("return this;");
+        writeBlockEnd();
     }
 
     JavaSourceWriter emptyLine() {
@@ -82,26 +80,44 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    JavaSourceWriter writeFieldDeclaration(String fieldType, String fieldName, boolean isFinal, List<String> annotations) {
-        writer.line("public static final String PROPNAME_" + fieldName.toUpperCase() + " = " + quoted(fieldName) + ";");
-        annotations.forEach(annotation -> {
-            writer.line("@" + annotation);
-        });
-        String prefix = isFinal ? "private final " : "private ";
-        writer.line(prefix + fieldType + " " + fieldName + ";");
+    JavaSourceWriter writeFieldDeclaration(EntityFieldDef entityFieldDef, boolean isFinal, List<String> otherEntityClassNames) {
+        writer.line("public static final String PROPNAME_" + entityFieldDef.getName().toUpperCase() + " = " + quoted(entityFieldDef.getName()) + ";");
+        entityFieldDef.getAnnotations().forEach(annotation -> writer.line("@" + annotation));
+        return writeFieldDeclarationWithoutPropName(entityFieldDef, isFinal, otherEntityClassNames, false);
+    }
+
+    JavaSourceWriter writeFieldDeclarationWithoutPropName(EntityFieldDef entityFieldDef, boolean isFinal, List<String> otherEntityClassNames, boolean forBuilder) {
+        if (forBuilder) {
+            Optional<CollectionDef> optCollectionDef = entityFieldDef.getCollectionDef();
+            if (optCollectionDef.isPresent()) {
+                CollectionDef collectionDef = optCollectionDef.get();
+                if (otherEntityClassNames.contains(collectionDef.getCollectedType())) {
+                    String type = collectionDef.getCollectionType() + "<" + collectionDef.getCollectedType() + "." + "Builder>";
+                    String name = unCapitalize(collectionDef.getCollectedType()) + "Builders";
+                    writer.line("private final " + type + " " + name + ";");
+                }
+            } else {
+                String prefix = isFinal ? "private final " : "private ";
+                writer.line(prefix + entityFieldDef.getType() + " " + entityFieldDef.getName() + ";");
+            }
+        } else {
+            String prefix = isFinal ? "private final " : "private ";
+            writer.line(prefix + entityFieldDef.getType() + " " + entityFieldDef.getName() + ";");
+        }
         return this;
     }
 
     JavaSourceWriter writeEntityFieldDeclarations(List<EntityFieldDef> fieldDefs) {
-        fieldDefs.forEach(fieldDef -> writeFieldDeclaration(fieldDef.getType(), fieldDef.getName(), true, fieldDef.getAnnotations()));
+        fieldDefs.forEach(fieldDef -> writeFieldDeclaration(fieldDef, false, Collections.emptyList()));
         return this;
     }
 
-    JavaSourceWriter writeBuilderFieldDeclarations(List<EntityFieldDef> fieldDefs) {
-        fieldDefs.forEach(fieldDef -> writeFieldDeclaration(fieldDef.getType(), fieldDef.getName(), false, Collections.emptyList()));
+    JavaSourceWriter writeBuilderFieldDeclarations(List<EntityFieldDef> fieldDefs, List<String> otherEntityClassNames) {
+        fieldDefs.forEach(fieldDef ->
+                writeFieldDeclarationWithoutPropName(fieldDef, false, otherEntityClassNames, true)
+        );
         return this;
     }
-
 
     JavaSourceWriter writeCreateAndModifyWithBuilderMethods(Class<?> idClass) {
         writeBlockBeginln("public static Builder create(" + idClass.getName() + " id)");
@@ -126,6 +142,18 @@ class JavaSourceWriter implements AutoCloseable {
         return "";
     }
 
+    String unCapitalize(String part) {
+        if (part != null) {
+            if (part.length() > 1) {
+                return Character.toString(part.charAt(0)).toLowerCase()
+                        + part.substring(1);
+            } else {
+                return part.toUpperCase();
+            }
+        }
+        return "";
+    }
+
     JavaSourceWriter writeFieldGetters(List<EntityFieldDef> fieldDefs) {
         fieldDefs.forEach(fieldDef -> {
             writeMethodSignature(fieldDef.getType(), "get" + capitalize(fieldDef.getName()));
@@ -135,8 +163,8 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    JavaSourceWriter assign(String assigneeFieldName, String valueFieldName) {
-        return assign("", assigneeFieldName, "", valueFieldName);
+    JavaSourceWriter assign(EntityFieldDef fieldDef) {
+        return assign(THIS_PREFIX, fieldDef.getName(), "", "null");
     }
 
     JavaSourceWriter assign(String assigneePrefix, String assigneeFieldName, String assignedFieldPrefix, String valueFieldName) {
@@ -149,8 +177,13 @@ class JavaSourceWriter implements AutoCloseable {
         fieldDefs.forEach(fieldDef -> assign(assigneePrefix, assignedValuePrefix, fieldDef, true));
         return this;
     }
-    JavaSourceWriter writeAssignmentsInBuilderConstructor(List<EntityFieldDef> fieldDefs, String assigneePrefix, String assignedValuePrefix) {
-        fieldDefs.forEach(fieldDef -> assign(assigneePrefix, assignedValuePrefix, fieldDef, false));
+
+    JavaSourceWriter writeAssignmentsInBuilderConstructor(
+            List<EntityFieldDef> fieldDefs,
+            String assigneePrefix,
+            String assignedValuePrefix,
+            List<String> otherClassNames) {
+        fieldDefs.forEach(fieldDef -> builderAssign(assigneePrefix, assignedValuePrefix, fieldDef, false, otherClassNames));
         return this;
     }
 
@@ -171,6 +204,30 @@ class JavaSourceWriter implements AutoCloseable {
         }
         throw new IllegalArgumentException("No idea what to do with a collection of type '" + fieldDef.getCollectionDef().get().getCollectionType() + "'.");
     }
+    JavaSourceWriter writeAssignmentsToNull(List<EntityFieldDef> fieldDefs) {
+        fieldDefs.forEach(fieldDef -> assign(fieldDef));
+        return this;
+    }
+
+    JavaSourceWriter builderAssign(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, boolean assignedValueMustBeImmutable, List<String> otherClassNames) {
+        if (entityFieldDef.getCollectionDef().isPresent()) {
+            CollectionDef collectionDef = entityFieldDef.getCollectionDef().get();
+            if (otherClassNames.contains(collectionDef.getCollectedType())) {
+                writeCollectionToBuilders(assigneePrefix, assignedFieldPrefix, entityFieldDef, collectionDef);
+            } else {
+                writer.line(assigneePrefix + entityFieldDef.getName() + " = " + immutable(assignedFieldPrefix, entityFieldDef, assignedValueMustBeImmutable) + ";");
+            }
+        } else {
+            writer.line(assigneePrefix + entityFieldDef.getName() + " = " + assignedFieldPrefix + entityFieldDef.getName() + ";");
+        }
+        return this;
+    }
+
+    JavaSourceWriter writeCollectionToBuilders(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, CollectionDef collectionDef) {
+        writer.line(assigneePrefix + unCapitalize(collectionDef.getCollectedType()) + "Builders = " + assignedFieldPrefix + entityFieldDef.getName() +
+                        ".stream().map(e -> e.modify()).collect(java.util.stream.Collectors.toList());");
+        return this;
+    }
 
     JavaSourceWriter assign(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, boolean assignedValueMustBeImmutable) {
         if (entityFieldDef.getCollectionDef().isPresent()) {
@@ -182,10 +239,6 @@ class JavaSourceWriter implements AutoCloseable {
     }
 
 
-    JavaSourceWriter writeAssignmentsToNull(List<EntityFieldDef> fieldDefs) {
-        fieldDefs.forEach(fieldDef -> assign(THIS_PREFIX + fieldDef.getName(), "null"));
-        return this;
-    }
 
     private String methodParameterDeclarations(List<EntityFieldDef> fieldDefs) {
         return fieldDefs.stream()

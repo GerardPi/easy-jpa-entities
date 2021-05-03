@@ -63,8 +63,4 @@ public class CollectionDef {
         return SUPPORTED_COLLECTIONS.keySet().stream()
                 .anyMatch(type::startsWith);
     }
-
-    public boolean isMappedSuperClass() {
-        return false;
-    }
 }
