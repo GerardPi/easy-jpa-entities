@@ -334,4 +334,13 @@ class JavaSourceWriter implements AutoCloseable {
         }
         return this;
     }
+
+    public JavaSourceWriter incIndentation() {
+        writer.incIndentation();
+        return this;
+    }
+    public JavaSourceWriter decIndentation() {
+        writer.decIndentation();
+        return this;
+    }
 }
