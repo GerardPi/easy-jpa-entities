@@ -9,7 +9,5 @@ fieldDefs:
     notNull: true
   - name: count
     type: java.lang.Integer
-  - name: currencyCode
-    type: java.lang.String
   - name: amountPerItem
     type: java.math.BigDecimal

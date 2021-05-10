@@ -61,11 +61,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: currency_code
-                  type: VARCHAR(3)
-                  constraints:
-                    nullable: false
-              - column:
                   name: amount_per_item
                   type: DECIMAL
                   constraints:

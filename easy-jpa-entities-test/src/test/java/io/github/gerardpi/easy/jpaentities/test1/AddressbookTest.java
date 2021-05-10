@@ -60,9 +60,6 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
 
     static class State extends Stage<State> {
         private final SavedEntities savedEntities = new SavedEntities();
-//        private final SortedMap<Integer, UUID> savedPersons = new TreeMap<>();
-//        private final SortedMap<Integer, UUID> savedAddresses = new TreeMap<>();
-//        private final SortedMap<Integer, UUID> savedPersonAddresses = new TreeMap<>();
         private Repositories repositories;
         private UuidGenerator uuidGenerator;
 
