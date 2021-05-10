@@ -8,3 +8,4 @@ fieldDefs:
     notNull: true
   - name: "dateOfBirth"
     type: "java.time.LocalDate"
+    annotation: javax.persistence.Column(columnDefinition = "DATE")

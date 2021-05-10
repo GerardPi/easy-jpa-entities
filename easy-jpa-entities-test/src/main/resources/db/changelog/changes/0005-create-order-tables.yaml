@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 20210308005
+      id: '20210308005'
       author: gerardpi
       changes:
         - createTable:
@@ -15,6 +15,14 @@ databaseChangeLog:
               - column:
                   name: person_id
                   type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(256)
+              - column:
+                  name: date_time
+                  type: 'TIMESTAMP WITH TIME ZONE'
                   constraints:
                     nullable: false
               - column:
@@ -60,6 +68,11 @@ databaseChangeLog:
               - column:
                   name: amount_per_item
                   type: DECIMAL
+                  constraints:
+                    nullable: false
+              - column:
+                  name: opt_lock_version
+                  type: Integer
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:

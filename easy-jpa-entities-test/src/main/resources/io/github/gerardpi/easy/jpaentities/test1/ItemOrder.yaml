@@ -4,8 +4,9 @@ fieldDefs:
   - name: personId
     type: java.util.UUID
     notNull: true
-  - name: itemOrderLines
-    type: java.util.List<ItemOrderLine>
-    annotations:
-      - 'javax.persistence.JoinColumn(name = "item_order_id")'
-      - 'javax.persistence.OneToMany(orphanRemoval = true, cascade = javax.persistence.CascadeType.ALL)'
+  - name: description
+    type: java.lang.String
+  - name: dateTime
+    type: "java.time.OffsetDateTime"
+    notNull: true
+    annotation: javax.persistence.Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")

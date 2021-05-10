@@ -21,11 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     @Autowired
-    private PersonRepository personRepository;
-    @Autowired
-    private AddressRepository addressRepository;
-    @Autowired
-    private PersonAddressRepository personAddressRepository;
+    private Repositories repositories;
     @Autowired
     private UuidGenerator uuidGenerator;
     @ScenarioStage
@@ -34,7 +30,8 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     @BeforeEach
     public void init() {
         ((FixedUuidSeriesGenerator) uuidGenerator).reset();
-        state.init(uuidGenerator, personAddressRepository, addressRepository, personRepository);
+        // Repositories repositories = new Repositories(personRepository, addressRepository, personAddressRepository, itemRepository, itemOrderRepository, itemOrderLineRepository);
+        state.init(uuidGenerator, repositories);
     }
 
     @Test
@@ -62,23 +59,18 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     }
 
     static class State extends Stage<State> {
-        private final SortedMap<Integer, UUID> savedPersons = new TreeMap<>();
-        private final SortedMap<Integer, UUID> savedAddresses = new TreeMap<>();
-        private final SortedMap<Integer, UUID> savedPersonAddresses = new TreeMap<>();
-        private AddressRepository addressRepository;
-        private PersonRepository personRepository;
-        private PersonAddressRepository personAddressRepository;
+        private final SavedEntities savedEntities = new SavedEntities();
+//        private final SortedMap<Integer, UUID> savedPersons = new TreeMap<>();
+//        private final SortedMap<Integer, UUID> savedAddresses = new TreeMap<>();
+//        private final SortedMap<Integer, UUID> savedPersonAddresses = new TreeMap<>();
+        private Repositories repositories;
         private UuidGenerator uuidGenerator;
 
         @Hidden
-        void init(UuidGenerator uuidGenerator, PersonAddressRepository personAddressRepository, AddressRepository addressRepository, PersonRepository personRepository) {
+        void init(UuidGenerator uuidGenerator, Repositories repositories) {
             this.uuidGenerator = uuidGenerator;
-            this.addressRepository = addressRepository;
-            this.personRepository = personRepository;
-            this.personAddressRepository = personAddressRepository;
-            this.personAddressRepository.deleteAll();
-            this.addressRepository.deleteAll();
-            this.personRepository.deleteAll();
+            this.repositories = repositories;
+            repositories.clear();
         }
 
         State person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
@@ -87,19 +79,19 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
                     .setNameFirst(nameFirst)
                     .setNameLast(nameLast)
                     .build();
-            this.savedPersons.put(number, personRepository.save(person).getId());
+            this.savedEntities.putPersonId(number, repositories.getPersonRepository().save(person).getId());
             return self();
         }
 
-        State that_$_$_has_ID_$(Class<?> entityClass, int number, @Quoted String expectedId) {
+        <T> State that_$_$_has_ID_$(Class<T> entityClass, int number, @Quoted String expectedId) {
             switch (entityClass.getSimpleName()) {
                 case "Person":
-                    Person person = personRepository.findById(savedPersons.get(number)).get();
-                    assertThat(this.savedPersons.get(number).toString()).isEqualTo(expectedId);
+                    Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
+                    assertThat(this.savedEntities.getPersonId(number).toString()).isEqualTo(expectedId);
                     break;
                 case "Address":
-                    Address address = addressRepository.findById(savedAddresses.get(number)).get();
-                    assertThat(this.savedAddresses.get(number).toString()).isEqualTo(expectedId);
+                    Address address = repositories.getAddressRepository().findById(savedEntities.getAddressId(number)).get();
+                    assertThat(this.savedEntities.getAddressId(number).toString()).isEqualTo(expectedId);
                     break;
                 default:
                     throw new IllegalStateException("No clue what to do");
@@ -116,11 +108,11 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         OptLockablePersistable getEntity(Class<?> entityClass, int number) {
             switch (entityClass.getSimpleName()) {
                 case "Person":
-                    return personRepository.findById(savedPersons.get(number)).get();
+                    return repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
                 case "Address":
-                    return addressRepository.findById(savedAddresses.get(number)).get();
+                    return repositories.getAddressRepository().findById(savedEntities.getAddressId(number)).get();
                 case "PersonAddress":
-                    return personAddressRepository.findById(savedPersonAddresses.get(number)).get();
+                    return repositories.getPersonAddressRepository().findById(savedEntities.getPersonAddressId(number)).get();
                 default:
                     throw new IllegalStateException("Don't know entity class '" + entityClass.getName() + "'");
             }
@@ -140,21 +132,21 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
                     .setStreet(street)
                     .setHouseNumber(houseNumber)
                     .build();
-            this.savedAddresses.put(number, addressRepository.save(address).getId());
+            this.savedEntities.putAddressId(number, repositories.getAddressRepository().save(address).getId());
             return self();
         }
 
         State updating_a_person_$_with_first_name_$(int number, @Quoted String newNameFirst) {
-            Person person = personRepository.findById(savedPersons.get(number)).get();
-            personRepository.save(person.modify().setNameFirst(newNameFirst).build());
+            Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
+            repositories.getPersonRepository().save(person.modify().setNameFirst(newNameFirst).build());
             return self();
         }
 
         State updating_an_address_$_with_$_$(int number, @Quoted String propName, @Quoted String newValue) {
-            Address address = addressRepository.findById(savedAddresses.get(number)).get();
+            Address address = repositories.getAddressRepository().findById(savedEntities.getAddressId(number)).get();
             switch (propName) {
                 case "postalCode":
-                    addressRepository.save(address.modify().setPostalCode(newValue).build());
+                    repositories.getAddressRepository().save(address.modify().setPostalCode(newValue).build());
                     break;
                 default:
                     throw new IllegalStateException("No clue what to do");
@@ -166,24 +158,24 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
                 @Quoted int personAddressNumber,
                 @Quoted int personNumber, @Quoted int addressNumber, @Quoted List<String> personAddressTypes) {
             PersonAddress.Builder builder = PersonAddress.create(uuidGenerator.generate())
-                    .setPersonId(savedPersons.get(personNumber))
-                    .setAddressId(savedAddresses.get(addressNumber));
+                    .setPersonId(savedEntities.getPersonId(personNumber))
+                    .setAddressId(savedEntities.getAddressId(addressNumber));
             personAddressTypes.forEach(type -> builder.addType(PersonAddressType.valueOf(type)));
-            PersonAddress personAddress = personAddressRepository.save(builder.build());
-            savedPersonAddresses.put(personAddressNumber, personAddress.getId());
+            PersonAddress personAddress = repositories.getPersonAddressRepository().save(builder.build());
+            savedEntities.putPersonAddressId(personAddressNumber, personAddress.getId());
             return self();
         }
 
         State the_person_$_can_be_found_via_address_$_using_postal_code_$_and_house_number(
                 @Quoted int personNumber, @Quoted int addressNumber, @Quoted String countryCode, @Quoted String postalCode, @Quoted String houseNumber) {
-            Address address = addressRepository.findByCountryCodeAndPostalCodeAndHouseNumber(countryCode, postalCode, houseNumber).get();
-            assertThat(savedAddresses.get(addressNumber)).isEqualTo(address.getId());
+            Address address = repositories.getAddressRepository().findByCountryCodeAndPostalCodeAndHouseNumber(countryCode, postalCode, houseNumber).get();
+            assertThat(savedEntities.getAddressId(addressNumber)).isEqualTo(address.getId());
 
-            List<PersonAddress> personAddresses = personAddressRepository.findByAddressId(address.getId());
+            List<PersonAddress> personAddresses = repositories.getPersonAddressRepository().findByAddressId(address.getId());
             Assertions.assertThat(personAddresses).hasSize(1);
             PersonAddress personAddress = personAddresses.get(0);
-            Person person = personRepository.findById(personAddress.getPersonId()).get();
-            assertThat(savedPersons.get(personNumber)).isEqualTo(person.getId());
+            Person person = repositories.getPersonRepository().findById(personAddress.getPersonId()).get();
+            assertThat(savedEntities.getPersonId(personNumber)).isEqualTo(person.getId());
             return self();
         }
 

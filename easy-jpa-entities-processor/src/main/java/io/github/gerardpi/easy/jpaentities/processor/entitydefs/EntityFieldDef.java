@@ -8,6 +8,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
+
 public class EntityFieldDef {
     private final String name;
     private final String singular;
@@ -77,8 +79,16 @@ public class EntityFieldDef {
         return notNull;
     }
 
-    public Optional<CollectionDef> getCollectionDef() {
+    public Optional<CollectionDef> fetchCollectionDef() {
         return Optional.ofNullable(this.collectionDef);
+    }
+
+    public CollectionDef getCollectionDef() {
+        return this.collectionDef;
+    }
+
+    public boolean isCollection() {
+        return this.collectionDef != null;
     }
 
     public static void main(String[] args) {
@@ -88,5 +98,9 @@ public class EntityFieldDef {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getCollectedType() {
+        return requireNonNull(collectionDef).getCollectedType();
     }
 }

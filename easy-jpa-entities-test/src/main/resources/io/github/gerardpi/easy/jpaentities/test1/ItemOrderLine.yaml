@@ -1,7 +1,10 @@
 name: "ItemOrderLine"
-extendsFromClass: Persistable
+extendsFromClass: OptLockablePersistable
 fieldDefs:
   - name: itemId
+    type: java.util.UUID
+    notNull: true
+  - name: itemOrderId
     type: java.util.UUID
     notNull: true
   - name: count
