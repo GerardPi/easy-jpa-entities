@@ -96,7 +96,13 @@ class JavaSourceWriter implements AutoCloseable {
     }
 
     JavaSourceWriter writeAssignmentsToNull(List<EntityFieldDef> fieldDefs) {
-        fieldDefs.forEach(fieldDef -> assignNull(fieldDef));
+        fieldDefs.forEach(fieldDef -> {
+            if (!fieldDef.isWriteOnce()) {
+                assignNull(fieldDef);
+            } else {
+                assign(THIS_PREFIX, fieldDef.getName(), "", fieldDef.getName());
+            }
+        });
         return this;
     }
 

@@ -13,6 +13,11 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
+                  name: friendly_id
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
                   name: type
                   type: varchar(10)
                   constraints:

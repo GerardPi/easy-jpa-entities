@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,10 +40,12 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         when().person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma");
         then().that_$_$_has_ID_$(Person.class, 1, "00000000-1111-2222-3333-444444444444");
         then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 0);
-        when().updating_a_person_$_with_first_name_$(1, "Klaas");
-        then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 1);
+        when().updating_a_person_$_with_first_name_$(1, "Klaas")
+                .and()
+                .updating_a_person_$_with_date_of_birth_$(1, "1985-01-01");
+        then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 2).and().the_person_with_key_$_has_date_of_birth_$(1,"1985-01-01");
         when().updating_a_person_$_with_first_name_$(1, "Piet");
-        then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 2);
+        then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 3);
         when().creating_an_address_$_with_data_$_$_$_$_$(1, "NL", "Amsterdam", "1234AA", "Damstraat", "1");
         then().that_$_$_has_ID_$(Address.class, 1, "00000001-1111-2222-3333-444444444444")
                 .and().that_$_with_number_$_has_optimistic_locking_version_number_$(Address.class, 1, 0);
@@ -136,6 +139,17 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         State updating_a_person_$_with_first_name_$(int number, @Quoted String newNameFirst) {
             Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
             repositories.getPersonRepository().save(person.modify().setNameFirst(newNameFirst).build());
+            return self();
+        }
+
+        State updating_a_person_$_with_date_of_birth_$(int personKey, String newDateOfBirth) {
+            Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(personKey)).get();
+            repositories.getPersonRepository().save(person.modify().setDateOfBirth(LocalDate.parse(newDateOfBirth, DateTimeFormatter.ISO_DATE)).build());
+            return self();
+        }
+        State the_person_with_key_$_has_date_of_birth_$(int personKey, String expectedDateOfBirth) {
+            Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(personKey)).get();
+            assertThat(person.getDateOfBirth()).isEqualTo(LocalDate.parse(expectedDateOfBirth, DateTimeFormatter.ISO_DATE));
             return self();
         }
 

@@ -86,7 +86,7 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
         }
 
         State an_item_$_with_name_$(int itemNumber, @Quoted String name) {
-            Item item = Item.create(uuidGenerator.generate())
+            Item item = Item.create(uuidGenerator.generate(), "CHS01")
                     .setName(name)
                     .setImageNames(new TreeSet<>())
                     .setAttributes(new TreeMap<>())

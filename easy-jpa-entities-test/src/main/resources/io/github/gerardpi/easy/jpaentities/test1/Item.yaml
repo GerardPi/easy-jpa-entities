@@ -1,6 +1,10 @@
 name: "Item"
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
+  - name: "friendlyId"
+    type: "java.lang.String"
+    notNull: true
+    writeOnce: true
   - name: "type"
     type: "ItemType"
     notNull: true

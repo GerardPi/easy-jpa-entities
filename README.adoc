@@ -14,13 +14,13 @@ What you should add yourself:: YAML file that contains definitions for your enti
 After usage:: The easy-jpa-entities-processor dependency will continue to be a part of your build. You could decide to copy and paste the generated code to your source tree. In that case the easy-jpa-entities-processor dependency can be erased.
 
 Benefits:: Entity classes are
-* generated for you, including the builder
+* generated for you, including the builder, from specifications in YAML format
 * immutable
-* the same
+* all the same
+* convenient to use. In your code, your are required to use a builder to create a changed instance. Only some properties can be changed: not the ID, not the optimistic locking version number, or any other field that is not allowed to change.
 
 Drawbacks::
-Unless you modify the processor yourself, generated _form_ of the entities is always the same: there is not room for slight differences.
-
+Unless you modify the processor yourself, generated _form_ of the entities is always the same: there is no room for slight differences.
 
 _Easy JPA Entities_ consists of a jar file that implements a https://www.baeldung.com/java-annotation-processing-builder[Java Annotation Processor]. When included in your project, it will search for an interface that is annotated with `@EasyJpaEntities`. It well derive the location of the YAML file from that annotation, and use the information in that file to generate JPA entity class files.
 
@@ -28,7 +28,7 @@ _Easy JPA Entities_ consists of a jar file that implements a https://www.baeldun
 * Reason this library was created: I think https://dzone.com/articles/immutability-in-java[immutability] is a very good idea. I am aware of https://immutables.github.io/[Immutables] and https://projectlombok.org/[Lombok], but, to my humble opinion, these don't  play really well with JPA.
 * The ID for the entity is assigned in the Java code. The examples use UUID IDs. You should be able to replace it with anything immutable you like.
 * Not implementing setters does not make an entity immutable.
-* Using this library can only be used for relatively simple entities. From what I understand from https://www.dddcommunity.org/library/vernon_2011/[_Effective Aggregate Design_] you should keep your entities simple anyway.
+* Using this library can only be used for simple entities that don't have any entities attached. From what I understand from https://www.dddcommunity.org/library/vernon_2011/[_Effective Aggregate Design_] you should keep your entities simple anyway. If you want other entities referred to these can be fetched using a separate query. I like the simplicyt for now. However, really storing and retrieving a complete aggregate would be better. This might change in the future.
 * The immutable entities generated are immutable in the Java programming space. It is *not* the same as https://www.baeldung.com/hibernate-immutable[@Immutable entities in Hibernate].
 
 It should be compatible with JDK 8.
@@ -41,7 +41,7 @@ Include the easy-jpa-entities artifact in your build. For example in Maven:
         <dependency>
             <groupId>io.github.gerardpi.easy-jpa-entities</groupId>
             <artifactId>easy-jpa-entities-processor</artifactId>
-            <version>localbuild-SNAPSHOT</version>
+            <version>enter a version here</version>
             <scope>compile</scope>
         </dependency>
 ....

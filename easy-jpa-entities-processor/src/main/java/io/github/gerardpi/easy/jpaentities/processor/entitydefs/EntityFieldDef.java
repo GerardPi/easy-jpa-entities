@@ -17,9 +17,10 @@ public class EntityFieldDef {
     private final List<String> annotations;
     private final boolean notNull;
     private final CollectionDef collectionDef;
+    private final boolean writeOnce;
 
     public EntityFieldDef(String name, String type) {
-        this(name, null, type, null, Collections.emptyList(), false);
+        this(name, null, type, null, Collections.emptyList(), false, false);
     }
 
     @JsonCreator
@@ -28,7 +29,8 @@ public class EntityFieldDef {
                           @JsonProperty(value = "type", required = true) String type,
                           @JsonProperty(value = "annotation") String annotation,
                           @JsonProperty(value = "annotations") List<String> annotations,
-                          @JsonProperty(value = "notNull") boolean notNull) {
+                          @JsonProperty(value = "notNull") boolean notNull,
+                          @JsonProperty(value = "writeOnce") boolean writeOnce) {
         this.name = name;
         this.singular = singular;
         this.type = type;
@@ -46,6 +48,7 @@ public class EntityFieldDef {
         } else {
             this.collectionDef = null;
         }
+        this.writeOnce = writeOnce;
     }
 
     public String getName() {
@@ -92,12 +95,16 @@ public class EntityFieldDef {
     }
 
     public static void main(String[] args) {
-        EntityFieldDef entityFieldDef = new EntityFieldDef("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true);
+        EntityFieldDef entityFieldDef = new EntityFieldDef("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true, false);
         try {
             System.out.println(new ObjectMapper(new YAMLFactory()).writeValueAsString(entityFieldDef));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isWriteOnce() {
+        return writeOnce;
     }
 
     public String getCollectedType() {
