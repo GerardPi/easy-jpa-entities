@@ -6,3 +6,4 @@ entityClassDefNames:
 - Item
 - ItemOrder
 - ItemOrderLine
+- Currency

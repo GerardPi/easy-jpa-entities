@@ -6,8 +6,9 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 /**
- * This is a base class for JPA write-once and read many times entities to be used in Spring-data.
+ * This is a base class for JPA entities to be used in Spring-data.
  * It implements Spring's Persistable so it can decide based on the isNew field to decide wether to use merge or persist.
+ * Only use this super class when you don't care about possible concurrency issues for an entity.
  */
 @MappedSuperclass
 abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<##_ID_CLASS_##> {
@@ -16,17 +17,30 @@ abstract class Persistable implements Serializable, org.springframework.data.dom
   private final ##_ID_CLASS_## id;
 
   @javax.persistence.Transient
-  private final boolean isNew;
+  private final boolean isPersisted;
+  @javax.persistence.Transient
+  private final boolean isModified;
 
-  Persistable(##_ID_CLASS_## id, boolean isNew) {
+  Persistable(##_ID_CLASS_## id, boolean isPersisted, boolean isModified) {
     this.id = id;
-    this.isNew = isNew;
+    this.isPersisted = isPersisted;
+    this.isModified = isModified;
   }
 
   Persistable() {
     // ORM requires this default constructor
     this.id = null;
-    this.isNew = false;
+    this.isPersisted = true;
+    this.isModified = false;
+  }
+
+  /**
+   * This method indicates that the entity with the current values was the result of
+   * creating a modified version from an existing entity using a Builder (then the return value is true),
+   * or freshly fetched from the database (the the return value is false).
+   */
+  public boolean isModified() {
+      return this.isModified;
   }
 
   public ##_ID_CLASS_## getId() {
@@ -40,7 +54,7 @@ abstract class Persistable implements Serializable, org.springframework.data.dom
 
   @Override
   public boolean isNew() {
-    return isNew;
+    return !isPersisted;
   }
 
   /**

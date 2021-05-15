@@ -1,8 +1,14 @@
 package io.github.gerardpi.easy.jpaentities.test1;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * This is a convenience clato hold all the repositories in this test environment.
+ */
+@Component
 public class Repositories {
     private final ItemRepository itemRepository;
     private final ItemOrderRepository itemOrderRepository;
@@ -10,6 +16,7 @@ public class Repositories {
     private final AddressRepository addressRepository;
     private final PersonRepository personRepository;
     private final PersonAddressRepository personAddressRepository;
+    private final CurrencyRepository currencyRepository;
 
     public Repositories(
             PersonRepository personRepository,
@@ -17,14 +24,15 @@ public class Repositories {
             PersonAddressRepository personAddressRepository,
             ItemRepository itemRepository,
             ItemOrderRepository itemOrderRepository,
-            ItemOrderLineRepository itemOrderLineRepository
-    ) {
+            ItemOrderLineRepository itemOrderLineRepository,
+            CurrencyRepository currencyRepository) {
         this.itemRepository = itemRepository;
         this.itemOrderRepository = itemOrderRepository;
         this.itemOrderLineRepository = itemOrderLineRepository;
         this.addressRepository = addressRepository;
         this.personRepository = personRepository;
         this.personAddressRepository = personAddressRepository;
+        this.currencyRepository = currencyRepository;
     }
 
     public ItemRepository getItemRepository() {
@@ -47,9 +55,14 @@ public class Repositories {
         return personRepository;
     }
 
+    public CurrencyRepository getCurrencyRepository() {
+        return currencyRepository;
+    }
+
     public PersonAddressRepository getPersonAddressRepository() {
         return personAddressRepository;
     }
+
     public void clear() {
         this.itemOrderLineRepository.deleteAll();
         this.itemOrderRepository.deleteAll();
@@ -58,6 +71,9 @@ public class Repositories {
         this.personAddressRepository.deleteAll();
         this.addressRepository.deleteAll();
         this.personRepository.deleteAll();
+
+        // This entity is not an OptLockableEntity
+        this.currencyRepository.deleteAll();
     }
 
     @SuppressWarnings("unchecked")

@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: '20210515001'
+      author: gerardpi
+      changes:
+        - createTable:
+            tableName: currency
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: VARCHAR(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(256)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            columnNames: "name"
+            constraintName: "currency_name_unique_constraint"
+            tableName: "currency"
+        - addUniqueConstraint:
+            columnNames: "code"
+            constraintName: "currency_code_unique_constraint"
+            tableName: "currency"

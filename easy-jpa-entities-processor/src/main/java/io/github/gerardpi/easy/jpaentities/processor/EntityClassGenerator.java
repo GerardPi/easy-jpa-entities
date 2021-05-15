@@ -84,7 +84,7 @@ public class EntityClassGenerator {
     private void writeConstructorUsingBuilder(JavaSourceWriter writer) {
         writer
                 .writeBlockBeginln(classDef.getName() + "(Builder builder)")
-                .writeLine(classDef.isOptLockable() ? "super(builder.id, builder.optLockVersion);" : "super(builder.id, builder.isNew);");
+                .writeLine(classDef.isOptLockable() ? "super(builder.id, builder.optLockVersion, builder.isModified);" : "super(builder.id, builder.isPersisted, builder.isModified);");
         writeAssignmentsInConstructor(writer);
         writer.writeBlockEnd();
     }
@@ -127,6 +127,7 @@ public class EntityClassGenerator {
         if (classDef.isOptLockable()) {
             writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
         }
+        writer.writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
         classDef.getFieldDefs().forEach(fieldDef -> {
             writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName());
         });

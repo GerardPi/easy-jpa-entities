@@ -4,20 +4,21 @@
 
 == Introduction
 
-This is a Java library that generates JPA entities.
+This is a Java library that generates https://www.baeldung.com/jpa-entities[JPA] entities.
 
 Purpose:: Using it for persistence in an application that uses https://spring.io/projects/spring-data-jpa[Spring Data JPA]
 using immutable entities that you don't write yourself. Generated entities are _anemic_ classes: no behaviour is present.
 
-What you should add yourself:: YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for you.
+What you should add yourself:: YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for you. And, of course, you must provide a fully configured database with the correct tables.
 
-After usage:: The easy-jpa-entities-processor dependency will continue to be a part of your build. You could decide to copy and paste the generated code to your source tree. In that case the easy-jpa-entities-processor dependency can be erased.
+After usage:: You can keep the easy-jpa-entities-processor as a part of your build. If you really must, you can copy and paste the generated code into your sources. In that case the easy-jpa-entities-processor dependency can be erased from your sources.
 
-Benefits:: Entity classes are
-* generated for you, including the builder, from specifications in YAML format
-* immutable
-* all the same
-* convenient to use. In your code, your are required to use a builder to create a changed instance. Only some properties can be changed: not the ID, not the optimistic locking version number, or any other field that is not allowed to change.
+Benefits:: Entity classes
+* are generated for you, including the builder, from specifications in YAML format
+* are immutable
+* are all the same
+* are convenient to use. In your code, your are required to use a builder to create a changed instance. Only some properties can be changed: not the ID, not the https://www.baeldung.com/jpa-optimistic-locking[optimistic locking] version number, or any other field that is not allowed to change.
+* contain a flag that indicates if they were just fetched from the database or were changed but not stored in the database yet (= modified).
 
 Drawbacks::
 Unless you modify the processor yourself, generated _form_ of the entities is always the same: there is no room for slight differences.
@@ -66,3 +67,8 @@ Tests are written using https://jgiven.org/[jgiven]. These tests generate a scen
 image::https://travis-ci.com/GerardPi/easy-jpa-entities.svg?branch=master[]
 
 https://travis-ci.com/github/GerardPi/easy-jpa-entities
+
+== Reference
+
+* https://spring.io/projects/spring-boot
+* https://jgiven.org/

@@ -43,7 +43,7 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
     }
 
     @Test
-    public void test() {
+    public void the_database_contains_orders_for_a_person() {
         String dateTimeOrder1 = "2021-05-10T18:15:33" + OFFSET_DATE_TIME_SUFFIX;
         String dateTimeOrder2 = "2021-05-10T19:40:02" + OFFSET_DATE_TIME_SUFFIX;
         given().a_person_$_with_first_name_$_and_last_name_$(1, "A", "B")
@@ -61,10 +61,8 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
                 .and().the_order_$_has_date_and_time_$(2, dateTimeOrder2);
     }
 
-
     static class State extends Stage<State> {
         private final SavedEntities savedEntities = new SavedEntities();
-        private final Supplier<OffsetDateTime> dateTimeSupplier = OffsetDateTime::now;
         private Repositories repositories;
         private UuidGenerator uuidGenerator;
 
@@ -96,12 +94,12 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State an_order_$_with_date_and_time_$_is_stored_for_person_$(int itemOrderNumber, @Quoted String orderDateTimeStr, int personKey) {
+        State an_order_$_with_date_and_time_$_is_stored_for_person_$(int itemOrderKey, @Quoted String orderDateTimeStr, int personKey) {
             ItemOrder itemOrder = ItemOrder.create(uuidGenerator.generate())
                     .setPersonId(this.savedEntities.getPersonId(personKey))
                     .setDateTime(OffsetDateTime.parse(orderDateTimeStr))
                     .build();
-            this.savedEntities.putItemOrderId(itemOrderNumber, repositories.getItemOrderRepository().save(itemOrder).getId());
+            this.savedEntities.putItemOrderId(itemOrderKey, repositories.getItemOrderRepository().save(itemOrder).getId());
             return self();
         }
 

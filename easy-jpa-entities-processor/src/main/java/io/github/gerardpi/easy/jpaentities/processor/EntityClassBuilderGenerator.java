@@ -6,12 +6,10 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.capitalize;
-import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.unCapitalize;
 
 public class EntityClassBuilderGenerator {
     private final EntityClassDef classDef;
@@ -29,7 +27,7 @@ public class EntityClassBuilderGenerator {
     private String getCreationParameters() {
         List<String> constructorParameters = new ArrayList<>();
         constructorParameters.add(config.getIdClass().getName() + " id");
-        constructorParameters.addAll( classDef.getFieldDefs().stream()
+        constructorParameters.addAll(classDef.getFieldDefs().stream()
                 .filter(EntityFieldDef::isWriteOnce)
                 .map(fieldDef -> fieldDef.getType() + " " + fieldDef.getName()).collect(Collectors.toList()));
         return String.join(", ", constructorParameters);
@@ -38,51 +36,61 @@ public class EntityClassBuilderGenerator {
     private String getCreationArguments() {
         List<String> constructorParameters = new ArrayList<>();
         constructorParameters.add("id");
-        constructorParameters.addAll( classDef.getFieldDefs().stream()
+        constructorParameters.addAll(classDef.getFieldDefs().stream()
                 .filter(EntityFieldDef::isWriteOnce)
                 .map(EntityFieldDef::getName).collect(Collectors.toList()));
         return String.join(", ", constructorParameters);
     }
+
     private void writeBuilderConstructorForNew(JavaSourceWriter writer) {
 
         writer.emptyLine()
                 .writeBlockBeginln("private Builder(" + getCreationParameters() + ")")
                 .writeLine("this.id = java.util.Objects.requireNonNull(id);")
+                .writeLine("this.isModified = false;")
                 .writeLine("this.existing = null;");
-
-        if (!classDef.isOptLockable()) {
-            writer.writeLine("this.isNew = true;");
-        }
 
         if (classDef.isOptLockable()) {
             writer.writeLine("this.optLockVersion = null;");
+        } else {
+            writer.writeLine("this.isPersisted = false;");
         }
 
         writer
                 .writeAssignmentsToNull(classDef.getFieldDefs())
                 .writeBlockEnd();
     }
+
     private void writeBuilderParts(JavaSourceWriter writer) {
         writeCreateAndModifyWithBuilderMethods(writer);
         writer.writeBlockBeginln("public static class Builder");
         writeBuilderFieldDeclarations(writer);
-        writeFieldDeclarationWithoutPropName(new EntityFieldDef("existing", classDef.getName()), true, writer);
-        writeFieldDeclarationWithoutPropName(new EntityFieldDef("id", config.getIdClass().getName()), true, writer);
+        writeFieldDeclaration(new EntityFieldDef("existing", classDef.getName()), true, writer);
+        writeFieldDeclaration(new EntityFieldDef("id", config.getIdClass().getName()), true, writer);
         if (!classDef.isOptLockable()) {
-            writeFieldDeclarationWithoutPropName(new EntityFieldDef("isNew", "boolean"), true, writer);
+            writeFieldDeclaration(new EntityFieldDef("isPersisted", "boolean"), true, writer);
+        } else {
+            writeFieldDeclaration(new EntityFieldDef("optLockVersion", Integer.class.getName()), true, writer);
         }
-        if (classDef.isOptLockable()) {
-            writeFieldDeclarationWithoutPropName(new EntityFieldDef("optLockVersion", Integer.class.getName()), true, writer);
-        }
+        writeFieldDeclaration(new EntityFieldDef("isModified", "boolean"), false, writer);
         writeBuilderConstructorForNew(writer);
-                writer
+        writeBuilderCopyConstructor(writer);
+        writer.emptyLine();
+        writeBuilderSetters(writer);
+        writeBuilderBuildMethod(writer);
+        writer.writeBlockEnd();
+    }
+
+    private void writeBuilderCopyConstructor(JavaSourceWriter writer) {
+        writer
                 .emptyLine()
                 .writeBlockBeginln("private Builder(" + classDef.getName() + " existing)")
                 .writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
+                .writeLine("this.isModified = false;")
                 .writeLine("this.id = existing.getId();");
 
         if (!classDef.isOptLockable()) {
-            writer.writeLine("this.isNew = false;");
+            writer.writeLine("this.isPersisted = true;");
         }
 
         if (classDef.isOptLockable()) {
@@ -91,10 +99,6 @@ public class EntityClassBuilderGenerator {
         }
         writeAssignmentsInBuilderConstructor("this.", "existing.", writer);
         writer.writeBlockEnd();
-        writer.emptyLine();
-        writeBuilderSetters(writer);
-        writeBuilderBuildMethod(writer);
-        writer.writeBlockEnd();
     }
 
     private void writeBuilderSetters(JavaSourceWriter writer) {
@@ -102,6 +106,7 @@ public class EntityClassBuilderGenerator {
             if (!fieldDef.isWriteOnce()) {
                 writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType() + " " + fieldDef.getName() + ")");
                 writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
+                writer.assign("this.", "isModified", "",  "true");
                 writer.writeLine("return this;");
                 writer.writeBlockEnd();
                 fieldDef.fetchCollectionDef()
@@ -146,7 +151,7 @@ public class EntityClassBuilderGenerator {
 
     private void writeBuilderFieldDeclarations(JavaSourceWriter writer) {
         classDef.getFieldDefs().forEach(fieldDef ->
-                writeFieldDeclarationWithoutPropName(fieldDef, fieldDef.isWriteOnce(), writer)
+                writeFieldDeclaration(fieldDef, fieldDef.isWriteOnce(), writer)
         );
     }
 
@@ -161,7 +166,7 @@ public class EntityClassBuilderGenerator {
                 .writeBlockEnd();
     }
 
-    private void writeFieldDeclarationWithoutPropName(EntityFieldDef entityFieldDef, boolean isFinal, JavaSourceWriter writer) {
+    private void writeFieldDeclaration(EntityFieldDef entityFieldDef, boolean isFinal, JavaSourceWriter writer) {
         String prefix = isFinal ? "private final " : "private ";
         writer.writeLine(prefix + entityFieldDef.getType() + " " + entityFieldDef.getName() + ";");
     }

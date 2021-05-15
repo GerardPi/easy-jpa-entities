@@ -19,15 +19,29 @@ abstract class OptLockablePersistable implements Serializable {
   @Version
   private final Integer optLockVersion;
 
-  OptLockablePersistable(##_ID_CLASS_## id, Integer optLockVersion) {
+  @javax.persistence.Transient
+  private final boolean isModified;
+
+  OptLockablePersistable(##_ID_CLASS_## id, Integer optLockVersion, boolean isModified) {
     this.id = id;
     this.optLockVersion = optLockVersion;
+    this.isModified = isModified;
   }
 
   OptLockablePersistable() {
     // ORM requires this default constructor
     this.id = null;
     this.optLockVersion = null;
+    this.isModified = false;
+  }
+
+  /**
+   * This method indicates that the entity with the current values was the result of
+   * creating a modified version from an existing entity using a Builder (then the return value is true),
+   * or freshly fetched from the database (the the return value is false).
+   */
+  public boolean isModified() {
+      return this.isModified;
   }
 
   public java.lang.Integer getOptLockVersion() {

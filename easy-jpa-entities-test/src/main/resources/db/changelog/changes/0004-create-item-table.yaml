@@ -47,3 +47,7 @@ databaseChangeLog:
                   type: Integer
                   constraints:
                     nullable: false
+        - addUniqueConstraint:
+            columnNames: "friendly_id"
+            constraintName: "friendly_id_unique_constraint"
+            tableName: "item"
