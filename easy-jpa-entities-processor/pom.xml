@@ -5,16 +5,25 @@
 
     <groupId>io.github.gerardpi.easy-jpa-entities</groupId>
     <artifactId>easy-jpa-entities-processor</artifactId>
-    <version>localbuild-SNAPSHOT</version>
+    <version>localbuild</version>
 
     <name>easy-jpa-entities-processor</name>
     <url>http://www.github.com/gerardpi/easy-jpa-entities</url>
+
+    <description>This is a Java library that generates Java JPA entities. For details see ../README file.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
+    <scm>
+        <connection>scm:git:https://github.com/GerardPi/easy-jpa-entities.git</connection>
+        <developerConnection>scm:git:ssh://github.com/GerardPi/easy-jpa-entities.git</developerConnection>
+        <url>https://github.com/GerardPi/easy-jpa-entities.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -23,6 +32,14 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <id>Gerard</id>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <dependencyManagement>
         <dependencies>

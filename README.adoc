@@ -66,7 +66,6 @@ Tests are written using https://jgiven.org/[jgiven]. These tests generate a scen
 
 image::https://travis-ci.com/GerardPi/easy-jpa-entities.svg?branch=master[]
 
-https://travis-ci.com/github/GerardPi/easy-jpa-entities
 
 == Reference
 
