@@ -39,23 +39,24 @@ public class AnnotationProcessor extends AbstractProcessor {
             ProcessorUtils.setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
             if (element.getKind().isInterface()) {
                 ProcessorUtils.note(processingEnv, "Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");
-                String typeName = ProcessorUtils.getTypeName(element);
 
-                String yamlFilename = typeName + ".yaml";
-                ProcessorUtils.note(processingEnv, "YAML file to read is = '" + yamlFilename + "'");
-                String fullyQualifiedClassname = ProcessorUtils.getQualifiedName(processingEnv, element);
-                ProcessorUtils.note(processingEnv, "Fully qualified name='" + fullyQualifiedClassname + "'");
-                String fullyQualifiedPackagename = ProcessorUtils.getPackageName(processingEnv, element);
-                ProcessorUtils.note(processingEnv, "Fully qualified packagename='" + fullyQualifiedPackagename + "'");
-                FileObject yamlFile = ProcessorUtils.get(processingEnv, fullyQualifiedPackagename, yamlFilename)
-                        .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFilename + "'"));
-                EasyJpaEntitiesConfig easyJpaEntitiesConfig = loadPersistableDefNames(yamlFile, element.getEnclosingElement().toString());
+                EasyJpaEntitiesConfig easyJpaEntitiesConfig = loadConfig(createConfigFileObject(element), element.getEnclosingElement().toString());
                 generateClasses(easyJpaEntitiesConfig);
             } else {
                 ProcessorUtils.note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
             }
         }
         return false;
+    }
+
+    private FileObject createConfigFileObject(Element element) {
+        String typeName = ProcessorUtils.getTypeName(element);
+        String fullyQualifiedPackagename = ProcessorUtils.getPackageName(processingEnv, element);
+        ProcessorUtils.note(processingEnv, "Fully qualified packagename='" + fullyQualifiedPackagename + "'");
+        String yamlFilename = typeName + ".yaml";
+        ProcessorUtils.note(processingEnv, "YAML file to read is = '" + yamlFilename + "'");
+        return ProcessorUtils.get(processingEnv, fullyQualifiedPackagename, yamlFilename)
+                .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFilename + "'"));
     }
 
     private List<EntityClassDef> loadEntityClassDefs(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
@@ -80,7 +81,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         return Optional.empty();
     }
 
-    private EasyJpaEntitiesConfig loadPersistableDefNames(FileObject inputYamlFileObject, String defaultTargetPackage) {
+    private EasyJpaEntitiesConfig loadConfig(FileObject inputYamlFileObject, String defaultTargetPackage) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputYamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
             EasyJpaEntitiesConfig config = PersistableDefsDeserializer.slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
                     .withDefaultTargetPackageIfNotSpecified(defaultTargetPackage);
