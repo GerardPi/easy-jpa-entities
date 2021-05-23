@@ -13,24 +13,11 @@ public class EntityClassDef {
     private final String extendsFromClass;
     private final boolean readOnly; // Can only be used to read from database
 
-    public EntityClassDef(
-            String name,
-            List<EntityFieldDef> fieldDefs,
-            String extendsFromClass,
-            boolean readOnly
-    ) {
+    private EntityClassDef(String name, List<EntityFieldDef> fieldDefs, String extendsFromClass, boolean readOnly) {
         this.name = name;
         this.fieldDefs = fieldDefs;
         this.extendsFromClass = extendsFromClass;
         this.readOnly = readOnly;
-    }
-    @JsonCreator
-    public EntityClassDef(
-            @JsonProperty(value = "fieldDefs", required = true) List<EntityFieldDef> fieldDefs,
-            @JsonProperty("extendsFromClass") String extendsFromClass,
-            @JsonProperty("readOnly") boolean readOnly
-    ) {
-        this(null, fieldDefs, extendsFromClass, readOnly);
     }
 
     private EntityClassDef(Builder builder) {
@@ -59,14 +46,12 @@ public class EntityClassDef {
         }
         return false;
     }
-    public EntityClassDef withName(String name) {
-        return new EntityClassDef(name, this.fieldDefs, this.extendsFromClass, this.readOnly);
-    }
+
     public static class Builder {
         private String name;
-        private List<EntityFieldDef> fieldDefs;
-        private String extendsFromClass;
-        private boolean readOnly; // Can only be used to read from database
+        private final List<EntityFieldDef> fieldDefs;
+        private final String extendsFromClass;
+        private final boolean readOnly; // Can only be used to read from database
 
         public Builder(
                 String name,
@@ -88,10 +73,12 @@ public class EntityClassDef {
         ) {
             this(null, fieldDefs, extendsFromClass, readOnly);
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
+
         public EntityClassDef build() {
             return new EntityClassDef(this);
         }
