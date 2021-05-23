@@ -1,4 +1,3 @@
-name: "Item"
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "friendlyId"

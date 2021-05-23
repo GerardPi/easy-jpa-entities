@@ -14,14 +14,6 @@ public class CollectionDef {
         this.collectedType = types.get(1);
     }
 
-    public String getCollectionClassSimpleName() {
-        try {
-            return Class.forName(collectionType).getSimpleName();
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public String getCollectionType() {
         return collectionType;
     }

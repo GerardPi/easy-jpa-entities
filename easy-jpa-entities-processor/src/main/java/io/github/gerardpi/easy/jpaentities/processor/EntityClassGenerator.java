@@ -6,6 +6,7 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.THIS_PREFIX;
@@ -84,7 +85,9 @@ public class EntityClassGenerator {
     private void writeConstructorUsingBuilder(JavaSourceWriter writer) {
         writer
                 .writeBlockBeginln(classDef.getName() + "(Builder builder)")
-                .writeLine(classDef.isOptLockable() ? "super(builder.id, builder.optLockVersion, builder.isModified);" : "super(builder.id, builder.isPersisted, builder.isModified);");
+                .writeLine(classDef.isOptLockable()
+                        ? "super(builder.id, builder.optLockVersion, builder.isModified);"
+                        : "super(builder.id, builder.isPersisted, builder.isModified);");
         writeAssignmentsInConstructor(writer);
         writer.writeBlockEnd();
     }
@@ -96,10 +99,9 @@ public class EntityClassGenerator {
     }
 
     private void writeConstructor(JavaSourceWriter writer) {
-        writer
-                .writeBlockBeginln("private " + classDef.getName() + "(" + methodParameterDeclarations() + ")")
-                .writeAssignmentsInConstructor(classDef.getFieldDefs(), THIS_PREFIX, "")
-                .writeBlockEnd();
+        writer.writeBlockBeginln("private " + classDef.getName() + "(" + methodParameterDeclarations() + ")");
+        classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "",  fieldDef, true));
+        writer.writeBlockEnd();
     }
 
     private String methodParameterDeclarations() {

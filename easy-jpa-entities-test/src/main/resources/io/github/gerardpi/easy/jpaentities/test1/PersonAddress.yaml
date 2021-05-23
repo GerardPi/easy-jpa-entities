@@ -1,4 +1,3 @@
-name: "PersonAddress"
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "addressId"

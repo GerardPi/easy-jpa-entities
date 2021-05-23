@@ -1,4 +1,3 @@
-name: "Currency"
 extendsFromClass: "Persistable"
 fieldDefs:
   - name: "code"

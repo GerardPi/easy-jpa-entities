@@ -1,5 +1,3 @@
----
-name: "Address"
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "countryCode"

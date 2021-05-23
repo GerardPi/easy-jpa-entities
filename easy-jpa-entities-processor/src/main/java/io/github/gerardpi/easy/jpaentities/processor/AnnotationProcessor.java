@@ -1,8 +1,8 @@
 package io.github.gerardpi.easy.jpaentities.processor;
 
 import io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities;
-import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
+import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -17,9 +17,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static io.github.gerardpi.easy.jpaentities.processor.ProcessorUtils.error;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -58,18 +59,25 @@ public class AnnotationProcessor extends AbstractProcessor {
     }
 
     private List<EntityClassDef> loadEntityClassDefs(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        List<EntityClassDef> entityClassDefs = new ArrayList<>();
-        for (String entityClassDefName : easyJpaEntitiesConfig.getEntityClassDefNames()) {
-            String yamlFileName = entityClassDefName + ".yaml";
-            FileObject yamlFileObject = ProcessorUtils.get(processingEnv, easyJpaEntitiesConfig.getTargetPackage(), yamlFileName)
-                    .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-                entityClassDefs.add(PersistableDefsDeserializer.slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv));
-            } catch (IOException e) {
-                ProcessorUtils.error(processingEnv, "Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
-            }
+        return easyJpaEntitiesConfig.getEntityClassDefNames().stream()
+                .map(e -> loadEntityClassDef(e, easyJpaEntitiesConfig.getTargetPackage()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<EntityClassDef> loadEntityClassDef(String entityClassDefName, String targetPackage) {
+        String yamlFileName = entityClassDefName + ".yaml";
+        FileObject yamlFileObject = ProcessorUtils.get(processingEnv, targetPackage, yamlFileName)
+                .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
+            return Optional.of(PersistableDefsDeserializer.slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
+                    .setName(entityClassDefName)
+                    .build());
+        } catch (IOException e) {
+            ProcessorUtils.error(processingEnv, "Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
         }
-        return Collections.unmodifiableList(entityClassDefs);
+        return Optional.empty();
     }
 
     private EasyJpaEntitiesConfig loadPersistableDefNames(FileObject inputYamlFileObject, String defaultTargetPackage) {

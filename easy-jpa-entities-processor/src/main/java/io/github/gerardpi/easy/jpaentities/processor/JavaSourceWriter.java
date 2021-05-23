@@ -34,18 +34,6 @@ class JavaSourceWriter implements AutoCloseable {
         return "";
     }
 
-    static String unCapitalize(String part) {
-        if (part != null) {
-            if (part.length() > 1) {
-                return Character.toString(part.charAt(0)).toLowerCase()
-                        + part.substring(1);
-            } else {
-                return part.toUpperCase();
-            }
-        }
-        return "";
-    }
-
     @Override
     public void close() throws IOException {
         writer.close();
@@ -69,13 +57,6 @@ class JavaSourceWriter implements AutoCloseable {
         writer.line(assigneePrefix + assigneeFieldName + " = " + assignedFieldPrefix + valueFieldName + ";");
         return this;
     }
-
-
-    JavaSourceWriter writeAssignmentsInConstructor(List<EntityFieldDef> fieldDefs, String assigneePrefix, String assignedValuePrefix) {
-        fieldDefs.forEach(fieldDef -> assign(assigneePrefix, assignedValuePrefix, fieldDef, true));
-        return this;
-    }
-
 
     String immutable(String fieldPrefix, EntityFieldDef fieldDef, boolean assignedValueMustBeImmutable) {
         CollectionDef collectionDef = fieldDef.fetchCollectionDef().orElseThrow(() -> new IllegalArgumentException("No " + CollectionDef.class + " could be found"));

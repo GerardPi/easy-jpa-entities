@@ -1,4 +1,3 @@
-name: "ItemOrder"
 extendsFromClass: OptLockablePersistable
 fieldDefs:
   - name: personId
