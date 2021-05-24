@@ -6,22 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 
 public class PersonDto {
-    private String nameFirst;
-    private String nameLast;
-    private String eTag;
+    private final PersonName name;
+    private final String eTag;
 
     @JsonCreator
-    public PersonDto(@JsonProperty("nameFirst") String nameFirst, @JsonProperty("nameLast") String nameLast, @JsonProperty("eTag") String eTag) {
-        this.nameFirst = nameFirst;
-        this.nameLast = nameLast;
+    public PersonDto(@JsonProperty("name") PersonName name, @JsonProperty("eTag") String eTag) {
+        this.name = name;
+        this.eTag = eTag;
     }
 
-    public String getNameFirst() {
-        return nameFirst;
-    }
-
-    public String getNameLast() {
-        return nameLast;
+    public PersonName getName() {
+        return name;
     }
 
     public String geteTag() {
@@ -29,7 +24,7 @@ public class PersonDto {
     }
 
     Person.Builder copyValues(Person.Builder personBuilder) {
-        return personBuilder.setNameFirst(nameFirst).setNameLast(nameLast);
+        return personBuilder.setName(PersonName.create().setFirst(name.getFirst()).setLast(name.getLast()).build());
     }
 
     Person toPerson(UUID id) {
@@ -40,6 +35,6 @@ public class PersonDto {
     }
 
     static PersonDto fromPerson(Person person) {
-        return new PersonDto(person.getNameFirst(), person.getNameLast(), "" + person.getOptLockVersion());
+        return new PersonDto(person.getName(), "" + person.getOptLockVersion());
     }
 }

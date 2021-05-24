@@ -74,10 +74,10 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         }
 
         State person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
+            PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
             Person person = Person.create(uuidGenerator.generate())
                     .setDateOfBirth(LocalDate.now())
-                    .setNameFirst(nameFirst)
-                    .setNameLast(nameLast)
+                    .setName(name)
                     .build();
             this.savedEntities.putPersonId(number, repositories.getPersonRepository().save(person).getId());
             return self();
@@ -138,7 +138,8 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
 
         State updating_a_person_$_with_first_name_$(int number, @Quoted String newNameFirst) {
             Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
-            repositories.getPersonRepository().save(person.modify().setNameFirst(newNameFirst).build());
+            PersonName newName = person.getName().modify().setFirst(newNameFirst).build();
+            repositories.getPersonRepository().save(person.modify().setName(newName).build());
             return self();
         }
 

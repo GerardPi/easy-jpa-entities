@@ -5,7 +5,7 @@
 
     <groupId>io.github.gerardpi.easy-jpa-entities</groupId>
     <artifactId>easy-jpa-entities-processor</artifactId>
-    <version>localbuild</version>
+    <version>localbuild-SNAPSHOT</version>
 
     <name>easy-jpa-entities-processor</name>
     <url>http://www.github.com/gerardpi/easy-jpa-entities</url>

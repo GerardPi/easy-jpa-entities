@@ -44,13 +44,19 @@ public class EntityClassGenerator {
     private void writeClassHeader(JavaSourceWriter writer) {
         writer.writeLine("package " + config.getTargetPackage() + ";")
                 .emptyLine()
-                .writeLine("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                .writeLine("@javax.persistence.Entity")
-                .writeLine("@javax.persistence.Access(javax.persistence.AccessType.FIELD)");
+                .writeLine("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        if (classDef.isEntity()) {
+            writer
+                    .writeLine("@javax.persistence.Entity")
+                    .writeLine("@javax.persistence.Access(javax.persistence.AccessType.FIELD)");
+        }
+        classDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
     }
 
     private void writeClassDeclaration(JavaSourceWriter writer) {
-        String extendsPart = classDef.getExtendsFromClass() == null ? "" : " extends " + classDef.getExtendsFromClass();
+        String extendsPart = classDef.getExtendsFromClass()
+                .map(superClass -> " extends " + superClass)
+                .orElse("");
         writer.writeBlockBeginln("class " + classDef.getName() + extendsPart);
     }
 
@@ -84,10 +90,12 @@ public class EntityClassGenerator {
 
     private void writeConstructorUsingBuilder(JavaSourceWriter writer) {
         writer
-                .writeBlockBeginln(classDef.getName() + "(Builder builder)")
-                .writeLine(classDef.isOptLockable()
-                        ? "super(builder.id, builder.optLockVersion, builder.isModified);"
-                        : "super(builder.id, builder.isPersisted, builder.isModified);");
+                .writeBlockBeginln(classDef.getName() + "(Builder builder)");
+        if (classDef.isOptLockable()) {
+            writer.writeLine("super(builder.id, builder.optLockVersion, builder.isModified);");
+        } else if (classDef.isPersistable()) {
+            writer.writeLine("super(builder.id, builder.isPersisted, builder.isModified);");
+        }
         writeAssignmentsInConstructor(writer);
         writer.writeBlockEnd();
     }
@@ -123,16 +131,20 @@ public class EntityClassGenerator {
                 .writeLine("@Override")
                 .writeBlockBeginln("public String toString()")
                 .writeLine("return " + writer.quoted("class=") + " + this.getClass().getName()")
-                .incIndentation()
-                .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()");
+                .incIndentation();
 
+        if (classDef.isEntity()) {
+            writer
+                .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()")
+                .writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
+        }
         if (classDef.isOptLockable()) {
             writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
         }
-        writer.writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
         classDef.getFieldDefs().forEach(fieldDef -> {
             writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName());
         });
+
         writer.writeLine(";")
                 .decIndentation()
                 .writeBlockEnd();

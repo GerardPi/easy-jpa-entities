@@ -74,10 +74,10 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
         }
 
         State a_person_$_with_first_name_$_and_last_name_$(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
+            PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
             Person person = Person.create(uuidGenerator.generate())
                     .setDateOfBirth(LocalDate.now())
-                    .setNameFirst(nameFirst)
-                    .setNameLast(nameLast)
+                    .setName(name)
                     .build();
             this.savedEntities.putPersonId(number, repositories.getPersonRepository().save(person).getId());
             return self();

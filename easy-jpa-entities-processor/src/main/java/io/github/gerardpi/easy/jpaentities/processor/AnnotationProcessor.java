@@ -22,6 +22,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.github.gerardpi.easy.jpaentities.processor.PersistableDefsDeserializer.slurpEntityClassDefFromYaml;
+import static io.github.gerardpi.easy.jpaentities.processor.PersistableDefsDeserializer.slurpFromYaml;
+import static io.github.gerardpi.easy.jpaentities.processor.ProcessorUtils.*;
+
 @SupportedAnnotationTypes({"io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AnnotationProcessor extends AbstractProcessor {
@@ -36,14 +40,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 
         for (Element element : elements) {
             EasyJpaEntities easyJpaEntitiesAnnotation = element.getAnnotation(EasyJpaEntities.class);
-            ProcessorUtils.setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
+            setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
             if (element.getKind().isInterface()) {
-                ProcessorUtils.note(processingEnv, "Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");
+                note(processingEnv, "Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");
 
                 EasyJpaEntitiesConfig easyJpaEntitiesConfig = loadConfig(createConfigFileObject(element), element.getEnclosingElement().toString());
                 generateClasses(easyJpaEntitiesConfig);
             } else {
-                ProcessorUtils.note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
+                note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
             }
         }
         return false;
@@ -51,10 +55,10 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     private FileObject createConfigFileObject(Element element) {
         String typeName = ProcessorUtils.getTypeName(element);
-        String fullyQualifiedPackagename = ProcessorUtils.getPackageName(processingEnv, element);
-        ProcessorUtils.note(processingEnv, "Fully qualified packagename='" + fullyQualifiedPackagename + "'");
+        String fullyQualifiedPackagename = getPackageName(processingEnv, element);
+        note(processingEnv, "Fully qualified packagename='" + fullyQualifiedPackagename + "'");
         String yamlFilename = typeName + ".yaml";
-        ProcessorUtils.note(processingEnv, "YAML file to read is = '" + yamlFilename + "'");
+        note(processingEnv, "YAML file to read is = '" + yamlFilename + "'");
         return ProcessorUtils.get(processingEnv, fullyQualifiedPackagename, yamlFilename)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFilename + "'"));
     }
@@ -72,9 +76,10 @@ public class AnnotationProcessor extends AbstractProcessor {
         FileObject yamlFileObject = ProcessorUtils.get(processingEnv, targetPackage, yamlFileName)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            return Optional.of(PersistableDefsDeserializer.slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
+            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
                     .setName(entityClassDefName)
-                    .build());
+                    .build();
+            return Optional.of(entityClassDef);
         } catch (IOException e) {
             ProcessorUtils.error(processingEnv, "Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
         }
@@ -83,9 +88,11 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     private EasyJpaEntitiesConfig loadConfig(FileObject inputYamlFileObject, String defaultTargetPackage) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputYamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            EasyJpaEntitiesConfig config = PersistableDefsDeserializer.slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
+            EasyJpaEntitiesConfig config = slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
                     .withDefaultTargetPackageIfNotSpecified(defaultTargetPackage);
-            return config.withEntityClassDefs(loadEntityClassDefs(config));
+            List<EntityClassDef> entityClassDefs = loadEntityClassDefs(config);
+            note(processingEnv, "Loaded " + entityClassDefs.size() + " instances of " + EntityClassDef.class.getSimpleName());
+            return config.withEntityClassDefs(entityClassDefs);
         } catch (IOException e) {
             String msg = "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'";
             ProcessorUtils.error(processingEnv, msg);
@@ -95,18 +102,19 @@ public class AnnotationProcessor extends AbstractProcessor {
 
 
     private void generateClasses(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        ProcessorUtils.note(processingEnv, "Generating mapped superclasses ...");
+        note(processingEnv, "Generating mapped superclasses ...");
         generateMappedSuperclasses(easyJpaEntitiesConfig);
-        ProcessorUtils.note(processingEnv, "Generating entity classes ...");
+        note(processingEnv, "Generating entity classes ...");
         generateEntityClasses(easyJpaEntitiesConfig);
     }
 
     private void generateEntityClasses(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
         easyJpaEntitiesConfig.getEntityClassDefs().forEach(classDef -> {
             String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + classDef.getName();
-            ProcessorUtils.note(processingEnv, "Generating entity class " + fqn);
-            try (JavaSourceWriter writer = ProcessorUtils.createClassWriter(processingEnv, fqn)) {
-                new EntityClassGenerator(classDef, easyJpaEntitiesConfig).write(writer);
+            note(processingEnv, "Generating entity class " + fqn);
+            try (JavaSourceWriter writer = createClassWriter(processingEnv, fqn)) {
+                new EntityClassGenerator(classDef, easyJpaEntitiesConfig)
+                        .write(writer);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -117,7 +125,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         MappedSuperclassGenerator mappedSuperclassGenerator = new MappedSuperclassGenerator(easyJpaEntitiesConfig);
 
         if (easyJpaEntitiesConfig.hasPersistable()) {
-            ProcessorUtils.note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE);
+            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE);
             String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
                 mappedSuperclassGenerator.writePersistable(writer);
@@ -127,7 +135,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         }
 
         if (easyJpaEntitiesConfig.hasOptLockablePersistable()) {
-            ProcessorUtils.note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE);
+            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE);
             String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE;
             try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
                 mappedSuperclassGenerator.writeOptLockablePersistable(writer);

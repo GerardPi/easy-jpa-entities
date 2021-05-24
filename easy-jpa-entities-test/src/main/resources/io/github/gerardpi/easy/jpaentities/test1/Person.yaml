@@ -1,10 +1,8 @@
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
-  - name: "nameFirst"
-    type: "java.lang.String"
-  - name: "nameLast"
-    type: "java.lang.String"
-    notNull: true
+  - name: "name"
+    type: "io.github.gerardpi.easy.jpaentities.test1.PersonName"
+    annotation: javax.persistence.Embedded
   - name: "dateOfBirth"
     type: "java.time.LocalDate"
     annotation: javax.persistence.Column(columnDefinition = "DATE")

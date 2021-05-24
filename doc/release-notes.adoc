@@ -1,0 +1,6 @@
+
+== Release notes
+
+.Versions:
+. 2021-05-23 Initial version
+. 2021-05-24 Now supports classes without Persistable or OptLockablePersistable, to allow for Embeddable parts (without any superclass). Annotations per class can be specified explicitly.
