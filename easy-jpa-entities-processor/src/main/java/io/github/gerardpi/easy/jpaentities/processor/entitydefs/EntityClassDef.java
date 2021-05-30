@@ -143,10 +143,9 @@ public class EntityClassDef {
 
         public List<EntityFieldDef> getFieldDefs() {
             return fieldDefBuilders.stream()
-                    .map(fieldDefBuilder -> {
-                        fieldDefBuilder.setTypeIfNotSpecified(requireNonNull(defaultFieldType, "A default field type is required"));
-                        return fieldDefBuilder.build();
-                    })
+                    .map(fieldDefBuilder -> fieldDefBuilder
+                            .setTypeIfNotSpecified(requireNonNull(this.defaultFieldType, "A default field type is required"))
+                            .build())
                     .collect(Collectors.toList());
         }
 

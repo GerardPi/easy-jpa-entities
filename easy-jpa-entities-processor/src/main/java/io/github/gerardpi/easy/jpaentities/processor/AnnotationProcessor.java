@@ -90,7 +90,6 @@ public class AnnotationProcessor extends AbstractProcessor {
     private EasyJpaEntitiesConfig loadConfig(FileObject inputYamlFileObject, String defaultTargetPackage) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputYamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
             EasyJpaEntitiesConfig.Builder builder = slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
-                    .setDefaultFieldTypeIfNotSpecified(String.class.getName())
                     .setDefaultIfNoTargetPackageSpecified(defaultTargetPackage);
             List<EntityClassDef> entityClassDefs = loadEntityClassDefs(builder.getEntityClassDefNames(), builder.getTargetPackage(), builder.getDefaultFieldType());
             note(processingEnv, "Loaded " + entityClassDefs.size() + " instances of " + EntityClassDef.class.getSimpleName());

@@ -4,7 +4,6 @@ fieldDefs:
     type: java.util.UUID
     notNull: true
   - name: description
-    type: java.lang.String
   - name: dateTime
     type: "java.time.OffsetDateTime"
     notNull: true

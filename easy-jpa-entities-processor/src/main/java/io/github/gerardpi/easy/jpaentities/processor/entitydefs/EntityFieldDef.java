@@ -2,9 +2,6 @@ package io.github.gerardpi.easy.jpaentities.processor.entitydefs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -22,13 +19,13 @@ public class EntityFieldDef {
     private final boolean writeOnce;
 
     public EntityFieldDef(Builder builder) {
-        this.name = requireNonNull(builder.name);
+        this.name = requireNonNull(builder.name, "A name must be specified.");
         this.singular = builder.singular;
-        this.type = requireNonNull(builder.type);
-        this.collectionDef = builder.collectionDef;
+        this.type = requireNonNull(builder.type, "Type must be specified.");
+        this.collectionDef = builder.getCollectionDef();
         this.writeOnce = builder.writeOnce;
         this.notNull = builder.notNull;
-        this.annotations = requireNonNull(builder.annotations);
+        this.annotations = requireNonNull(builder.annotations, "A collection (may be empty) must be available.");
     }
 
     public static void main(String[] args) {
@@ -63,6 +60,14 @@ public class EntityFieldDef {
         return annotations.get(0);
     }
 
+    public boolean isNotNull() {
+        return notNull;
+    }
+
+    public CollectionDef getCollectionDef() {
+        return collectionDef;
+    }
+
     public List<String> getAnnotations() {
         return annotations;
     }
@@ -75,20 +80,6 @@ public class EntityFieldDef {
         return writeOnce;
     }
 
-    public static class InjectableValues extends com.fasterxml.jackson.databind.InjectableValues.Std {
-        private final String fieldName;
-
-        public InjectableValues(String fieldName) {
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) throws JsonMappingException {
-            System.out.println("######## forProperty.name='" + forProperty.getName() + "'");
-            return super.findInjectableValue(valueId, ctxt, forProperty, beanInstance);
-        }
-    }
-
     public static class Builder {
         private final String name;
         private final String singular;
@@ -96,7 +87,6 @@ public class EntityFieldDef {
         private final boolean notNull;
         private final boolean writeOnce;
         private String type;
-        private CollectionDef collectionDef;
 
         public Builder(@JsonProperty(value = "name", required = true) String name,
                        @JsonProperty(value = "singular") String singular,
@@ -131,12 +121,15 @@ public class EntityFieldDef {
             return this;
         }
 
-        public EntityFieldDef build() {
+        public CollectionDef getCollectionDef() {
             if (CollectionDef.isSupportedCollection(type)) {
-                this.collectionDef = new CollectionDef(type);
+                return new CollectionDef(type);
             } else {
-                this.collectionDef = null;
+                return null;
             }
+        }
+
+        public EntityFieldDef build() {
             return new EntityFieldDef(this);
         }
     }

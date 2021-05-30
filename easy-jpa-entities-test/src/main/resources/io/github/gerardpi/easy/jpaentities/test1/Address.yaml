@@ -1,14 +1,9 @@
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "countryCode"
-    type: "java.lang.String"
   - name: "city"
-    type: "java.lang.String"
   - name: "postalCode"
-    type: "java.lang.String"
     notNull: true
   - name: "street"
-    type: "java.lang.String"
   - name: "houseNumber"
-    type: "java.lang.String"
     notNull: true

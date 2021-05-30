@@ -29,8 +29,10 @@ public class MappedSuperclassGenerator {
     }
 
     private void write(String resourceName, LineWriter writer) {
-        writer.line("package " + easyJpaEntitiesConfig.getTargetPackage() + ";");
-        writer.line("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        writer.line("package " + easyJpaEntitiesConfig.getTargetPackage() + ";")
+                .line("// Generated")
+                .line("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                .line("//         details: https://github.com/GerardPi/easy-jpa-entities");
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
             reader.lines()
                     .map(this::replace)

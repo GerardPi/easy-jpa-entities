@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.THIS_PREFIX;
@@ -45,8 +44,10 @@ public class EntityClassGenerator {
 
     private void writeClassHeader(JavaSourceWriter writer) {
         writer.writeLine("package " + config.getTargetPackage() + ";")
-                .emptyLine()
-                .writeLine("// Generated date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+                .emptyLine();
+        writer.writeLine("// Generated")
+                .writeLine("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
         if (classDef.isEntity()) {
             writer
                     .writeLine("@javax.persistence.Entity")

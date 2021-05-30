@@ -6,8 +6,8 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.capitalize;
@@ -59,7 +59,7 @@ public class EntityClassBuilderGenerator {
 
         if (classDef.isOptLockable()) {
             writer.writeLine("this.optLockVersion = null;");
-        } else if (classDef.isPersistable()){
+        } else if (classDef.isPersistable()) {
             writer.writeLine("this.isPersisted = false;");
         }
 
@@ -73,14 +73,14 @@ public class EntityClassBuilderGenerator {
         writer.writeBlockBeginln("public static class Builder");
         writeBuilderFieldDeclarations(writer);
         if (classDef.isEntity()) {
-            writeFieldDeclaration(new EntityFieldDef("existing", classDef.getName()), true, writer);
-            writeFieldDeclaration(new EntityFieldDef("id", config.getIdClass().getName()), true, writer);
+            writeFieldDeclaration(createFieldDef("existing", classDef.getName()), true, writer);
+            writeFieldDeclaration(createFieldDef("id", config.getIdClass().getName()), true, writer);
             if (!classDef.isOptLockable()) {
-                writeFieldDeclaration(new EntityFieldDef("isPersisted", "boolean"), true, writer);
+                writeFieldDeclaration(createFieldDef("isPersisted", "boolean"), true, writer);
             } else {
-                writeFieldDeclaration(new EntityFieldDef("optLockVersion", Integer.class.getName()), true, writer);
+                writeFieldDeclaration(createFieldDef("optLockVersion", Integer.class.getName()), true, writer);
             }
-            writeFieldDeclaration(new EntityFieldDef("isModified", "boolean"), false, writer);
+            writeFieldDeclaration(createFieldDef("isModified", "boolean"), false, writer);
         }
         writeBuilderConstructorForNew(writer);
         writeBuilderCopyConstructor(writer);
@@ -88,6 +88,10 @@ public class EntityClassBuilderGenerator {
         writeBuilderSetters(writer);
         writeBuilderBuildMethod(writer);
         writer.writeBlockEnd();
+    }
+
+    private EntityFieldDef createFieldDef(String name, String type) {
+        return new EntityFieldDef.Builder(name, null, type, null, Collections.emptyList(), false, false).build();
     }
 
     private void writeBuilderCopyConstructor(JavaSourceWriter writer) {

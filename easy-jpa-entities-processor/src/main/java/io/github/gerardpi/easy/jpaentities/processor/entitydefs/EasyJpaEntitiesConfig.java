@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -19,7 +22,6 @@ public class EasyJpaEntitiesConfig {
     private final boolean hasPersistable;
     private final String defaultFieldType;
 
-    @JsonCreator
     public EasyJpaEntitiesConfig(Builder builder) {
         this.entityClassDefNames = builder.entityClassDefNames;
         this.targetPackage = builder.targetPackage;
@@ -79,7 +81,7 @@ public class EasyJpaEntitiesConfig {
         private List<EntityClassDef> entityClassDefs;
         private boolean hasOptLockablePersistable;
         private boolean hasPersistable;
-        private String defaultFieldType;
+        private final String defaultFieldType;
 
         @JsonCreator
         public Builder(
@@ -92,7 +94,7 @@ public class EasyJpaEntitiesConfig {
             this.includeConstructorWithParameters = includeConstructorWithParameters;
             this.entityClassDefNames = entityClassDefNames == null ? Collections.emptyList() : entityClassDefNames;
             this.idClass = idClassForName(idClassName);
-            this.defaultFieldType = defaultFieldType;
+            this.defaultFieldType = defaultFieldType == null ? String.class.getName() : defaultFieldType;
         }
 
         public Builder setDefaultIfNoTargetPackageSpecified(String defaultTargetPackage) {
@@ -136,13 +138,6 @@ public class EasyJpaEntitiesConfig {
 
         public String getDefaultFieldType() {
             return defaultFieldType;
-        }
-
-        public Builder setDefaultFieldTypeIfNotSpecified(String defaultFieldType) {
-            if (this.defaultFieldType == null) {
-                this.defaultFieldType = defaultFieldType;
-            }
-            return this;
         }
     }
 }
