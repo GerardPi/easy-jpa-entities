@@ -36,12 +36,9 @@ public final class PersistableDefsDeserializer {
         }
     }
 
-    static EntityClassDef.Builder slurpEntityClassDefFromYaml(Reader reader, String yamlFileName, ProcessingEnvironment procEnv, String defaultFieldType) {
+    static EntityClassDef.Builder slurpEntityClassDefFromYaml(Reader reader, String yamlFileName, ProcessingEnvironment procEnv) {
         try {
-            ObjectMapper yamlObjectMapper = createYamlObjectMapper();
-            InjectableValues injectableValues = new InjectableValues.Std().addValue(String.class, defaultFieldType);
-            yamlObjectMapper.setInjectableValues(injectableValues);
-            EntityClassDef.Builder entityClassDef = yamlObjectMapper.readValue(reader, EntityClassDef.Builder.class);
+            EntityClassDef.Builder entityClassDef = createYamlObjectMapper().readValue(reader, EntityClassDef.Builder.class);
             note(procEnv, "Loaded entity class def reading file '" + yamlFileName + "'");
             return entityClassDef;
         } catch (IOException e) {

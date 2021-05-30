@@ -76,8 +76,9 @@ public class AnnotationProcessor extends AbstractProcessor {
         FileObject yamlFileObject = ProcessorUtils.get(processingEnv, targetPackage, yamlFileName)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv, defaultFieldType)
+            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
                     .setName(entityClassDefName)
+                    .setDefaultFieldTypeIfNotSpecified(defaultFieldType)
                     .build();
             return Optional.of(entityClassDef);
         } catch (IOException e) {
