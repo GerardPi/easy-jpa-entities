@@ -7,6 +7,7 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.capitalize;
@@ -114,7 +115,8 @@ public class EntityClassBuilderGenerator {
     private void writeBuilderSetters(JavaSourceWriter writer) {
         classDef.getFieldDefs().forEach(fieldDef -> {
             if (!fieldDef.isWriteOnce()) {
-                writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType() + " " + fieldDef.getName() + ")");
+                writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType()
+                        + " " + fieldDef.getName() + ")");
                 writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
                 if (classDef.isEntity()) {
                     writer.assign("this.", "isModified", "", "true");

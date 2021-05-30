@@ -107,11 +107,10 @@ public class EntityClassDef {
         @JsonCreator
         public Builder(
                 @JsonProperty(value = "fieldDefs", required = true) List<EntityFieldDef> fieldDefs,
-                @JsonProperty("extendsFromClass") String extendsFromClass,
+                @JsonProperty(value = "extendsFromClass") String extendsFromClass,
                 @JsonProperty(value = "annotation") String annotation,
                 @JsonProperty(value = "annotations") List<String> annotations,
-                @JsonProperty("readOnly") boolean readOnly
-        ) {
+                @JsonProperty("readOnly") boolean readOnly) {
             this(null, fieldDefs, extendsFromClass, readOnly, annotation, annotations);
         }
 
@@ -130,6 +129,7 @@ public class EntityClassDef {
             this.name = name;
             return this;
         }
+
 
         public EntityClassDef build() {
             return new EntityClassDef(this);

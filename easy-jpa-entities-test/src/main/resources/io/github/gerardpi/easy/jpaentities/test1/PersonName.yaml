@@ -1,7 +1,5 @@
 annotation: javax.persistence.Embeddable
 fieldDefs:
   - name: "first"
-    type: "java.lang.String"
   - name: "last"
-    type: "java.lang.String"
     notNull: true

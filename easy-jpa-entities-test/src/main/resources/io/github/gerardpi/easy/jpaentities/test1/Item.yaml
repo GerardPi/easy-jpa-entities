@@ -1,7 +1,6 @@
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "friendlyId"
-    type: "java.lang.String"
     notNull: true
     writeOnce: true
   - name: "type"
@@ -9,7 +8,6 @@ fieldDefs:
     notNull: true
     annotation: javax.persistence.Enumerated(javax.persistence.EnumType.STRING)
   - name: "name"
-    type: "java.lang.String"
     notNull: true
   - name: texts
     annotations:

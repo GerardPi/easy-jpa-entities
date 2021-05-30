@@ -7,9 +7,7 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.CollectionDef;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 class JavaSourceWriter implements AutoCloseable {
     public static final String BLOCK_BEGIN = " {";
@@ -73,7 +71,9 @@ class JavaSourceWriter implements AutoCloseable {
                     ? ImmutableSet.class.getName() + ".copyOf(" + fieldPrefix + fieldDef.getName() + ")"
                     : fieldPrefix + fieldDef.getName();
         }
-        throw new IllegalArgumentException("No idea what to do with a collection of type '" + fieldDef.fetchCollectionDef().get().getCollectionType() + "'.");
+        throw new IllegalArgumentException("No idea what to do with a collection of type '"
+                + collectionDef.getCollectionType()
+                + "'.");
     }
 
     JavaSourceWriter writeAssignmentsToNull(List<EntityFieldDef> fieldDefs) {
@@ -96,11 +96,6 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    private String methodParameterDeclarations(List<EntityFieldDef> fieldDefs) {
-        return fieldDefs.stream()
-                .map(fieldDef -> fieldDef.getType() + " " + fieldDef.getName())
-                .collect(Collectors.joining(", "));
-    }
     String quoted(String value) {
         return "\"" + value + "\"";
     }
@@ -112,14 +107,6 @@ class JavaSourceWriter implements AutoCloseable {
     JavaSourceWriter writeBlockBeginln(String line) {
         writer.line(blockBegin(line)).incIndentation();
         return this;
-    }
-
-    JavaSourceWriter writeMethodSignature(String type, String methodName) {
-        return writeMethodSignature(type, methodName, Collections.emptyList());
-    }
-
-    JavaSourceWriter writeMethodSignature(String type, String methodName, List<EntityFieldDef> fieldDefs) {
-        return writeBlockBeginln(type + " " + methodName + " (" + methodParameterDeclarations(fieldDefs) + ")");
     }
 
     JavaSourceWriter writeBlockEnd() {

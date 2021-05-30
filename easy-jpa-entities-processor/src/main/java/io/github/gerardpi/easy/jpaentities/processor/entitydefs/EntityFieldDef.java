@@ -1,14 +1,13 @@
 package io.github.gerardpi.easy.jpaentities.processor.entitydefs;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.util.*;
-
-import static java.util.Objects.requireNonNull;
 
 public class EntityFieldDef {
     private final String name;
@@ -26,6 +25,7 @@ public class EntityFieldDef {
     @JsonCreator
     public EntityFieldDef(@JsonProperty(value = "name", required = true) String name,
                           @JsonProperty(value = "singular") String singular,
+                          @JacksonInject
                           @JsonProperty(value = "type", required = true) String type,
                           @JsonProperty(value = "annotation") String annotation,
                           @JsonProperty(value = "annotations") List<String> annotations,
@@ -51,6 +51,15 @@ public class EntityFieldDef {
         this.writeOnce = writeOnce;
     }
 
+    public static void main(String[] args) {
+        EntityFieldDef entityFieldDef = new EntityFieldDef("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true, false);
+        try {
+            System.out.println(new ObjectMapper(new YAMLFactory()).writeValueAsString(entityFieldDef));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -66,7 +75,6 @@ public class EntityFieldDef {
         return type;
     }
 
-
     public String getAnnotation() {
         if (annotations.isEmpty()) {
             return null;
@@ -78,36 +86,25 @@ public class EntityFieldDef {
         return annotations;
     }
 
-    public boolean isNotNull() {
-        return notNull;
-    }
-
     public Optional<CollectionDef> fetchCollectionDef() {
         return Optional.ofNullable(this.collectionDef);
-    }
-
-    public CollectionDef getCollectionDef() {
-        return this.collectionDef;
-    }
-
-    public boolean isCollection() {
-        return this.collectionDef != null;
-    }
-
-    public static void main(String[] args) {
-        EntityFieldDef entityFieldDef = new EntityFieldDef("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true, false);
-        try {
-            System.out.println(new ObjectMapper(new YAMLFactory()).writeValueAsString(entityFieldDef));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
     }
 
     public boolean isWriteOnce() {
         return writeOnce;
     }
 
-    public String getCollectedType() {
-        return requireNonNull(collectionDef).getCollectedType();
+    public static class InjectableValues extends com.fasterxml.jackson.databind.InjectableValues.Std {
+        private final String fieldName;
+
+        public InjectableValues(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        @Override
+        public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) throws JsonMappingException {
+            System.out.println("######## forProperty.name='" + forProperty.getName() + "'");
+            return super.findInjectableValue(valueId, ctxt, forProperty, beanInstance);
+        }
     }
 }

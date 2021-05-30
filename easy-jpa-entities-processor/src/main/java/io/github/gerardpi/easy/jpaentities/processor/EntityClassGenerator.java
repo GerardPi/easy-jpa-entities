@@ -6,7 +6,9 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.THIS_PREFIX;
@@ -108,7 +110,7 @@ public class EntityClassGenerator {
 
     private void writeConstructor(JavaSourceWriter writer) {
         writer.writeBlockBeginln("private " + classDef.getName() + "(" + methodParameterDeclarations() + ")");
-        classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "",  fieldDef, true));
+        classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "", fieldDef, true));
         writer.writeBlockEnd();
     }
 
@@ -118,9 +120,11 @@ public class EntityClassGenerator {
                 .collect(Collectors.joining(", "));
     }
 
+
     private void writeFieldGetters(JavaSourceWriter writer) {
         classDef.getFieldDefs().forEach(fieldDef -> {
-            writer.writeMethodSignature(fieldDef.getType(), "get" + capitalize(fieldDef.getName()))
+            writeMethodSignature(fieldDef.getType(), "get" + capitalize(fieldDef.getName()), writer);
+            writer
                     .writeLine("return " + fieldDef.getName() + ";")
                     .writeBlockEnd();
         });
@@ -135,8 +139,8 @@ public class EntityClassGenerator {
 
         if (classDef.isEntity()) {
             writer
-                .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()")
-                .writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
+                    .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()")
+                    .writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
         }
         if (classDef.isOptLockable()) {
             writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
@@ -149,4 +153,20 @@ public class EntityClassGenerator {
                 .decIndentation()
                 .writeBlockEnd();
     }
+
+
+    private String methodParameterDeclarations(List<EntityFieldDef> fieldDefs) {
+        return fieldDefs.stream()
+                .map(fieldDef -> fieldDef.getType() + " " + fieldDef.getName())
+                .collect(Collectors.joining(", "));
+    }
+
+    private void writeMethodSignature(String type, String methodName, JavaSourceWriter writer) {
+        writeMethodSignature(type, methodName, Collections.emptyList(), writer);
+    }
+
+    private void writeMethodSignature(String type, String methodName, List<EntityFieldDef> fieldDefs, JavaSourceWriter writer) {
+        writer.writeBlockBeginln(type + " " + methodName + " (" + methodParameterDeclarations(fieldDefs) + ")");
+    }
+
 }

@@ -63,20 +63,20 @@ public class AnnotationProcessor extends AbstractProcessor {
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFilename + "'"));
     }
 
-    private List<EntityClassDef> loadEntityClassDefs(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        return easyJpaEntitiesConfig.getEntityClassDefNames().stream()
-                .map(e -> loadEntityClassDef(e, easyJpaEntitiesConfig.getTargetPackage()))
+    private List<EntityClassDef> loadEntityClassDefs(List<String> entityClassDefNames, String targetPackage, String defaultFieldType) {
+        return entityClassDefNames.stream()
+                .map(e -> loadEntityClassDef(e, targetPackage, defaultFieldType))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    private Optional<EntityClassDef> loadEntityClassDef(String entityClassDefName, String targetPackage) {
+    private Optional<EntityClassDef> loadEntityClassDef(String entityClassDefName, String targetPackage, String defaultFieldType) {
         String yamlFileName = entityClassDefName + ".yaml";
         FileObject yamlFileObject = ProcessorUtils.get(processingEnv, targetPackage, yamlFileName)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
+            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv, defaultFieldType)
                     .setName(entityClassDefName)
                     .build();
             return Optional.of(entityClassDef);
@@ -88,11 +88,14 @@ public class AnnotationProcessor extends AbstractProcessor {
 
     private EasyJpaEntitiesConfig loadConfig(FileObject inputYamlFileObject, String defaultTargetPackage) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputYamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            EasyJpaEntitiesConfig config = slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
-                    .withDefaultTargetPackageIfNotSpecified(defaultTargetPackage);
-            List<EntityClassDef> entityClassDefs = loadEntityClassDefs(config);
+            EasyJpaEntitiesConfig.Builder builder = slurpFromYaml(reader, inputYamlFileObject.getName(), processingEnv)
+                    .setDefaultFieldTypeIfNotSpecified(String.class.getName())
+                    .setDefaultIfNoTargetPackageSpecified(defaultTargetPackage);
+            List<EntityClassDef> entityClassDefs = loadEntityClassDefs(builder.getEntityClassDefNames(), builder.getTargetPackage(), builder.getDefaultFieldType());
             note(processingEnv, "Loaded " + entityClassDefs.size() + " instances of " + EntityClassDef.class.getSimpleName());
-            return config.withEntityClassDefs(entityClassDefs);
+            return builder
+                    .setEntityClassDefs(entityClassDefs)
+                    .build();
         } catch (IOException e) {
             String msg = "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'";
             ProcessorUtils.error(processingEnv, msg);

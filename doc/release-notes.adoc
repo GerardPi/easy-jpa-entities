@@ -4,3 +4,4 @@
 .Versions:
 . 2021-05-23 Initial version
 . 2021-05-24 Now supports classes without Persistable or OptLockablePersistable, to allow for Embeddable parts (without any superclass). Annotations per class can be specified explicitly.
+. 2021-05-28 The type can be omitted. The default type is java.lang.String. Which can be overriden in top YAML file and specified per entity YAML file using property defaultType.
