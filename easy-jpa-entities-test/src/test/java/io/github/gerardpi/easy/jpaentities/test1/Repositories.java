@@ -1,5 +1,6 @@
 package io.github.gerardpi.easy.jpaentities.test1;
 
+import io.github.gerardpi.easy.jpaentities.test1.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -83,8 +84,10 @@ public class Repositories {
                 return (Optional<T>) itemRepository.findById(id);
             case "ItemOrder":
                 return (Optional<T>) itemOrderRepository.findById(id);
-            case "Person":
+            case "ItemOrderLine":
                 return (Optional<T>) itemOrderLineRepository.findById(id);
+            case "Person":
+                return (Optional<T>) personRepository.findById(id);
             case "Address":
                 return (Optional<T>) addressRepository.findById(id);
             case "PersonAddress":

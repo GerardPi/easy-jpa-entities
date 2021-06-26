@@ -1,7 +1,7 @@
 extendsFromClass: "OptLockablePersistable"
 fieldDefs:
   - name: "name"
-    type: "io.github.gerardpi.easy.jpaentities.test1.PersonName"
+    type: "io.github.gerardpi.easy.jpaentities.test1.domain.PersonName"
     annotation: javax.persistence.Embedded
   - name: "dateOfBirth"
     type: "java.time.LocalDate"

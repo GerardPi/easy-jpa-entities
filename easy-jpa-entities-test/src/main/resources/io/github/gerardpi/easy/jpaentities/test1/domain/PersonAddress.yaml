@@ -10,6 +10,6 @@ fieldDefs:
     annotation: javax.persistence.JoinColumn(nullable = false, table = "person", referencedColumnName = "id")
   - name: "types"
     singular: "type"
-    type: java.util.SortedSet<io.github.gerardpi.easy.jpaentities.test1.PersonAddressType>
-    annotation: javax.persistence.Convert(converter = io.github.gerardpi.easy.jpaentities.test1.SortedPersonAddressTypeSetConverter.class)
+    type: java.util.SortedSet<io.github.gerardpi.easy.jpaentities.test1.domain.PersonAddressType>
+    annotation: javax.persistence.Convert(converter = io.github.gerardpi.easy.jpaentities.test1.domain.SortedPersonAddressTypeSetConverter.class)
     notNull: true

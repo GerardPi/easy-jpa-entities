@@ -1,4 +1,4 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.domain;
 
 
 import com.google.common.base.Strings;

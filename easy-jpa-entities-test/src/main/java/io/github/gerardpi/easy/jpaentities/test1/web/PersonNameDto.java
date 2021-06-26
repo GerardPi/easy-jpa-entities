@@ -1,4 +1,4 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.web;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

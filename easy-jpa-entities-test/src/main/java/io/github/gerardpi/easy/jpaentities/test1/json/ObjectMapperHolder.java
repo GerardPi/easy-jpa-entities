@@ -1,4 +1,4 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

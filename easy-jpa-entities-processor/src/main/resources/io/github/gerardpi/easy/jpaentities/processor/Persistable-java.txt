@@ -11,7 +11,7 @@ import javax.persistence.MappedSuperclass;
  * Only use this super class when you don't care about possible concurrency issues for an entity.
  */
 @MappedSuperclass
-abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<##_ID_CLASS_##> {
+public abstract class Persistable implements Serializable, org.springframework.data.domain.Persistable<##_ID_CLASS_##> {
   public static final String PROPNAME_ID = "id";
   @Id
   private final ##_ID_CLASS_## id;

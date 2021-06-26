@@ -5,6 +5,7 @@ import com.tngtech.jgiven.annotation.Hidden;
 import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.annotation.ScenarioStage;
 import com.tngtech.jgiven.junit5.SimpleScenarioTest;
+import io.github.gerardpi.easy.jpaentities.test1.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

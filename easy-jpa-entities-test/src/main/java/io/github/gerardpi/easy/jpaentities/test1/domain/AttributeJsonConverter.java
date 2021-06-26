@@ -1,7 +1,8 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.domain;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
+import io.github.gerardpi.easy.jpaentities.test1.json.ObjectMapperHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

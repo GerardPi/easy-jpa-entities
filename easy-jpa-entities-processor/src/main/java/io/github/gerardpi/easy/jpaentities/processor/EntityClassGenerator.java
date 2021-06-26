@@ -60,7 +60,7 @@ public class EntityClassGenerator {
         String extendsPart = classDef.getExtendsFromClass()
                 .map(superClass -> " extends " + superClass)
                 .orElse("");
-        writer.writeBlockBeginln("class " + classDef.getName() + extendsPart);
+        writer.writeBlockBeginln("public class " + classDef.getName() + extendsPart);
     }
 
     private void writeEntityFieldDeclarations(JavaSourceWriter writer) {
@@ -167,7 +167,7 @@ public class EntityClassGenerator {
     }
 
     private void writeMethodSignature(String type, String methodName, List<EntityFieldDef> fieldDefs, JavaSourceWriter writer) {
-        writer.writeBlockBeginln(type + " " + methodName + " (" + methodParameterDeclarations(fieldDefs) + ")");
+        writer.writeBlockBeginln("public " + type + " " + methodName + " (" + methodParameterDeclarations(fieldDefs) + ")");
     }
 
 }

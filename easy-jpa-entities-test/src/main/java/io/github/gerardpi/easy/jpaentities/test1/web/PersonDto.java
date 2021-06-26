@@ -1,7 +1,9 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.web;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.PersonName;
 
 import java.util.UUID;
 

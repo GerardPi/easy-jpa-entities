@@ -1,5 +1,8 @@
-package io.github.gerardpi.easy.jpaentities.test1;
+package io.github.gerardpi.easy.jpaentities.test1.web;
 
+import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.PersonRepository;
+import io.github.gerardpi.easy.jpaentities.test1.UuidGenerator;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
