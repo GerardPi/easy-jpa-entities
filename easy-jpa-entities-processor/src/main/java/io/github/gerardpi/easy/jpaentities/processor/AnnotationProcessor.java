@@ -109,6 +109,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         generateMappedSuperclasses(easyJpaEntitiesConfig);
         note(processingEnv, "Generating entity classes ...");
         generateEntityClasses(easyJpaEntitiesConfig);
+        generateDtoClasses(easyJpaEntitiesConfig);
     }
 
     private void generateEntityClasses(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
@@ -120,6 +121,23 @@ public class AnnotationProcessor extends AbstractProcessor {
                         .write(writer);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    private void generateDtoClasses(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
+        easyJpaEntitiesConfig.getEntityClassDefs().forEach(classDef -> {
+            if (classDef.getDtoTargetPackage().isPresent()) {
+                String fqn = classDef.getDtoTargetPackage().get() + "." + classDef.getName() + "Dto";
+                note(processingEnv, "Generating DTO class " + fqn);
+                try (JavaSourceWriter writer = createClassWriter(processingEnv, fqn)) {
+                    new EntityClassGenerator(classDef, easyJpaEntitiesConfig, true)
+                            .write(writer);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            } else {
+                note(processingEnv, "No DTO class generated for '" + classDef.getName() + "'");
             }
         });
     }

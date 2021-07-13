@@ -25,7 +25,7 @@ public class PersonController {
     }
 
     @PostMapping
-    HttpEntity<Void> createPerson(PersonDto personDto) {
+    HttpEntity<Void> createPerson(PersonDtoObsolete personDto) {
         Person person = personDto.toPerson(uuidGenerator.generate());
         Person savedPerson = personRepository.save(person);
         return ResponseEntity.ok()
@@ -35,19 +35,19 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    HttpEntity<PersonDto> getPerson(@PathVariable UUID id) {
+    HttpEntity<PersonDtoObsolete> getPerson(@PathVariable UUID id) {
         return
                 personRepository.findById(id)
                         .map(person -> ResponseEntity.ok().eTag("" + person.getOptLockVersion())
-                                .body(PersonDto.fromPerson(person)))
+                                .body(PersonDtoObsolete.fromPerson(person)))
                         .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    List<PersonDto> getPersons(Pageable pageable) {
+    List<PersonDtoObsolete> getPersons(Pageable pageable) {
         return
                 personRepository.findAll(pageable).stream()
-                        .map(PersonDto::fromPerson)
+                        .map(PersonDtoObsolete::fromPerson)
                         .collect(Collectors.toList());
     }
 }

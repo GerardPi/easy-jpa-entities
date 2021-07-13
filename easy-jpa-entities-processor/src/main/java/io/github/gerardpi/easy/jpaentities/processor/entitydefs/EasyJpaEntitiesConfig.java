@@ -21,6 +21,7 @@ public class EasyJpaEntitiesConfig {
     private final boolean hasOptLockablePersistable;
     private final boolean hasPersistable;
     private final String defaultFieldType;
+    private final boolean includeCommentWithTimestamp;
 
     public EasyJpaEntitiesConfig(Builder builder) {
         this.entityClassDefNames = builder.entityClassDefNames;
@@ -31,6 +32,7 @@ public class EasyJpaEntitiesConfig {
         this.hasOptLockablePersistable = builder.hasOptLockablePersistable;
         this.hasPersistable = builder.hasPersistable;
         this.defaultFieldType = builder.defaultFieldType;
+        this.includeCommentWithTimestamp = builder.includeCommentWithTimestamp;
     }
 
 
@@ -74,14 +76,15 @@ public class EasyJpaEntitiesConfig {
     }
 
     public static class Builder {
-        private List<String> entityClassDefNames;
-        private String targetPackage;
         private final boolean includeConstructorWithParameters;
         private final Class<?> idClass;
+        private final String defaultFieldType;
+        private List<String> entityClassDefNames;
+        private String targetPackage;
         private List<EntityClassDef> entityClassDefs;
         private boolean hasOptLockablePersistable;
+        private boolean includeCommentWithTimestamp;
         private boolean hasPersistable;
-        private final String defaultFieldType;
 
         @JsonCreator
         public Builder(
@@ -89,12 +92,22 @@ public class EasyJpaEntitiesConfig {
                 @JsonProperty(value = "includeConstructorWithParameters", defaultValue = "false") boolean includeConstructorWithParameters,
                 @JsonProperty(value = "entityClassDefNames", required = true) List<String> entityClassDefNames,
                 @JsonProperty(value = "idClass", defaultValue = "java.util.UUID") String idClassName,
+                @JsonProperty(value = "includeCommentWithTimestamp", defaultValue = "true") boolean includeCommentWithTimestamp,
                 @JsonProperty(value = "defaultType") String defaultFieldType) {
             this.targetPackage = targetPackage;
             this.includeConstructorWithParameters = includeConstructorWithParameters;
             this.entityClassDefNames = entityClassDefNames == null ? Collections.emptyList() : entityClassDefNames;
             this.idClass = idClassForName(idClassName);
             this.defaultFieldType = defaultFieldType == null ? String.class.getName() : defaultFieldType;
+            this.includeCommentWithTimestamp = includeCommentWithTimestamp;
+        }
+
+        private static Class<?> idClassForName(String idClassName) {
+            try {
+                return Class.forName(idClassName == null ? UUID.class.getName() : idClassName);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
         }
 
         public Builder setDefaultIfNoTargetPackageSpecified(String defaultTargetPackage) {
@@ -117,15 +130,6 @@ public class EasyJpaEntitiesConfig {
 
         public EasyJpaEntitiesConfig build() {
             return new EasyJpaEntitiesConfig(this);
-        }
-
-
-        private static Class<?> idClassForName(String idClassName) {
-            try {
-                return Class.forName(idClassName == null ? UUID.class.getName() : idClassName);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(e);
-            }
         }
 
         public List<String> getEntityClassDefNames() {

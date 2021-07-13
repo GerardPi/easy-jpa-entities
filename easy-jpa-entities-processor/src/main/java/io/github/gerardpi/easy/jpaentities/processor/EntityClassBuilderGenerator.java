@@ -15,19 +15,29 @@ import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.cap
 public class EntityClassBuilderGenerator {
     private final EntityClassDef classDef;
     private final EasyJpaEntitiesConfig config;
+    private final boolean forDtoClasses;
 
-    public EntityClassBuilderGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
+    public EntityClassBuilderGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig, boolean forDtoClasses) {
         this.classDef = classDef;
         this.config = easyJpaEntitiesConfig;
+        this.forDtoClasses = forDtoClasses;
     }
 
     public void write(JavaSourceWriter writer) {
         writeBuilderParts(writer);
     }
 
+    private String getClassName() {
+        return classDef.getName() + (forDtoClasses ? "Dto" : "");
+    }
+
+    private boolean isForEntity() {
+        return classDef.isEntity() && !forDtoClasses;
+    }
+
     private String getCreationParameters() {
         List<String> constructorParameters = new ArrayList<>();
-        if (classDef.isEntity()) {
+        if (isForEntity()) {
             constructorParameters.add(config.getIdClass().getName() + " id");
         }
         constructorParameters.addAll(classDef.getFieldDefs().stream()
@@ -38,7 +48,7 @@ public class EntityClassBuilderGenerator {
 
     private String getCreationArguments() {
         List<String> constructorParameters = new ArrayList<>();
-        if (classDef.isEntity()) {
+        if (isForEntity()) {
             constructorParameters.add("id");
         }
         constructorParameters.addAll(classDef.getFieldDefs().stream()
@@ -51,16 +61,16 @@ public class EntityClassBuilderGenerator {
 
         writer.emptyLine()
                 .writeBlockBeginln("private Builder(" + getCreationParameters() + ")");
-        if (classDef.isEntity()) {
+        if (isForEntity()) {
             writer.writeLine("this.id = java.util.Objects.requireNonNull(id);")
                     .writeLine("this.isModified = false;")
                     .writeLine("this.existing = null;");
-        }
 
-        if (classDef.isOptLockable()) {
-            writer.writeLine("this.optLockVersion = null;");
-        } else if (classDef.isPersistable()) {
-            writer.writeLine("this.isPersisted = false;");
+            if (classDef.isOptLockable()) {
+                writer.writeLine("this.optLockVersion = null;");
+            } else if (classDef.isPersistable()) {
+                writer.writeLine("this.isPersisted = false;");
+            }
         }
 
         writer
@@ -72,8 +82,8 @@ public class EntityClassBuilderGenerator {
         writeCreateAndModifyWithBuilderMethods(writer);
         writer.writeBlockBeginln("public static class Builder");
         writeBuilderFieldDeclarations(writer);
-        if (classDef.isEntity()) {
-            writeFieldDeclaration(createFieldDef("existing", classDef.getName()), true, writer);
+        if (isForEntity()) {
+            writeFieldDeclaration(createFieldDef("existing", getClassName()), true, writer);
             writeFieldDeclaration(createFieldDef("id", config.getIdClass().getName()), true, writer);
             if (!classDef.isOptLockable()) {
                 writeFieldDeclaration(createFieldDef("isPersisted", "boolean"), true, writer);
@@ -97,20 +107,20 @@ public class EntityClassBuilderGenerator {
     private void writeBuilderCopyConstructor(JavaSourceWriter writer) {
         writer
                 .emptyLine()
-                .writeBlockBeginln("private Builder(" + classDef.getName() + " existing)");
-        if (classDef.isEntity()) {
+                .writeBlockBeginln("private Builder(" + getClassName() + " existing)");
+        if (isForEntity()) {
             writer.writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
                     .writeLine("this.isModified = false;")
                     .writeLine("this.id = existing.getId();");
-        }
 
-        if (classDef.isPersistable()) {
-            writer.writeLine("this.isPersisted = true;");
-        }
+            if (classDef.isPersistable()) {
+                writer.writeLine("this.isPersisted = true;");
+            }
 
-        if (classDef.isOptLockable()) {
-            writer
-                    .writeLine("this.optLockVersion = existing.getOptLockVersion();");
+            if (classDef.isOptLockable()) {
+                writer
+                        .writeLine("this.optLockVersion = existing.getOptLockVersion();");
+            }
         }
         writeAssignmentsInBuilderConstructor("this.", "existing.", writer);
         writer.writeBlockEnd();
@@ -122,7 +132,7 @@ public class EntityClassBuilderGenerator {
                 writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType()
                         + " " + fieldDef.getName() + ")");
                 writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
-                if (classDef.isEntity()) {
+                if (isForEntity()) {
                     writer.assign("this.", "isModified", "", "true");
                 }
                 writer.writeLine("return this;");
@@ -134,8 +144,8 @@ public class EntityClassBuilderGenerator {
     }
 
     private void writeBuilderBuildMethod(JavaSourceWriter writer) {
-        writer.writeBlockBeginln("public " + classDef.getName() + " build()")
-                .writeLine("return new " + classDef.getName() + "(this);")
+        writer.writeBlockBeginln("public " + getClassName() + " build()")
+                .writeLine("return new " + getClassName() + "(this);")
                 .writeBlockEnd();
     }
 

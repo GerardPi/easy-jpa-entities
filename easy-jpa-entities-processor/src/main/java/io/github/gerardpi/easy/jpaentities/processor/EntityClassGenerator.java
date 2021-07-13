@@ -17,11 +17,17 @@ public class EntityClassGenerator {
     private final EntityClassDef classDef;
     private final EntityClassBuilderGenerator entityClassBuilderGenerator;
     private final EasyJpaEntitiesConfig config;
+    private final boolean forDtoClasses;
 
-    public EntityClassGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
+    public EntityClassGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig, boolean forDtoClasses) {
         this.config = easyJpaEntitiesConfig;
         this.classDef = classDef;
-        this.entityClassBuilderGenerator = new EntityClassBuilderGenerator(classDef, easyJpaEntitiesConfig);
+        this.entityClassBuilderGenerator = new EntityClassBuilderGenerator(classDef, easyJpaEntitiesConfig, forDtoClasses);
+        this.forDtoClasses = forDtoClasses;
+    }
+
+    public EntityClassGenerator(EntityClassDef classDef, EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
+        this(classDef, easyJpaEntitiesConfig, false);
     }
 
     public void write(JavaSourceWriter writer) {
@@ -43,24 +49,40 @@ public class EntityClassGenerator {
     }
 
     private void writeClassHeader(JavaSourceWriter writer) {
-        writer.writeLine("package " + config.getTargetPackage() + ";")
+        writer.writeLine("package " + getTargetPath() + ";")
                 .emptyLine();
         writer.writeLine("// Generated")
                 .writeLine("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                 .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
-        if (classDef.isEntity()) {
+        if (isForEntity()) {
             writer
                     .writeLine("@javax.persistence.Entity")
                     .writeLine("@javax.persistence.Access(javax.persistence.AccessType.FIELD)");
+            classDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
         }
-        classDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
     }
 
+    private boolean isForEntity() {
+        return classDef.isEntity() && !forDtoClasses;
+    }
+
+    private String getTargetPath() {
+        if (forDtoClasses) {
+            return classDef.getDtoTargetPackage().orElseThrow(() -> new IllegalStateException("No DTO class target path was provided"));
+        }
+        return config.getTargetPackage();
+    }
+
+
     private void writeClassDeclaration(JavaSourceWriter writer) {
-        String extendsPart = classDef.getExtendsFromClass()
-                .map(superClass -> " extends " + superClass)
-                .orElse("");
-        writer.writeBlockBeginln("public class " + classDef.getName() + extendsPart);
+        String extendsPart = isForEntity()
+                ? classDef.getExtendsFromClass().map(superClass -> " extends " + superClass).orElse("")
+                : "";
+        writer.writeBlockBeginln("public class " + getClassName() + extendsPart);
+    }
+
+    private String getClassName() {
+        return classDef.getName() + (forDtoClasses ? "Dto" : "");
     }
 
     private void writeEntityFieldDeclarations(JavaSourceWriter writer) {
@@ -69,7 +91,9 @@ public class EntityClassGenerator {
 
     private void writeFieldDeclaration(EntityFieldDef entityFieldDef, JavaSourceWriter writer) {
         writer.writeLine("public static final String PROPNAME_" + entityFieldDef.getName().toUpperCase() + " = " + writer.quoted(entityFieldDef.getName()) + ";");
-        entityFieldDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
+        if (isForEntity()) {
+            entityFieldDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
+        }
         writer.writeLine("private final " + entityFieldDef.getType() + " " + entityFieldDef.getName() + ";");
     }
 
@@ -93,24 +117,26 @@ public class EntityClassGenerator {
 
     private void writeConstructorUsingBuilder(JavaSourceWriter writer) {
         writer
-                .writeBlockBeginln(classDef.getName() + "(Builder builder)");
-        if (classDef.isOptLockable()) {
-            writer.writeLine("super(builder.id, builder.optLockVersion, builder.isModified);");
-        } else if (classDef.isPersistable()) {
-            writer.writeLine("super(builder.id, builder.isPersisted, builder.isModified);");
+                .writeBlockBeginln(getClassName() + "(Builder builder)");
+        if (isForEntity()) {
+            if (classDef.isOptLockable()) {
+                writer.writeLine("super(builder.id, builder.optLockVersion, builder.isModified);");
+            } else if (classDef.isPersistable()) {
+                writer.writeLine("super(builder.id, builder.isPersisted, builder.isModified);");
+            }
         }
         writeAssignmentsInConstructor(writer);
         writer.writeBlockEnd();
     }
 
     private void writeDefaultConstructor(JavaSourceWriter writer) {
-        writer.writeBlockBeginln(classDef.getName() + "()");
+        writer.writeBlockBeginln(getClassName() + "()");
         classDef.getFieldDefs().forEach(writer::assignNull);
         writer.writeBlockEnd();
     }
 
     private void writeConstructor(JavaSourceWriter writer) {
-        writer.writeBlockBeginln("private " + classDef.getName() + "(" + methodParameterDeclarations() + ")");
+        writer.writeBlockBeginln("private " + getClassName() + "(" + methodParameterDeclarations() + ")");
         classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "", fieldDef, true));
         writer.writeBlockEnd();
     }
@@ -138,13 +164,14 @@ public class EntityClassGenerator {
                 .writeLine("return " + writer.quoted("class=") + " + this.getClass().getName()")
                 .incIndentation();
 
-        if (classDef.isEntity()) {
+        if (isForEntity()) {
             writer
                     .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()")
                     .writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
-        }
-        if (classDef.isOptLockable()) {
-            writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
+
+            if (classDef.isOptLockable()) {
+                writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
+            }
         }
         classDef.getFieldDefs().forEach(fieldDef -> {
             writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName());

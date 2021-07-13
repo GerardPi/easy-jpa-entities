@@ -1,4 +1,5 @@
 extendsFromClass: "OptLockablePersistable"
+dtoTargetPackage: io.github.gerardpi.easy.jpaentities.test1.web
 fieldDefs:
   - name: "name"
     type: "io.github.gerardpi.easy.jpaentities.test1.domain.PersonName"

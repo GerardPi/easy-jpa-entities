@@ -18,14 +18,16 @@ public class EntityClassDef {
     private final List<EntityFieldDef> fieldDefs;
     private final String extendsFromClass;
     private final boolean readOnly; // Can only be used to read from database
+    private final String dtoTargetPackage;
     private final List<String> annotations;
 
-    private EntityClassDef(String name, List<EntityFieldDef> fieldDefs, String extendsFromClass, boolean readOnly, List<String> annotations) {
+    private EntityClassDef(String name, List<EntityFieldDef> fieldDefs, String extendsFromClass, boolean readOnly, List<String> annotations, String dtoTargetPackage) {
         this.name = name;
         this.fieldDefs = fieldDefs;
         this.extendsFromClass = extendsFromClass;
         this.readOnly = readOnly;
         this.annotations = annotations;
+        this.dtoTargetPackage = dtoTargetPackage;
     }
 
     private EntityClassDef(Builder builder) {
@@ -33,7 +35,8 @@ public class EntityClassDef {
                 requireNonNull(builder.getFieldDefs(), "A collection of field definitions is required. It may be an empty collection."),
                 builder.extendsFromClass,
                 builder.readOnly,
-                requireNonNull(builder.annotations, "A collection of anntations is required. It may be an empty collection."));
+                requireNonNull(builder.annotations, "A collection of anntations is required. It may be an empty collection."),
+                builder.dtoTargetPackage);
     }
 
     public String getName() {
@@ -74,6 +77,10 @@ public class EntityClassDef {
         return isPersistable() || isOptLockable();
     }
 
+    public Optional<String> getDtoTargetPackage() {
+        return Optional.ofNullable(dtoTargetPackage);
+    }
+
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
@@ -92,6 +99,7 @@ public class EntityClassDef {
         private final List<String> annotations;
         private String defaultFieldType;
         private String name;
+        private String dtoTargetPackage;
 
         public Builder(
                 String name,
@@ -99,7 +107,8 @@ public class EntityClassDef {
                 String extendsFromClass,
                 boolean readOnly, String annotation,
                 List<String> annotations,
-                String defaultFieldType
+                String defaultFieldType,
+                String dtoTargetPackage
         ) {
             this.name = name;
             this.fieldDefBuilders = fieldDefBuilders;
@@ -107,6 +116,7 @@ public class EntityClassDef {
             this.readOnly = readOnly;
             this.annotations = toImmutableList(annotation, annotations);
             this.defaultFieldType = defaultFieldType;
+            this.dtoTargetPackage = dtoTargetPackage;
         }
 
         @JsonCreator
@@ -116,8 +126,9 @@ public class EntityClassDef {
                 @JsonProperty(value = "annotation") String annotation,
                 @JsonProperty(value = "defaultType") String defaultFieldType,
                 @JsonProperty(value = "annotations") List<String> annotations,
-                @JsonProperty("readOnly") boolean readOnly) {
-            this(null, fieldDefBuilders, extendsFromClass, readOnly, annotation, annotations, defaultFieldType);
+                @JsonProperty("readOnly") boolean readOnly,
+                @JsonProperty(value = "dtoTargetPackage", defaultValue = "") String dtoTargetPackage) {
+            this(null, fieldDefBuilders, extendsFromClass, readOnly, annotation, annotations, defaultFieldType, dtoTargetPackage);
         }
 
         private static List<String> toImmutableList(String annotation, List<String> annotations) {

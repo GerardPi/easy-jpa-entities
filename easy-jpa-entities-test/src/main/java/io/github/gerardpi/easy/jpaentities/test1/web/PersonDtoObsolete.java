@@ -7,12 +7,12 @@ import io.github.gerardpi.easy.jpaentities.test1.domain.PersonName;
 
 import java.util.UUID;
 
-public class PersonDto {
+public class PersonDtoObsolete {
     private final PersonName name;
     private final String eTag;
 
     @JsonCreator
-    public PersonDto(@JsonProperty("name") PersonName name, @JsonProperty("eTag") String eTag) {
+    public PersonDtoObsolete(@JsonProperty("name") PersonName name, @JsonProperty("eTag") String eTag) {
         this.name = name;
         this.eTag = eTag;
     }
@@ -36,7 +36,7 @@ public class PersonDto {
         return copyValues(person.modify()).build();
     }
 
-    static PersonDto fromPerson(Person person) {
-        return new PersonDto(person.getName(), "" + person.getOptLockVersion());
+    static PersonDtoObsolete fromPerson(Person person) {
+        return new PersonDtoObsolete(person.getName(), "" + person.getOptLockVersion());
     }
 }
