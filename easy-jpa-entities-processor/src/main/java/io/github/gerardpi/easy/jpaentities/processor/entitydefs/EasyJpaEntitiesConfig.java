@@ -68,6 +68,10 @@ public class EasyJpaEntitiesConfig {
         return hasPersistable;
     }
 
+    public boolean isIncludeCommentWithTimestamp() {
+        return includeCommentWithTimestamp;
+    }
+
     public String getDefaultType() {
         if (this.defaultFieldType == null) {
             return String.class.getName();

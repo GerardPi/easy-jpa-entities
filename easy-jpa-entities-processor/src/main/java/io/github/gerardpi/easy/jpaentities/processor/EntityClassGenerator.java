@@ -51,9 +51,11 @@ public class EntityClassGenerator {
     private void writeClassHeader(JavaSourceWriter writer) {
         writer.writeLine("package " + getTargetPath() + ";")
                 .emptyLine();
-        writer.writeLine("// Generated")
-                .writeLine("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
+        if (config.isIncludeCommentWithTimestamp()) {
+            writer.writeLine("// Generated")
+                    .writeLine("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                    .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
+        }
         if (isForEntity()) {
             writer
                     .writeLine("@javax.persistence.Entity")

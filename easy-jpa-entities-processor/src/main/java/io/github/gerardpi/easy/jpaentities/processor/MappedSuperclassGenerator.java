@@ -14,10 +14,10 @@ import java.util.Map;
 public class MappedSuperclassGenerator {
     public static final String CLASSNAME_PERSISTABLE = "Persistable";
     public static final String CLASSNAME_OPT_LOCKABLE_PERSISTABLE = "OptLockablePersistable";
-    private final EasyJpaEntitiesConfig easyJpaEntitiesConfig;
+    private final EasyJpaEntitiesConfig config;
 
-    MappedSuperclassGenerator(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        this.easyJpaEntitiesConfig = easyJpaEntitiesConfig;
+    MappedSuperclassGenerator(EasyJpaEntitiesConfig config) {
+        this.config = config;
     }
 
     void writePersistable(LineWriter writer) {
@@ -29,10 +29,13 @@ public class MappedSuperclassGenerator {
     }
 
     private void write(String resourceName, LineWriter writer) {
-        writer.line("package " + easyJpaEntitiesConfig.getTargetPackage() + ";")
-                .line("// Generated")
-                .line("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-                .line("//         details: https://github.com/GerardPi/easy-jpa-entities");
+        writer.line("package " + config.getTargetPackage() + ";");
+        if (config.isIncludeCommentWithTimestamp()) {
+            writer
+                    .line("// Generated")
+                    .line("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                    .line("//         details: https://github.com/GerardPi/easy-jpa-entities");
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
             reader.lines()
                     .map(this::replace)
@@ -44,7 +47,7 @@ public class MappedSuperclassGenerator {
 
     private String replace(String line) {
         String result = line;
-        for (Map.Entry<String, String> replacement : easyJpaEntitiesConfig.getTagReplacementMap().entrySet()) {
+        for (Map.Entry<String, String> replacement : config.getTagReplacementMap().entrySet()) {
             result = result.replace(replacement.getKey(), replacement.getValue());
         }
         return result;
