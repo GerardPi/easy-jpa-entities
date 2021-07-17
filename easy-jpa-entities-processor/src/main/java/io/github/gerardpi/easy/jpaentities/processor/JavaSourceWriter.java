@@ -87,6 +87,11 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
+    JavaSourceWriter writeImport(String packageName, String className) {
+        writeLine("import " + packageName + "." + className + ";");
+        return this;
+    }
+
     JavaSourceWriter assign(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, boolean assignedValueMustBeImmutable) {
         if (entityFieldDef.fetchCollectionDef().isPresent()) {
             writer.line(assigneePrefix + entityFieldDef.getName() + " = " + immutable(assignedFieldPrefix, entityFieldDef, assignedValueMustBeImmutable) + ";");

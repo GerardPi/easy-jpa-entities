@@ -61,14 +61,17 @@ public class EntityClassBuilderGenerator {
 
         writer.emptyLine()
                 .writeBlockBeginln("private Builder(" + getCreationParameters() + ")");
-        if (isForEntity()) {
-            writer.writeLine("this.id = java.util.Objects.requireNonNull(id);")
-                    .writeLine("this.isModified = false;")
-                    .writeLine("this.existing = null;");
+        if (classDef.isIdentifiable()) {
+            if (forDtoClasses) {
+                writer.writeLine("this.id = null;");
+            } else {
+                writer.writeLine("this.id = java.util.Objects.requireNonNull(id);")
+                        .writeLine("this.isModified = false;");
+            }
 
-            if (classDef.isOptLockable()) {
-                writer.writeLine("this.optLockVersion = null;");
-            } else if (classDef.isPersistable()) {
+            if (classDef.hasTag()) {
+                writer.writeLine("this.etag = null;");
+            } else if (classDef.isPersistableEntity()) {
                 writer.writeLine("this.isPersisted = false;");
             }
         }
@@ -82,18 +85,23 @@ public class EntityClassBuilderGenerator {
         writeCreateAndModifyWithBuilderMethods(writer);
         writer.writeBlockBeginln("public static class Builder");
         writeBuilderFieldDeclarations(writer);
-        if (isForEntity()) {
-            writeFieldDeclaration(createFieldDef("existing", getClassName()), true, writer);
+        if (classDef.isIdentifiable()) {
             writeFieldDeclaration(createFieldDef("id", config.getIdClass().getName()), true, writer);
-            if (!classDef.isOptLockable()) {
-                writeFieldDeclaration(createFieldDef("isPersisted", "boolean"), true, writer);
-            } else {
-                writeFieldDeclaration(createFieldDef("optLockVersion", Integer.class.getName()), true, writer);
-            }
-            writeFieldDeclaration(createFieldDef("isModified", "boolean"), false, writer);
         }
+        if (classDef.isEntity()) {
+            if (classDef.hasTag()) {
+                writeFieldDeclaration(createFieldDef("etag", Integer.class.getName()), true, writer);
+            }
+            if (!forDtoClasses) {
+                if (classDef.isPersistableEntity()) {
+                    writeFieldDeclaration(createFieldDef("isPersisted", "boolean"), true, writer);
+                }
+                writeFieldDeclaration(createFieldDef("isModified", "boolean"), false, writer);
+            }
+        }
+
         writeBuilderConstructorForNew(writer);
-        writeBuilderCopyConstructor(writer);
+        writeBuilderCopyConstructor(writer, getClassName());
         writer.emptyLine();
         writeBuilderSetters(writer);
         writeBuilderBuildMethod(writer);
@@ -104,22 +112,19 @@ public class EntityClassBuilderGenerator {
         return new EntityFieldDef.Builder(name, null, type, null, Collections.emptyList(), false, false).build();
     }
 
-    private void writeBuilderCopyConstructor(JavaSourceWriter writer) {
+    private void writeBuilderCopyConstructor(JavaSourceWriter writer, String classNameCopySource) {
         writer
                 .emptyLine()
-                .writeBlockBeginln("private Builder(" + getClassName() + " existing)");
-        if (isForEntity()) {
-            writer.writeLine("this.existing = java.util.Objects.requireNonNull(existing);")
-                    .writeLine("this.isModified = false;")
-                    .writeLine("this.id = existing.getId();");
-
-            if (classDef.isPersistable()) {
+                .writeBlockBeginln("private Builder(" + classNameCopySource + " existing)");
+        if (classDef.isEntity()) {
+            writer.writeLine("this.id = existing.getId();");
+            if (classDef.hasTag()) {
+                writer.writeLine("this.etag = existing.getEtag();");
+            } else if (classDef.isPersistableEntity()) {
                 writer.writeLine("this.isPersisted = true;");
             }
-
-            if (classDef.isOptLockable()) {
-                writer
-                        .writeLine("this.optLockVersion = existing.getOptLockVersion();");
+            if (!forDtoClasses) {
+                writer.writeLine("this.isModified = false;");
             }
         }
         writeAssignmentsInBuilderConstructor("this.", "existing.", writer);
@@ -184,7 +189,6 @@ public class EntityClassBuilderGenerator {
     }
 
     private void writeCreateAndModifyWithBuilderMethods(JavaSourceWriter writer) {
-
         writer.writeBlockBeginln("public static Builder create(" + getCreationParameters() + ")")
                 .writeLine("return new Builder(" + getCreationArguments() + ");")
                 .writeBlockEnd()

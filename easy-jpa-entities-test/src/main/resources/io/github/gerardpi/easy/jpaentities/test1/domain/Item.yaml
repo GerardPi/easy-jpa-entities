@@ -1,4 +1,4 @@
-extendsFromClass: "OptLockablePersistable"
+extendsFromClass: "PersistableEntityWithTag"
 fieldDefs:
   - name: "friendlyId"
     notNull: true

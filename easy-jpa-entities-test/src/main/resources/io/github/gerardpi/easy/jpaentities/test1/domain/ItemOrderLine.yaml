@@ -1,4 +1,4 @@
-extendsFromClass: OptLockablePersistable
+extendsFromClass: "PersistableEntityWithTag"
 fieldDefs:
   - name: itemId
     type: java.util.UUID

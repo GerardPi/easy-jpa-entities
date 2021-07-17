@@ -1,4 +1,4 @@
-extendsFromClass: "OptLockablePersistable"
+extendsFromClass: "PersistableEntityWithTag"
 dtoTargetPackage: io.github.gerardpi.easy.jpaentities.test1.web
 fieldDefs:
   - name: "name"

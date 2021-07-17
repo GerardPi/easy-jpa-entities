@@ -102,11 +102,11 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
 
         State that_$_with_number_$_has_optimistic_locking_version_number_$(
                 Class<?> entityClass, int number, @Quoted int expectedOptLockVersion) {
-            assertThat(getEntity(entityClass, number).getOptLockVersion()).isEqualTo(expectedOptLockVersion);
+            assertThat(getEntity(entityClass, number).getEtag()).isEqualTo(expectedOptLockVersion);
             return self();
         }
 
-        OptLockablePersistable getEntity(Class<?> entityClass, int number) {
+        PersistableEntityWithTag getEntity(Class<?> entityClass, int number) {
             switch (entityClass.getSimpleName()) {
                 case "Person":
                     return repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();

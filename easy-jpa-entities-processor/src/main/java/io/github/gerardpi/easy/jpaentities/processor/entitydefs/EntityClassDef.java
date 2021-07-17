@@ -3,17 +3,18 @@ package io.github.gerardpi.easy.jpaentities.processor.entitydefs;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
-import io.github.gerardpi.easy.jpaentities.processor.MappedSuperclassGenerator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
 public class EntityClassDef {
+    public static final String CLASSNAME_PERSISTABLE_ENTITY = "PersistableEntity";
+    public static final String CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG = "PersistableEntityWithTag";
+    public static final String CLASSNAME_ENTITY_DTO = "EntityDto";
+    public static final String CLASSNAME_ENTITY_DTO_WITH_TAG = "EntityDtoWithTag";
+
     private final String name;
     private final List<EntityFieldDef> fieldDefs;
     private final String extendsFromClass;
@@ -39,6 +40,21 @@ public class EntityClassDef {
                 builder.dtoTargetPackage);
     }
 
+    public boolean isPersistableEntityWithTag(String superClassName) {
+        return CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG.equals(superClassName);
+    }
+
+    public boolean isPersistableEntityClass(String superClassName) {
+        return CLASSNAME_PERSISTABLE_ENTITY.equals(superClassName);
+    }
+
+    public boolean isPersistableEntity() {
+        if (extendsFromClass != null) {
+            return CLASSNAME_PERSISTABLE_ENTITY.equals(extendsFromClass);
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }
@@ -59,23 +75,44 @@ public class EntityClassDef {
         return annotations;
     }
 
-    public boolean isOptLockable() {
-        if (extendsFromClass != null) {
-            return MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE.equals(extendsFromClass);
-        }
-        return false;
+    public boolean hasTag() {
+        return getExtendsFromClass()
+                .map(className -> CLASSNAME_ENTITY_DTO_WITH_TAG.equals(className) || CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG.equals(className))
+                .orElse(false);
     }
 
-    public boolean isPersistable() {
-        if (extendsFromClass != null) {
-            return MappedSuperclassGenerator.CLASSNAME_PERSISTABLE.equals(extendsFromClass);
-        }
-        return false;
+
+    public Optional<String> getSuperClass(boolean forDtoClass) {
+        return getExtendsFromClass()
+                .map(superClass -> {
+                    if (forDtoClass) {
+                        return Optional.of(isPersistableEntityWithTag(superClass)
+                                ? CLASSNAME_ENTITY_DTO_WITH_TAG : CLASSNAME_ENTITY_DTO);
+                    }
+                    return Optional.of(isPersistableEntityWithTag(superClass)
+                            ? CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG : CLASSNAME_PERSISTABLE_ENTITY);
+                })
+                .orElseGet(Optional::empty);
     }
 
     public boolean isEntity() {
-        return isPersistable() || isOptLockable();
+        return isPersistableEntity() || hasTag();
     }
+
+    /**
+     * Both DTO as well as Persistable entities are identifiable.
+     * Embeddable classes, however, are not.
+     */
+    public boolean isIdentifiable() {
+        return getExtendsFromClass()
+                .map(className -> CLASSNAME_PERSISTABLE_ENTITY.equals(className)
+                        || CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG.equals(className)
+                        || CLASSNAME_ENTITY_DTO.equals(className)
+                        || CLASSNAME_ENTITY_DTO_WITH_TAG.equals(className)
+                )
+                .orElse(false);
+    }
+
 
     public Optional<String> getDtoTargetPackage() {
         return Optional.ofNullable(dtoTargetPackage);

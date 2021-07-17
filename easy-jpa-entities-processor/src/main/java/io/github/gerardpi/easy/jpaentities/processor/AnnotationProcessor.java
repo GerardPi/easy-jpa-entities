@@ -143,26 +143,21 @@ public class AnnotationProcessor extends AbstractProcessor {
     }
 
     private void generateMappedSuperclasses(EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        MappedSuperclassGenerator mappedSuperclassGenerator = new MappedSuperclassGenerator(easyJpaEntitiesConfig);
+        SuperclassGenerator superClassGenerator = new SuperclassGenerator(easyJpaEntitiesConfig);
 
-        if (easyJpaEntitiesConfig.hasPersistable()) {
-            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE);
-            String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + MappedSuperclassGenerator.CLASSNAME_PERSISTABLE;
-            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
-                mappedSuperclassGenerator.writePersistable(writer);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
+        writeSuperclass(easyJpaEntitiesConfig, EntityClassDef.CLASSNAME_PERSISTABLE_ENTITY, superClassGenerator);
+        writeSuperclass(easyJpaEntitiesConfig, EntityClassDef.CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG, superClassGenerator);
+        writeSuperclass(easyJpaEntitiesConfig, EntityClassDef.CLASSNAME_ENTITY_DTO, superClassGenerator);
+        writeSuperclass(easyJpaEntitiesConfig, EntityClassDef.CLASSNAME_ENTITY_DTO_WITH_TAG, superClassGenerator);
+    }
 
-        if (easyJpaEntitiesConfig.hasOptLockablePersistable()) {
-            note(processingEnv, "Generating base class " + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE);
-            String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + MappedSuperclassGenerator.CLASSNAME_OPT_LOCKABLE_PERSISTABLE;
-            try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
-                mappedSuperclassGenerator.writeOptLockablePersistable(writer);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+    private void writeSuperclass(EasyJpaEntitiesConfig config, String superClassName, SuperclassGenerator superclassGenerator) {
+        note(processingEnv, "Generating base class " + superClassName);
+        String fqn = config.getTargetPackage() + "." + superClassName;
+        try (LineWriter writer = ProcessorUtils.createLineWriter(processingEnv, fqn)) {
+            superclassGenerator.write(superClassName, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

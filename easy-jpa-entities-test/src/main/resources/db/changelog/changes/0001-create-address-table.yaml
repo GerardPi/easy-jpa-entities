@@ -38,7 +38,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: opt_lock_version
+                  name: etag
                   type: Integer
                   constraints:
                     nullable: false

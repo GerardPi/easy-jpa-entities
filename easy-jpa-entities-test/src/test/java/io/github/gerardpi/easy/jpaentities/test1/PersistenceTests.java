@@ -123,7 +123,7 @@ public class PersistenceTests extends SimpleScenarioTest<PersistenceTests.State>
         }
 
         State the_optimistic_locking_version_value_of_the_item_is_$(int expectedOptLockVersion) {
-            assertThat(this.fetchedItem.getOptLockVersion()).isEqualTo(expectedOptLockVersion);
+            assertThat(this.fetchedItem.getEtag()).isEqualTo(expectedOptLockVersion);
             return self();
 
         }

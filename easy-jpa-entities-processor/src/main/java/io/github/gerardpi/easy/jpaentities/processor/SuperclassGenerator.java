@@ -11,24 +11,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-public class MappedSuperclassGenerator {
-    public static final String CLASSNAME_PERSISTABLE = "Persistable";
-    public static final String CLASSNAME_OPT_LOCKABLE_PERSISTABLE = "OptLockablePersistable";
-    private final EasyJpaEntitiesConfig config;
+public class SuperclassGenerator {
+   private final EasyJpaEntitiesConfig config;
 
-    MappedSuperclassGenerator(EasyJpaEntitiesConfig config) {
+    SuperclassGenerator(EasyJpaEntitiesConfig config) {
         this.config = config;
     }
 
-    void writePersistable(LineWriter writer) {
-        write(CLASSNAME_PERSISTABLE + "-java.txt", writer);
-    }
-
-    void writeOptLockablePersistable(LineWriter writer) {
-        write(CLASSNAME_OPT_LOCKABLE_PERSISTABLE + "-java.txt", writer);
-    }
-
-    private void write(String resourceName, LineWriter writer) {
+    public void write(String superClassName, LineWriter writer) {
+        String resourceName = superClassName + "-java.txt";
         writer.line("package " + config.getTargetPackage() + ";");
         if (config.isIncludeCommentWithTimestamp()) {
             writer
@@ -36,7 +27,7 @@ public class MappedSuperclassGenerator {
                     .line("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .line("//         details: https://github.com/GerardPi/easy-jpa-entities");
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(MappedSuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(SuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
             reader.lines()
                     .map(this::replace)
                     .forEach(writer::line);
@@ -44,6 +35,7 @@ public class MappedSuperclassGenerator {
             throw new UncheckedIOException(e);
         }
     }
+
 
     private String replace(String line) {
         String result = line;

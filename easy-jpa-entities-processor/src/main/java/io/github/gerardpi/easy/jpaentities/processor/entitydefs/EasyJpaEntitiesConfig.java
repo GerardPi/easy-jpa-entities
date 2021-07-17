@@ -123,7 +123,7 @@ public class EasyJpaEntitiesConfig {
 
         public Builder setEntityClassDefs(List<EntityClassDef> newEntityClassDefs) {
             List<EntityClassDef> optLockableClassDefs = newEntityClassDefs.stream()
-                    .filter(EntityClassDef::isOptLockable)
+                    .filter(EntityClassDef::hasTag)
                     .collect(Collectors.toList());
 
             this.hasOptLockablePersistable = !optLockableClassDefs.isEmpty();

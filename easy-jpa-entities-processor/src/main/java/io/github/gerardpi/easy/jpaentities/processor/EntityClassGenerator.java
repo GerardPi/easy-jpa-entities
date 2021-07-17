@@ -48,6 +48,7 @@ public class EntityClassGenerator {
         writer.writeBlockEnd();
     }
 
+
     private void writeClassHeader(JavaSourceWriter writer) {
         writer.writeLine("package " + getTargetPath() + ";")
                 .emptyLine();
@@ -55,6 +56,10 @@ public class EntityClassGenerator {
             writer.writeLine("// Generated")
                     .writeLine("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
+        }
+
+        if (forDtoClasses) {
+            writer.writeImport(config.getTargetPackage(), classDef.getSuperClass(true).get());
         }
         if (isForEntity()) {
             writer
@@ -77,11 +82,12 @@ public class EntityClassGenerator {
 
 
     private void writeClassDeclaration(JavaSourceWriter writer) {
-        String extendsPart = isForEntity()
-                ? classDef.getExtendsFromClass().map(superClass -> " extends " + superClass).orElse("")
-                : "";
+        String extendsPart = classDef.getSuperClass(forDtoClasses)
+                .map(superClass -> " extends " + superClass)
+                .orElse("");
         writer.writeBlockBeginln("public class " + getClassName() + extendsPart);
     }
+
 
     private String getClassName() {
         return classDef.getName() + (forDtoClasses ? "Dto" : "");
@@ -118,12 +124,17 @@ public class EntityClassGenerator {
     }
 
     private void writeConstructorUsingBuilder(JavaSourceWriter writer) {
-        writer
-                .writeBlockBeginln(getClassName() + "(Builder builder)");
-        if (isForEntity()) {
-            if (classDef.isOptLockable()) {
-                writer.writeLine("super(builder.id, builder.optLockVersion, builder.isModified);");
-            } else if (classDef.isPersistable()) {
+        writer.writeBlockBeginln(getClassName() + "(Builder builder)");
+        if (classDef.hasTag()) {
+            if (forDtoClasses) {
+                writer.writeLine("super(builder.id, builder.etag);");
+            } else {
+                writer.writeLine("super(builder.id, builder.etag, builder.isModified);");
+            }
+        } else if (classDef.isPersistableEntity()) {
+            if (forDtoClasses) {
+                writer.writeLine("super(builder.id);");
+            } else {
                 writer.writeLine("super(builder.id, builder.isPersisted, builder.isModified);");
             }
         }
@@ -149,7 +160,6 @@ public class EntityClassGenerator {
                 .collect(Collectors.joining(", "));
     }
 
-
     private void writeFieldGetters(JavaSourceWriter writer) {
         classDef.getFieldDefs().forEach(fieldDef -> {
             writeMethodSignature(fieldDef.getType(), "get" + capitalize(fieldDef.getName()), writer);
@@ -166,14 +176,14 @@ public class EntityClassGenerator {
                 .writeLine("return " + writer.quoted("class=") + " + this.getClass().getName()")
                 .incIndentation();
 
-        if (isForEntity()) {
-            writer
-                    .writeLine("+ " + writer.quoted(";id=") + "+ this.getId()")
-                    .writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
-
-            if (classDef.isOptLockable()) {
-                writer.writeLine("+ " + writer.quoted(";optLockVersion=") + " + this.getOptLockVersion()");
+        if (classDef.isIdentifiable()) {
+            writer.writeLine("+ " + writer.quoted(";id=") + "+ this.getId()");
+            if (!forDtoClasses) {
+                writer.writeLine("+ " + writer.quoted(";isModified=") + "+ this.isModified()");
             }
+        }
+        if (classDef.hasTag()) {
+            writer.writeLine("+ " + writer.quoted(";etag=") + " + this.getEtag()");
         }
         classDef.getFieldDefs().forEach(fieldDef -> {
             writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName());

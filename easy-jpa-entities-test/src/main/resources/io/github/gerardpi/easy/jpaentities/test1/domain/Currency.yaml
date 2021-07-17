@@ -1,4 +1,4 @@
-extendsFromClass: "Persistable"
+extendsFromClass: "PersistableEntity"
 fieldDefs:
   - name: "code"
     notNull: true

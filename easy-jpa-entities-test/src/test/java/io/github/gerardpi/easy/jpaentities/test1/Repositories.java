@@ -78,7 +78,7 @@ public class Repositories {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends OptLockablePersistable> Optional<T> fetchEntity(Class<T> entityClass, UUID id) {
+    public <T extends PersistableEntityWithTag> Optional<T> fetchEntity(Class<T> entityClass, UUID id) {
         switch (entityClass.getSimpleName()) {
             case "Item":
                 return (Optional<T>) itemRepository.findById(id);
@@ -97,7 +97,7 @@ public class Repositories {
         }
     }
 
-    public <T extends OptLockablePersistable> OptLockablePersistable getEntity(Class<T> entityClass, UUID id) {
+    public <T extends PersistableEntityWithTag> PersistableEntityWithTag getEntity(Class<T> entityClass, UUID id) {
         return fetchEntity(entityClass, id).orElseThrow(() -> new IllegalArgumentException("Could not find entity " + entityClass.getName() + " with id '" + id + "'"));
     }
 }
