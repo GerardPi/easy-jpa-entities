@@ -20,6 +20,15 @@ public abstract class EntityDtoWithTag implements Serializable {
     this.etag = null;
   }
 
+  /**
+   * This method return eTag as a String to be used in HTTP headers.
+   * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+   * @returns An empty string if no etag is present.
+   */
+  public String getEtagString() {
+    return this.etag == null ? "" : "" + this.etag;
+  }
+
   public java.lang.Integer getEtag() {
     return this.etag;
   }

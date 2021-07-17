@@ -38,9 +38,10 @@ public class PersonController {
     HttpEntity<PersonDto> getPerson(@PathVariable UUID id) {
         return
                 personRepository.findById(id)
-                        .map(person -> ResponseEntity.ok()
-                                .eTag("" + person.getEtag())
-                                .body(this.toDto(person)))
+                        .map(this::toDto)
+                        .map(dto -> ResponseEntity.ok()
+                                .eTag(dto.getEtagString())
+                                .body(dto))
                         .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
