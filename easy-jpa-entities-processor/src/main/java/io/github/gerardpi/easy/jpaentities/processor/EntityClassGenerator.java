@@ -6,6 +6,8 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -116,6 +118,9 @@ public class EntityClassGenerator {
         if (!classDef.isReadOnly()) {
             writeConstructorUsingBuilder(writer);
         }
+        if (forDtoClasses) {
+            writeJacksonConstructor(writer);
+        }
     }
 
     private void writeAssignmentsInConstructor(JavaSourceWriter writer) {
@@ -154,9 +159,38 @@ public class EntityClassGenerator {
         writer.writeBlockEnd();
     }
 
+    private String etagSuperParameter() {
+        return classDef.hasTag() ? ", \"\".equals(etag) ? null : java.lang.Integer.parseInt(etag)" : "";
+    }
+
+    private void writeJacksonConstructor(JavaSourceWriter writer) {
+        writer.writeLine("@com.fasterxml.jackson.annotation.JsonCreator");
+        writer.writeBlockBeginln("public " + getClassName() + "(" + methodParameterDeclarationsForJackson() + ")");
+        writer.writeLine("super(id" + etagSuperParameter() + ");");
+        classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "", fieldDef, true));
+        writer.writeBlockEnd();
+    }
+
+
     private String methodParameterDeclarations() {
         return classDef.getFieldDefs().stream()
                 .map(fieldDef -> fieldDef.getType() + " " + fieldDef.getName())
+                .collect(Collectors.joining(", "));
+    }
+
+    private List<EntityFieldDef> getFieldDefsForJackson() {
+        List<EntityFieldDef> fieldDefs = new ArrayList<>();
+        fieldDefs.add(EntityFieldDef.create().setType(config.getIdClass().getName()).setName("id").build());
+        if (classDef.hasTag()) {
+            fieldDefs.add(EntityFieldDef.create().setType(java.lang.String.class.getName()).setName("etag").build());
+        }
+        fieldDefs.addAll(classDef.getFieldDefs());
+        return Collections.unmodifiableList(fieldDefs);
+    }
+
+    private String methodParameterDeclarationsForJackson() {
+        return getFieldDefsForJackson().stream()
+                .map(fieldDef -> "@com.fasterxml.jackson.annotation.JsonProperty(\"" + fieldDef.getName() + "\") " + fieldDef.getType() + " " + fieldDef.getName())
                 .collect(Collectors.joining(", "));
     }
 

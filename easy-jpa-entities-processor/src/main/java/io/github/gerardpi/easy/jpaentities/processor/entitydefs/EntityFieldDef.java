@@ -80,14 +80,18 @@ public class EntityFieldDef {
         return writeOnce;
     }
 
+    public static Builder create() {
+        return new Builder();
+    }
     public static class Builder {
-        private final String name;
-        private final String singular;
-        private final List<String> annotations;
-        private final boolean notNull;
-        private final boolean writeOnce;
+        private String name;
+        private String singular;
+        private List<String> annotations = Collections.emptyList();
+        private boolean notNull = false;
+        private boolean writeOnce = false;
         private String type;
 
+        public Builder() { }
         public Builder(@JsonProperty(value = "name", required = true) String name,
                        @JsonProperty(value = "singular") String singular,
                        @JsonProperty(value = "type") String type,
@@ -101,6 +105,36 @@ public class EntityFieldDef {
             this.writeOnce = writeOnce;
             this.annotations = toImmutableList(annotation, annotations);
             this.type = type;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setSingular(String singular) {
+            this.singular = singular;
+            return this;
+        }
+
+        public Builder setAnnotations(List<String> annotations) {
+            this.annotations = toImmutableList(null, annotations);
+            return this;
+        }
+
+        public Builder setNotNull(boolean notNull) {
+            this.notNull = notNull;
+            return this;
+        }
+
+        public Builder setWriteOnce(boolean writeOnce) {
+            this.writeOnce = writeOnce;
+            return this;
+        }
+
+        public Builder setType(String type) {
+            this.type = type;
+            return this;
         }
 
         private static List<String> toImmutableList(String annotation, List<String> annotations) {
