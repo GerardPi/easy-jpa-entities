@@ -1,6 +1,8 @@
 import ##_ID_CLASS_WITH_PACKAGE_##;
 import java.util.Objects;
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 /**
@@ -18,6 +20,7 @@ public abstract class EntityDto implements Serializable {
     this.id = null;
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public ##_ID_CLASS_## getId() {
     return this.id;
   }
@@ -27,6 +30,7 @@ public abstract class EntityDto implements Serializable {
     return "id=" + id.toString();
   }
 
+  @JsonIgnore
   public boolean isNew () {
     return this.id == null;
   }

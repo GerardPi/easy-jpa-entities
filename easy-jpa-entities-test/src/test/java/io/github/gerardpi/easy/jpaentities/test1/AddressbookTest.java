@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static io.github.gerardpi.easy.jpaentities.test1.TestFunctions.storeAndReturnPerson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles(SpringProfile.TEST)
@@ -75,12 +76,8 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         }
 
         State person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
-            PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
-            Person person = Person.create(uuidGenerator.generate())
-                    .setDateOfBirth(LocalDate.now())
-                    .setName(name)
-                    .build();
-            this.savedEntities.putPersonId(number, repositories.getPersonRepository().save(person).getId());
+            Person person = storeAndReturnPerson(nameFirst, nameLast, uuidGenerator, repositories.getPersonRepository());
+            this.savedEntities.putPersonId(number, person.getId());
             return self();
         }
 

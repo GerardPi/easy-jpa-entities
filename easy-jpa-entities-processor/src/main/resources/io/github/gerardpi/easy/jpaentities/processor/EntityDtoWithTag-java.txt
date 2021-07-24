@@ -1,6 +1,9 @@
 import ##_ID_CLASS_WITH_PACKAGE_##;
 import java.util.Objects;
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public abstract class EntityDtoWithTag implements Serializable {
@@ -8,9 +11,9 @@ public abstract class EntityDtoWithTag implements Serializable {
   private final ##_ID_CLASS_## id;
 
   public static final String PROPNAME_ETAG = "etag";
-  private final Integer etag;
+  private final String etag;
 
-  protected EntityDtoWithTag(##_ID_CLASS_## id, Integer etag) {
+  protected EntityDtoWithTag(##_ID_CLASS_## id, String etag) {
     this.id = id;
     this.etag = etag;
   }
@@ -25,14 +28,12 @@ public abstract class EntityDtoWithTag implements Serializable {
    * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
    * @returns An empty string if no etag is present.
    */
-  public String getEtagString() {
-    return this.etag == null ? "" : "" + this.etag;
-  }
-
-  public java.lang.Integer getEtag() {
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getEtag() {
     return this.etag;
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public ##_ID_CLASS_## getId() {
     return this.id;
   }
@@ -43,6 +44,7 @@ public abstract class EntityDtoWithTag implements Serializable {
       + "; etag=" + etag;
   }
 
+  @JsonIgnore
   public boolean isNew () {
     return this.id == null;
   }

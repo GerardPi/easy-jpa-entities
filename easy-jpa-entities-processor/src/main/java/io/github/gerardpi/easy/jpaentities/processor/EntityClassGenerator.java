@@ -7,7 +7,6 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityFieldDef;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,6 +61,7 @@ public class EntityClassGenerator {
 
         if (forDtoClasses) {
             writer.writeImport(config.getTargetPackage(), classDef.getSuperClass(true).get());
+            writer.writeImport(config.getTargetPackage(), classDef.getSuperClass(false).get());
         }
         if (isForEntity()) {
             writer
@@ -166,7 +166,7 @@ public class EntityClassGenerator {
     private void writeJacksonConstructor(JavaSourceWriter writer) {
         writer.writeLine("@com.fasterxml.jackson.annotation.JsonCreator");
         writer.writeBlockBeginln("public " + getClassName() + "(" + methodParameterDeclarationsForJackson() + ")");
-        writer.writeLine("super(id" + etagSuperParameter() + ");");
+        writer.writeLine("super(id" + (classDef.hasTag() ? ", etag" : "") + ");");
         classDef.getFieldDefs().forEach(fieldDef -> writer.assign(THIS_PREFIX, "", fieldDef, true));
         writer.writeBlockEnd();
     }

@@ -2,22 +2,36 @@ package io.github.gerardpi.easy.jpaentities.test1;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.Hidden;
+import com.tngtech.jgiven.annotation.Quoted;
+import com.tngtech.jgiven.annotation.ScenarioStage;
 import com.tngtech.jgiven.junit5.SimpleScenarioTest;
+import static org.hamcrest.Matchers.*;
+import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
 import io.github.gerardpi.easy.jpaentities.test1.web.PersonController;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+
+import static io.github.gerardpi.easy.jpaentities.test1.TestFunctions.storeAndReturnPerson;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles(SpringProfile.TEST)
 @SpringBootTest
@@ -28,24 +42,120 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     private UuidGenerator uuidGenerator;
     @Autowired
     private Repositories repositories;
+    @ScenarioStage
+    private State state;
 
-    @Transactional
+    @BeforeEach
+    public void init() {
+        state.init(uuidGenerator, repositories);
+    }
+
     @Test
-    public void test() {
-
+    public void get_persons() {
+        given()
+                .person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma")
+                .and()
+                .person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_in_the_database(2, "Albert", "Fles");
+        when().an_HTTP_$_on_$_is_performed("GET", "/api/persons");
+        then().the_HTTP_status_code_is_$(HttpStatus.OK)
+                .and()
+                .the_number_of_items_received_is_$(2);
+        when().an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed("GET", "/api/persons/", 1);
+//        when().executing_HTTP_$_on_person_$_with_JSON_$("PATCH", 2, "{")
     }
 
     static class State extends Stage<State> {
+        private final SavedEntities savedEntities = new SavedEntities();
         private MockMvc mockMvc;
-        /*
-        @Hidden
-        void create(UuidGenerator uuidGenerator, Repositories repositories) {
-            mockMvc = MockMvcBuilders.standaloneSetup(new PersonController(uuidGenerator, repositories.getPersonRepository()))
-                    .defaultRequest(get("/").accept(MediaType.APPLICATION_JSON))
-                    .alwaysExpect(status().isOk())
-                    .alwaysExpect(content().contentType("application/json;charset=UTF-8"))
+        private UuidGenerator uuidGenerator;
+        private Repositories repositories;
+        private Exception exception;
+        private ResultActions resultActions;
+        private MvcResult mvcResult;
+
+        private static MockMvc createMockMvc(Object controller, String uri) {
+            return MockMvcBuilders.standaloneSetup(controller)
+                    .defaultRequest(get(uri).accept(MediaType.APPLICATION_JSON))
+                    .alwaysExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                     .build();
+
         }
-         */
+
+        @Hidden
+        void init(UuidGenerator uuidGenerator, Repositories repositories) {
+            this.repositories = repositories;
+            this.uuidGenerator = uuidGenerator;
+            mockMvc = createMockMvc(new PersonController(uuidGenerator, repositories.getPersonRepository()), "/api/persons");
+            repositories.clear();
+        }
+
+        State person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_in_the_database(@Quoted int testId, @Quoted String nameFirst, @Quoted String nameLast) {
+            Person person = storeAndReturnPerson(nameFirst, nameLast, uuidGenerator, repositories.getPersonRepository());
+            this.savedEntities.putPersonId(testId, person.getId());
+            return self();
+        }
+
+        State an_HTTP_$_on_$_is_performed(@Quoted String httpMethod, @Quoted String uri) {
+            performHttpRequest(httpMethod, uri);
+            return self();
+        }
+
+        State an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed(String httpMethod, String uri, int testId) {
+            performHttpRequest(httpMethod, uri + "/" + savedEntities.getPersonId(testId));
+            return self();
+        }
+
+        void performHttpRequest(String httpMethod, String uri) {
+            try {
+                this.resultActions = mockMvc.perform(createRequestBuilder(httpMethod, uri)).andDo(MockMvcResultHandlers.print());
+                this.mvcResult = resultActions.andReturn();
+            } catch (Exception e) {
+                LOG.info("Caught exception '{}': '{}'" + e.getClass().getName(), e.getMessage());
+                this.exception = e;
+            }
+        }
+
+        RequestBuilder createRequestBuilder(String httpMethod, String uri) {
+            return createRequestBuilder(httpMethod, uri, null);
+
+        }
+
+        RequestBuilder createRequestBuilder(String httpMethod, String uri, String body) {
+            switch (httpMethod) {
+                case "GET":
+                case "DELETE":
+                    return get(uri)
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .characterEncoding(StandardCharsets.UTF_8.displayName());
+                case "POST":
+                case "PUT":
+                case "PATCH":
+                    return post(uri)
+                            .content(body)
+                            .accept(MediaType.APPLICATION_JSON_VALUE)
+                            .characterEncoding(StandardCharsets.UTF_8.displayName());
+            }
+            throw new IllegalArgumentException("Don't know what to do with '" + httpMethod + "'");
+        }
+
+        State the_HTTP_status_code_is_$(@Quoted HttpStatus httpStatus) {
+            assertThat(this.resultActions).isNotNull();
+            assertThat(mvcResult.getResponse().getStatus()).isEqualTo(httpStatus.value());
+            return self();
+        }
+
+        State the_number_of_items_received_is_$(int expectedSize) {
+            try {
+                resultActions
+                        .andExpect(jsonPath("$.content").isArray())
+                        .andExpect(jsonPath("$.content", hasSize(expectedSize))
+                        );
+            } catch (Exception e) {
+                LOG.info("Caught exception '{}': '{}'" + e.getClass().getName(), e.getMessage());
+                this.exception = e;
+            }
+            return self();
+        }
+
     }
 }

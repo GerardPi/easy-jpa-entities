@@ -83,6 +83,7 @@ public class EntityClassBuilderGenerator {
 
     private void writeBuilderParts(JavaSourceWriter writer) {
         writeCreateAndModifyWithBuilderMethods(writer);
+        writeCreateFromPersistableEntity(writer);
         writer.writeBlockBeginln("public static class Builder");
         writeBuilderFieldDeclarations(writer);
         if (classDef.isIdentifiable()) {
@@ -90,7 +91,11 @@ public class EntityClassBuilderGenerator {
         }
         if (classDef.isEntity()) {
             if (classDef.hasTag()) {
-                writeFieldDeclaration(createFieldDef("etag", Integer.class.getName()), true, writer);
+                if (forDtoClasses) {
+                    writeFieldDeclaration(createFieldDef("etag", String.class.getName()), true, writer);
+                } else {
+                    writeFieldDeclaration(createFieldDef("etag", Integer.class.getName()), true, writer);
+                }
             }
             if (!forDtoClasses) {
                 if (classDef.isPersistableEntity()) {
@@ -102,11 +107,14 @@ public class EntityClassBuilderGenerator {
 
         writeBuilderConstructorForNew(writer);
         writeBuilderCopyConstructor(writer, getClassName());
+        writeBuilderCopyConstructorFromEntity(writer);
         writer.emptyLine();
         writeBuilderSetters(writer);
         writeBuilderBuildMethod(writer);
         writer.writeBlockEnd();
     }
+
+
 
     private EntityFieldDef createFieldDef(String name, String type) {
         return new EntityFieldDef.Builder(name, null, type, null, Collections.emptyList(), false, false).build();
@@ -129,6 +137,23 @@ public class EntityClassBuilderGenerator {
         }
         writeAssignmentsInBuilderConstructor("this.", "existing.", writer);
         writer.writeBlockEnd();
+    }
+
+    private void writeBuilderCopyConstructorFromEntity(JavaSourceWriter writer) {
+        if (forDtoClasses) {
+            if (classDef.hasTag()) {
+                writer.emptyLine()
+                        .writeBlockBeginln("private Builder(" + config.getIdClass().getName() + " id, java.lang.Integer etag)")
+                        .writeLine("this.id = id;")
+                        .writeLine("this.etag = \"\" + etag;");
+            } else {
+                writer.emptyLine()
+                        .writeBlockBeginln("private Builder(" + config.getIdClass() + " id)")
+                        .writeLine("this.id = existing.getId();");
+
+            }
+            writer.writeBlockEnd();
+        }
     }
 
     private void writeBuilderSetters(JavaSourceWriter writer) {
@@ -196,6 +221,23 @@ public class EntityClassBuilderGenerator {
                 .writeBlockBeginln("public Builder modify()")
                 .writeLine("return new Builder(this);")
                 .writeBlockEnd();
+    }
+
+    private void writeCreateFromPersistableEntity(JavaSourceWriter writer) {
+        if (forDtoClasses) {
+            if (classDef.hasTag()) {
+                writer.writeBlockBeginln("public static Builder from(PersistableEntityWithTag existing)")
+                        .writeLine("return new Builder(existing.getId(), existing.getEtag());")
+                        .writeBlockEnd()
+                        .emptyLine();
+
+            } else {
+                writer.writeBlockBeginln("public static Builder from(PersistableEntity identifiable existing)")
+                        .writeLine("return new Builder(existing.getId());")
+                        .writeBlockEnd()
+                        .emptyLine();
+            }
+        }
     }
 
     private void writeFieldDeclaration(EntityFieldDef entityFieldDef, boolean isFinal, JavaSourceWriter writer) {
