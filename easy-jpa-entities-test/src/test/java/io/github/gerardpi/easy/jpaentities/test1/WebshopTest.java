@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,8 +26,10 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@ActiveProfiles(SpringProfile.TEST)
-@SpringBootTest
+// Allow for overriding beans for testing purposes.
+@TestPropertySource(properties = { TestConfig.BEAN_DEF_OVERRIDING_ENABLED })
+// Order of configuration classes is important. Some beans are overridden.
+@SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
 public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
     private static final Logger LOG = LoggerFactory.getLogger(WebshopTest.class);
     private static final String OFFSET_DATE_TIME_SUFFIX = ".901351+02:00";

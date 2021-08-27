@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -19,8 +20,11 @@ import java.util.TreeSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@ActiveProfiles(SpringProfile.TEST)
-@SpringBootTest
+@TestPropertySource(properties = {
+        "spring.main.allow-bean-definition-overriding=true"
+})
+// Order of configuration classes is important. Some beans are overridden.
+@SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
 public class PersistenceTests extends SimpleScenarioTest<PersistenceTests.State> {
     @Autowired
     private Repositories repositories;

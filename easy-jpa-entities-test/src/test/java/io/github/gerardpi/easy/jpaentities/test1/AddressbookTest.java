@@ -12,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,8 +23,10 @@ import java.util.*;
 import static io.github.gerardpi.easy.jpaentities.test1.TestFunctions.storeAndReturnPerson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles(SpringProfile.TEST)
-@SpringBootTest
+// Allow for overriding beans for testing purposes.
+@TestPropertySource(properties = { TestConfig.BEAN_DEF_OVERRIDING_ENABLED })
+// Order of configuration classes is important. Some beans are overridden.
+@SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
 public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     @Autowired
     private Repositories repositories;
@@ -29,12 +34,15 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     private UuidGenerator uuidGenerator;
     @ScenarioStage
     private State state;
+    @Autowired
+    private WebApplicationContext wac;
 
     @BeforeEach
     public void init() {
         ((FixedUuidSeriesGenerator) uuidGenerator).reset();
+        repositories.clear();
         // Repositories repositories = new Repositories(personRepository, addressRepository, personAddressRepository, itemRepository, itemOrderRepository, itemOrderLineRepository);
-        state.init(uuidGenerator, repositories);
+        state.init(uuidGenerator, repositories, IntegrationTestUtils.createMockMvc(wac));
     }
 
     @Test
@@ -67,12 +75,13 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
         private final SavedEntities savedEntities = new SavedEntities();
         private Repositories repositories;
         private UuidGenerator uuidGenerator;
+        private MockMvc mockMvc;
 
         @Hidden
-        void init(UuidGenerator uuidGenerator, Repositories repositories) {
+        void init(UuidGenerator uuidGenerator, Repositories repositories, MockMvc mockMvc) {
             this.uuidGenerator = uuidGenerator;
             this.repositories = repositories;
-            repositories.clear();
+            this.mockMvc = mockMvc;
         }
 
         State person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {

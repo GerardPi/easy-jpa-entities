@@ -3,16 +3,12 @@ package io.github.gerardpi.easy.jpaentities.test1.domain;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import io.github.gerardpi.easy.jpaentities.test1.json.ObjectMapperHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.AttributeConverter;
 
 import static java.util.Objects.nonNull;
 
 public abstract class AttributeJsonConverter<T> implements AttributeConverter<T, String> {
-    private static final Logger LOG = LoggerFactory.getLogger(AttributeJsonConverter.class);
-
     private final ObjectMapperHolder objectMapperHolder;
     private final Class<T> targetClass;
     private final CollectionType collectionType;

@@ -8,17 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
 
 
 public enum ObjectMapperHolder {
     INSTANCE;
-    private static final Logger LOG = LoggerFactory.getLogger(ObjectMapperHolder.class);
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     ObjectMapperHolder() {
-        LoggerFactory.getLogger(ObjectMapperHolder.class).info("Setting an initial objectMapper");
         this.objectMapper = JsonObjectMapperFactory.createObjectMapper();
     }
 
@@ -68,13 +65,6 @@ public enum ObjectMapperHolder {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
-    }
-
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        if (Objects.nonNull(this.objectMapper)) {
-            LOG.info("Setting a new objectMapper");
-        }
-        this.objectMapper = objectMapper;
     }
 }
 

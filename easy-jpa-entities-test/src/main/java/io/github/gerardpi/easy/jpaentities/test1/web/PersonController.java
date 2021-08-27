@@ -2,8 +2,10 @@ package io.github.gerardpi.easy.jpaentities.test1.web;
 
 import io.github.gerardpi.easy.jpaentities.test1.UuidGenerator;
 import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.PersonName;
 import io.github.gerardpi.easy.jpaentities.test1.domain.PersonRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -66,6 +70,19 @@ public class PersonController {
     Page<PersonDto> getPersons(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize) {
         Page<PersonDto> r = personRepository.findAll(PageRequest.of(page, pageSize)).map(TO_DTO);
         return r;
+    }
+
+    @GetMapping("/dus")
+    Page<PersonDto> getPersons2(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int pageSize) {
+        return new PageImpl<>(Collections.singletonList(
+                PersonDto.create()
+                        .setName(PersonName
+                                .create()
+                                .setLast("last")
+                                .setFirst("first")
+                                .build())
+                        .setDateOfBirth(LocalDate.now())
+                        .build()));
     }
 
     private Person fromDto(PersonDto dto) {

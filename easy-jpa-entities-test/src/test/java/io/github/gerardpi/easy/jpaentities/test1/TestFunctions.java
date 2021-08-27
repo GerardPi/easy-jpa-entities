@@ -6,7 +6,7 @@ import io.github.gerardpi.easy.jpaentities.test1.domain.PersonRepository;
 
 import java.time.LocalDate;
 
-public class TestFunctions {
+public final class TestFunctions {
     public static Person storeAndReturnPerson(String nameFirst, String nameLast, UuidGenerator uuidGenerator, PersonRepository personRepository) {
         PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
         Person person = Person.create(uuidGenerator.generate())
@@ -14,5 +14,8 @@ public class TestFunctions {
                 .setName(name)
                 .build();
         return personRepository.save(person);
+    }
+    private TestFunctions() {
+        // No instantation allowed.
     }
 }
