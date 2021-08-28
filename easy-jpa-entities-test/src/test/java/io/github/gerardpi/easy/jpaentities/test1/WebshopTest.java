@@ -107,14 +107,14 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State that_order_$_contains_$_pieces_of_$_which_cost_$_a_piece(int itemOrderNumber, int itemNumber, int itemCount, @Quoted BigDecimal amountPerItem) {
+        State that_order_$_contains_$_pieces_of_$_which_cost_$_a_piece(int itemOrderKey, int itemNumber, int itemCount, @Quoted BigDecimal amountPerItem) {
             ItemOrderLine itemOrderLine = ItemOrderLine.create(uuidGenerator.generate())
                     .setItemOrderId(savedEntities.getItemOrderId(1))
                     .setItemId(savedEntities.getItemId(itemNumber))
                     .setAmountPerItem(amountPerItem)
                     .setCount(itemCount)
                     .build();
-            this.savedEntities.putItemOrderLineId(itemOrderNumber, repositories.getItemOrderLineRepository().save(itemOrderLine).getId());
+            this.savedEntities.putItemOrderLineId(itemOrderKey, repositories.getItemOrderLineRepository().save(itemOrderLine).getId());
             return self();
         }
 

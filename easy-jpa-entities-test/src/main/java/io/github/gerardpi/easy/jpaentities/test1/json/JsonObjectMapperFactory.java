@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 /**
  * https://www.baeldung.com/jackson-serialize-dates
@@ -16,7 +17,8 @@ public class JsonObjectMapperFactory {
         ObjectMapper objectMapper = new ObjectMapper();
         //
         // Required to prevent LocalDate being written als array of integers.
-        objectMapper.registerModules(createJavaTimeModule());
+        objectMapper.registerModules(new JavaTimeModule(), new ParameterNamesModule());
+
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         //
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -25,9 +27,5 @@ public class JsonObjectMapperFactory {
         objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
         return objectMapper;
-    }
-
-    private static Module createJavaTimeModule() {
-        return new JavaTimeModule();
     }
 }

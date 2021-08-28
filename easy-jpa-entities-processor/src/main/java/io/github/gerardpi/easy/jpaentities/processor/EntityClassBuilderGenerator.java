@@ -110,6 +110,9 @@ public class EntityClassBuilderGenerator {
         writeBuilderCopyConstructorFromEntity(writer);
         writer.emptyLine();
         writeBuilderSetters(writer);
+        if (!forDtoClasses) {
+            writeBuilderIfNotNullSetters(writer);
+        }
         writeBuilderBuildMethod(writer);
         writer.writeBlockEnd();
     }
@@ -169,6 +172,28 @@ public class EntityClassBuilderGenerator {
                 writer.writeBlockEnd();
                 fieldDef.fetchCollectionDef()
                         .ifPresent(collectionDef -> writeBuilderAddToCollection(fieldDef, collectionDef, writer));
+            }
+        });
+    }
+
+    private void writeBuilderIfNotNullSetters(JavaSourceWriter writer) {
+        classDef.getFieldDefs().forEach(fieldDef -> {
+            if (!fieldDef.isWriteOnce()) {
+                writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "IfNotNull("
+                        + fieldDef.getType() + " " + fieldDef.getName()
+                       // + ", "
+//                        + fieldDef.getType() + " previous" + capitalize(fieldDef.getName())
+                        + ")");
+                writer.writeBlockBeginln("if (" + fieldDef.getName() + " != null)");
+//                writer.assign("this.", fieldDef.getName(), " previous", capitalize(fieldDef.getName()));
+//                writer.writeLine("} else {");
+                writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
+                if (isForEntity()) {
+                    writer.assign("this.", "isModified", "", "true");
+                }
+                writer.writeBlockEnd();
+                writer.writeLine("return this;");
+                writer.writeBlockEnd();
             }
         });
     }

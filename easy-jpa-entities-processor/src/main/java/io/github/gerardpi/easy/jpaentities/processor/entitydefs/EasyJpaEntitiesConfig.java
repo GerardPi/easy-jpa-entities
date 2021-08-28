@@ -16,6 +16,11 @@ public class EasyJpaEntitiesConfig {
     private final List<String> entityClassDefNames;
     private final String targetPackage;
     private final boolean includeConstructorWithParameters;
+    /**
+     * If jackson-module-paranamer is used, Jackson @JsonProperty annotations are not required.
+     * If NOT using jacksom-module-paranamer, youl'll have to specify this property to "true"
+     */
+    private final boolean dtoWithJsonPropertyAnnotations;
     private final Class<?> idClass;
     private final List<EntityClassDef> entityClassDefs;
     private final boolean hasOptLockablePersistable;
@@ -33,6 +38,7 @@ public class EasyJpaEntitiesConfig {
         this.hasPersistable = builder.hasPersistable;
         this.defaultFieldType = builder.defaultFieldType;
         this.includeCommentWithTimestamp = builder.includeCommentWithTimestamp;
+        this.dtoWithJsonPropertyAnnotations = builder.dtoWithJsonPropertyAnnotations;
     }
 
 
@@ -72,6 +78,10 @@ public class EasyJpaEntitiesConfig {
         return includeCommentWithTimestamp;
     }
 
+    public boolean isDtoWithJsonPropertyAnnotations() {
+        return dtoWithJsonPropertyAnnotations;
+    }
+
     public String getDefaultType() {
         if (this.defaultFieldType == null) {
             return String.class.getName();
@@ -89,6 +99,7 @@ public class EasyJpaEntitiesConfig {
         private boolean hasOptLockablePersistable;
         private boolean includeCommentWithTimestamp;
         private boolean hasPersistable;
+        private boolean dtoWithJsonPropertyAnnotations;
 
         @JsonCreator
         public Builder(
@@ -97,6 +108,7 @@ public class EasyJpaEntitiesConfig {
                 @JsonProperty(value = "entityClassDefNames", required = true) List<String> entityClassDefNames,
                 @JsonProperty(value = "idClass", defaultValue = "java.util.UUID") String idClassName,
                 @JsonProperty(value = "includeCommentWithTimestamp", defaultValue = "true") boolean includeCommentWithTimestamp,
+                @JsonProperty(value = "dtoWithJsonPropertyAnnotation", defaultValue = "false") boolean dtoWithJsonPropertyAnnotations,
                 @JsonProperty(value = "defaultType") String defaultFieldType) {
             this.targetPackage = targetPackage;
             this.includeConstructorWithParameters = includeConstructorWithParameters;
@@ -104,6 +116,7 @@ public class EasyJpaEntitiesConfig {
             this.idClass = idClassForName(idClassName);
             this.defaultFieldType = defaultFieldType == null ? String.class.getName() : defaultFieldType;
             this.includeCommentWithTimestamp = includeCommentWithTimestamp;
+            this.dtoWithJsonPropertyAnnotations = dtoWithJsonPropertyAnnotations;
         }
 
         private static Class<?> idClassForName(String idClassName) {

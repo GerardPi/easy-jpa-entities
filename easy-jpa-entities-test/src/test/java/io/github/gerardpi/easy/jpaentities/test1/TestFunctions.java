@@ -7,10 +7,10 @@ import io.github.gerardpi.easy.jpaentities.test1.domain.PersonRepository;
 import java.time.LocalDate;
 
 public final class TestFunctions {
-    public static Person storeAndReturnPerson(String nameFirst, String nameLast, UuidGenerator uuidGenerator, PersonRepository personRepository) {
+    public static Person storeAndReturnPerson(String nameFirst, String nameLast, LocalDate dateOfBirth, UuidGenerator uuidGenerator, PersonRepository personRepository) {
         PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
         Person person = Person.create(uuidGenerator.generate())
-                .setDateOfBirth(LocalDate.now())
+                .setDateOfBirth(dateOfBirth)
                 .setName(name)
                 .build();
         return personRepository.save(person);

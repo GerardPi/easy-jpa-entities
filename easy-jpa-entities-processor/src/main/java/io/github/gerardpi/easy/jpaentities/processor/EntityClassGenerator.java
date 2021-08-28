@@ -189,9 +189,16 @@ public class EntityClassGenerator {
     }
 
     private String methodParameterDeclarationsForJackson() {
-        return getFieldDefsForJackson().stream()
-                .map(fieldDef -> "@com.fasterxml.jackson.annotation.JsonProperty(\"" + fieldDef.getName() + "\") " + fieldDef.getType() + " " + fieldDef.getName())
-                .collect(Collectors.joining(", "));
+        if (config.isDtoWithJsonPropertyAnnotations()) {
+            return getFieldDefsForJackson().stream()
+                    .map(fieldDef -> "@com.fasterxml.jackson.annotation.JsonProperty(\"" + fieldDef.getName() + "\") " + fieldDef.getType() + " " + fieldDef.getName())
+                    .collect(Collectors.joining(", "));
+        } else {
+            return getFieldDefsForJackson().stream()
+                    .map(fieldDef -> fieldDef.getType() + " " + fieldDef.getName())
+                    .collect(Collectors.joining(", "));
+
+        }
     }
 
     private void writeFieldGetters(JavaSourceWriter writer) {

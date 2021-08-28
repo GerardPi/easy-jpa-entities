@@ -1,5 +1,6 @@
 package io.github.gerardpi.easy.jpaentities.test1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.gerardpi.easy.jpaentities.test1.json.ObjectMapperHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,10 @@ public class DemoApplication implements WebMvcConfigurer {
         SpringApplication.run(DemoApplication.class, args);
     }
 
+    @Bean
+    public ObjectMapper objectMapper() {
+        return ObjectMapperHolder.getIntance().getObjectMapper();
+    }
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
