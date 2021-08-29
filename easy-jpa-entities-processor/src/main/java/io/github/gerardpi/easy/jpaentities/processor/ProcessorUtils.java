@@ -17,7 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 final class ProcessorUtils {
     private static final AtomicBoolean slf4jLoggingEnabled = new AtomicBoolean(false);
-    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AnnotationProcessor.class);
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProcessorUtils.class);
+    public static final String LOG_FORMAT_CLASS_AND_MESSAGE = "{}: '{}'";
 
     private ProcessorUtils() {
         // No instantiation
@@ -54,48 +55,35 @@ final class ProcessorUtils {
 
     static void error(ProcessingEnvironment processingEnv, String msg, Element e) {
         if (slf4jLoggingEnabled.get()) {
-            LOG.error("{}: '{}'", Diagnostic.Kind.ERROR, msg);
+            LOG.error(LOG_FORMAT_CLASS_AND_MESSAGE, Diagnostic.Kind.ERROR, msg);
         }
         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, e);
     }
 
     static void error(ProcessingEnvironment processingEnv, String msg) {
         if (slf4jLoggingEnabled.get()) {
-            LOG.error("{}: '{}'", Diagnostic.Kind.ERROR, msg);
+            LOG.error(LOG_FORMAT_CLASS_AND_MESSAGE, Diagnostic.Kind.ERROR, msg);
         }
         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg);
     }
 
     static void note(ProcessingEnvironment processingEnv, String msg) {
         if (slf4jLoggingEnabled.get()) {
-            LOG.info("{}: '{}'", Diagnostic.Kind.NOTE, msg);
+            LOG.info(LOG_FORMAT_CLASS_AND_MESSAGE, Diagnostic.Kind.NOTE, msg);
         }
         processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, msg);
     }
 
-    static void writeClass(ProcessingEnvironment processingEnv, String qfn, String end) {
-        try (Writer writer = createClassWriter(processingEnv, qfn, true)) {
-            writer.write(end);
-            note(processingEnv, "Wrote '" + qfn + "'");
-        } catch (IOException e) {
-            String msg = e.getMessage();
-            boolean ignoreException = (msg != null && msg.startsWith("Attempt to recreate"));
-            if (!ignoreException) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    }
-
-    static JavaSourceWriter createClassWriter(ProcessingEnvironment processingEnv, String fullyQualifiedName) {
-        LineWriter lineWriter = new LineWriter(createClassWriter(processingEnv, fullyQualifiedName, false));
+    static JavaSourceWriter createJavaSourceWriter(ProcessingEnvironment processingEnv, String fullyQualifiedName) {
+        LineWriter lineWriter = new LineWriter(createSourceWriter(processingEnv, fullyQualifiedName));
         return new JavaSourceWriter(lineWriter);
     }
 
     static LineWriter createLineWriter(ProcessingEnvironment processingEnv, String fullyQualifiedName) {
-        return new LineWriter(createClassWriter(processingEnv, fullyQualifiedName, false));
+        return new LineWriter(createSourceWriter(processingEnv, fullyQualifiedName));
     }
 
-    static Writer createClassWriter(ProcessingEnvironment processingEnv, String fullyQualifiedName, boolean ignoreRecreation) {
+    static Writer createSourceWriter(ProcessingEnvironment processingEnv, String fullyQualifiedName) {
         try {
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(fullyQualifiedName);
             return sourceFile.openWriter();

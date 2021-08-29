@@ -13,6 +13,7 @@ class JavaSourceWriter implements AutoCloseable {
     public static final String BLOCK_BEGIN = " {";
     public static final String BLOCK_END = "}";
     public static final String THIS_PREFIX = "this.";
+    public static final String COPY_OF = ".copyOf(";
     private final LineWriter writer;
 
 
@@ -60,15 +61,15 @@ class JavaSourceWriter implements AutoCloseable {
         CollectionDef collectionDef = fieldDef.fetchCollectionDef().orElseThrow(() -> new IllegalArgumentException("No " + CollectionDef.class + " could be found"));
         if (collectionDef.isSortedSet()) {
             return assignedValueMustBeImmutable
-                    ? ImmutableSortedSet.class.getName() + ".copyOf(" + fieldPrefix + fieldDef.getName() + ")"
+                    ? ImmutableSortedSet.class.getName() + COPY_OF + fieldPrefix + fieldDef.getName() + ")"
                     : fieldPrefix + fieldDef.getName();
         } else if (collectionDef.isList()) {
             return assignedValueMustBeImmutable
-                    ? ImmutableList.class.getName() + ".copyOf(" + fieldPrefix + fieldDef.getName() + ")"
+                    ? ImmutableList.class.getName() + COPY_OF + fieldPrefix + fieldDef.getName() + ")"
                     : fieldPrefix + fieldDef.getName();
         } else if (collectionDef.isSet()) {
             return assignedValueMustBeImmutable
-                    ? ImmutableSet.class.getName() + ".copyOf(" + fieldPrefix + fieldDef.getName() + ")"
+                    ? ImmutableSet.class.getName() + COPY_OF + fieldPrefix + fieldDef.getName() + ")"
                     : fieldPrefix + fieldDef.getName();
         }
         throw new IllegalArgumentException("No idea what to do with a collection of type '"

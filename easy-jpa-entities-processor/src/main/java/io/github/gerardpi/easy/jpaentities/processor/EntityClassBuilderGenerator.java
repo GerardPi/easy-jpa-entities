@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 import static io.github.gerardpi.easy.jpaentities.processor.JavaSourceWriter.capitalize;
 
 public class EntityClassBuilderGenerator {
+    public static final String PRIVATE_BUILDER = "private Builder(";
+    public static final String IS_MODIFIED = "isModified";
+    public static final String ASSIGNEE_PREFIX_THIS = "this.";
+    public static final String RETURN_THIS = "return this;";
     private final EntityClassDef classDef;
     private final EasyJpaEntitiesConfig config;
     private final boolean forDtoClasses;
@@ -60,7 +64,7 @@ public class EntityClassBuilderGenerator {
     private void writeBuilderConstructorForNew(JavaSourceWriter writer) {
 
         writer.emptyLine()
-                .writeBlockBeginln("private Builder(" + getCreationParameters() + ")");
+                .writeBlockBeginln(PRIVATE_BUILDER + getCreationParameters() + ")");
         if (classDef.isIdentifiable()) {
             if (forDtoClasses) {
                 writer.writeLine("this.id = null;");
@@ -101,7 +105,7 @@ public class EntityClassBuilderGenerator {
                 if (classDef.isPersistableEntity()) {
                     writeFieldDeclaration(createFieldDef("isPersisted", "boolean"), true, writer);
                 }
-                writeFieldDeclaration(createFieldDef("isModified", "boolean"), false, writer);
+                writeFieldDeclaration(createFieldDef(IS_MODIFIED, "boolean"), false, writer);
             }
         }
 
@@ -118,7 +122,6 @@ public class EntityClassBuilderGenerator {
     }
 
 
-
     private EntityFieldDef createFieldDef(String name, String type) {
         return new EntityFieldDef.Builder(name, null, type, null, Collections.emptyList(), false, false).build();
     }
@@ -126,7 +129,7 @@ public class EntityClassBuilderGenerator {
     private void writeBuilderCopyConstructor(JavaSourceWriter writer, String classNameCopySource) {
         writer
                 .emptyLine()
-                .writeBlockBeginln("private Builder(" + classNameCopySource + " existing)");
+                .writeBlockBeginln(PRIVATE_BUILDER + classNameCopySource + " existing)");
         if (classDef.isEntity()) {
             writer.writeLine("this.id = existing.getId();");
             if (classDef.hasTag()) {
@@ -138,7 +141,7 @@ public class EntityClassBuilderGenerator {
                 writer.writeLine("this.isModified = false;");
             }
         }
-        writeAssignmentsInBuilderConstructor("this.", "existing.", writer);
+        writeAssignmentsInBuilderConstructor(ASSIGNEE_PREFIX_THIS, "existing.", writer);
         writer.writeBlockEnd();
     }
 
@@ -146,12 +149,12 @@ public class EntityClassBuilderGenerator {
         if (forDtoClasses) {
             if (classDef.hasTag()) {
                 writer.emptyLine()
-                        .writeBlockBeginln("private Builder(" + config.getIdClass().getName() + " id, java.lang.Integer etag)")
+                        .writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass().getName() + " id, java.lang.Integer etag)")
                         .writeLine("this.id = id;")
                         .writeLine("this.etag = \"\" + etag;");
             } else {
                 writer.emptyLine()
-                        .writeBlockBeginln("private Builder(" + config.getIdClass() + " id)")
+                        .writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass() + " id)")
                         .writeLine("this.id = existing.getId();");
 
             }
@@ -164,11 +167,11 @@ public class EntityClassBuilderGenerator {
             if (!fieldDef.isWriteOnce()) {
                 writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "(" + fieldDef.getType()
                         + " " + fieldDef.getName() + ")");
-                writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
+                writer.assign(ASSIGNEE_PREFIX_THIS, fieldDef.getName(), "", fieldDef.getName());
                 if (isForEntity()) {
-                    writer.assign("this.", "isModified", "", "true");
+                    writer.assign(ASSIGNEE_PREFIX_THIS, IS_MODIFIED, "", "true");
                 }
-                writer.writeLine("return this;");
+                writer.writeLine(RETURN_THIS);
                 writer.writeBlockEnd();
                 fieldDef.fetchCollectionDef()
                         .ifPresent(collectionDef -> writeBuilderAddToCollection(fieldDef, collectionDef, writer));
@@ -181,18 +184,14 @@ public class EntityClassBuilderGenerator {
             if (!fieldDef.isWriteOnce()) {
                 writer.writeBlockBeginln("public Builder set" + capitalize(fieldDef.getName()) + "IfNotNull("
                         + fieldDef.getType() + " " + fieldDef.getName()
-                       // + ", "
-//                        + fieldDef.getType() + " previous" + capitalize(fieldDef.getName())
                         + ")");
                 writer.writeBlockBeginln("if (" + fieldDef.getName() + " != null)");
-//                writer.assign("this.", fieldDef.getName(), " previous", capitalize(fieldDef.getName()));
-//                writer.writeLine("} else {");
-                writer.assign("this.", fieldDef.getName(), "", fieldDef.getName());
+                writer.assign(ASSIGNEE_PREFIX_THIS, fieldDef.getName(), "", fieldDef.getName());
                 if (isForEntity()) {
-                    writer.assign("this.", "isModified", "", "true");
+                    writer.assign(ASSIGNEE_PREFIX_THIS, IS_MODIFIED, "", "true");
                 }
                 writer.writeBlockEnd();
-                writer.writeLine("return this;");
+                writer.writeLine(RETURN_THIS);
                 writer.writeBlockEnd();
             }
         });
@@ -217,10 +216,10 @@ public class EntityClassBuilderGenerator {
                 .writeLine(" */")
                 .writeBlockBeginln("public Builder add" + capitalize(fieldDef.getSingular()) + ("(" + collectionDef.getCollectedType() + " " + fieldDef.getSingular() + ")"))
                 .writeBlockBeginln("if (this." + fieldDef.getName() + " == null)")
-                .writeLine("this." + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();")
+                .writeLine(ASSIGNEE_PREFIX_THIS + fieldDef.getName() + " = new " + collectionDef.getCollectionImplementationType() + "<>();")
                 .writeBlockEnd()
-                .writeLine("this." + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");")
-                .writeLine("return this;")
+                .writeLine(ASSIGNEE_PREFIX_THIS + fieldDef.getName() + ".add(" + fieldDef.getSingular() + ");")
+                .writeLine(RETURN_THIS)
                 .writeBlockEnd();
     }
 

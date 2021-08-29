@@ -64,7 +64,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     }
 
     @Test
-    public void get_persons() {
+    void get_persons() {
         given()
                 .person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_and_date_of_birth_$_in_the_database(
                         1, "Frits", "Jansma", "2001-11-23")
@@ -110,7 +110,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     }
 
     @Test
-    public void post_person() {
+    void post_person() {
         when().an_HTTP_$_on_$_is_performed_with_body_$("POST", "/api/persons",
                 ObjectMapperHolder.getIntance().toJson(
                         PersonDto.create()

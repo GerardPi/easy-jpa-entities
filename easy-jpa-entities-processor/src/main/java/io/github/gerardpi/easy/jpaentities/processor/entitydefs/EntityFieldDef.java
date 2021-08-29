@@ -1,11 +1,11 @@
 package io.github.gerardpi.easy.jpaentities.processor.entitydefs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
@@ -28,14 +28,8 @@ public class EntityFieldDef {
         this.annotations = requireNonNull(builder.annotations, "A collection (may be empty) must be available.");
     }
 
-    public static void main(String[] args) {
-        EntityFieldDef entityFieldDef = new EntityFieldDef.Builder("name", "singular", "type", "annotation", Arrays.asList("a", "b"), true, false)
-                .build();
-        try {
-            System.out.println(new ObjectMapper(new YAMLFactory()).writeValueAsString(entityFieldDef));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public static Builder create() {
+        return new Builder();
     }
 
     public String getName() {
@@ -80,9 +74,6 @@ public class EntityFieldDef {
         return writeOnce;
     }
 
-    public static Builder create() {
-        return new Builder();
-    }
     public static class Builder {
         private String name;
         private String singular;
@@ -91,7 +82,9 @@ public class EntityFieldDef {
         private boolean writeOnce = false;
         private String type;
 
-        public Builder() { }
+        public Builder() {
+        }
+
         public Builder(@JsonProperty(value = "name", required = true) String name,
                        @JsonProperty(value = "singular") String singular,
                        @JsonProperty(value = "type") String type,
@@ -105,6 +98,17 @@ public class EntityFieldDef {
             this.writeOnce = writeOnce;
             this.annotations = toImmutableList(annotation, annotations);
             this.type = type;
+        }
+
+        private static List<String> toImmutableList(String annotation, List<String> annotations) {
+            List<String> allAnnotations = new ArrayList<>();
+            if (annotations != null) {
+                allAnnotations.addAll(annotations);
+            }
+            if (annotation != null) {
+                allAnnotations.add(annotation);
+            }
+            return Collections.unmodifiableList(allAnnotations);
         }
 
         public Builder setName(String name) {
@@ -135,17 +139,6 @@ public class EntityFieldDef {
         public Builder setType(String type) {
             this.type = type;
             return this;
-        }
-
-        private static List<String> toImmutableList(String annotation, List<String> annotations) {
-            List<String> allAnnotations = new ArrayList<>();
-            if (annotations != null) {
-                allAnnotations.addAll(annotations);
-            }
-            if (annotation != null) {
-                allAnnotations.add(annotation);
-            }
-            return Collections.unmodifiableList(allAnnotations);
         }
 
         public Builder setTypeIfNotSpecified(String type) {

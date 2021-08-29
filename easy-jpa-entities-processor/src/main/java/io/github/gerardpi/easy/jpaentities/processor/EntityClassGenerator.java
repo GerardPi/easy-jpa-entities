@@ -36,6 +36,7 @@ public class EntityClassGenerator {
         if (classDef.isReadOnly()) {
             writer.writeLine("@org.hibernate.annotations.Immutable");
         }
+        writeSuppressWarningNonNullValuesShouldNotBeSetToNull(writer);
         writeClassDeclaration(writer);
         writeEntityFieldDeclarations(writer);
         writeConstructors(writer);
@@ -49,6 +50,15 @@ public class EntityClassGenerator {
         writer.writeBlockEnd();
     }
 
+    /**
+     * Code quality scanners will report that, for persistence purposes,
+     * fields are marked to never be null,
+     * whilst the default constructor (required by ORM framework)
+     * will initially set fields to null.
+     */
+    private void writeSuppressWarningNonNullValuesShouldNotBeSetToNull(JavaSourceWriter writer) {
+        writer.writeLine("@SuppressWarnings(\"java:S2637\")");
+    }
 
     private void writeClassHeader(JavaSourceWriter writer) {
         writer.writeLine("package " + getTargetPath() + ";")
@@ -86,7 +96,7 @@ public class EntityClassGenerator {
     private void writeClassDeclaration(JavaSourceWriter writer) {
         String extendsPart = classDef.getSuperClass(forDtoClasses)
                 .map(superClass -> " extends " + superClass)
-                .orElse("");
+                .orElse(" implements java.io.Serializable");
         writer.writeBlockBeginln("public class " + getClassName() + extendsPart);
     }
 
@@ -159,10 +169,6 @@ public class EntityClassGenerator {
         writer.writeBlockEnd();
     }
 
-    private String etagSuperParameter() {
-        return classDef.hasTag() ? ", \"\".equals(etag) ? null : java.lang.Integer.parseInt(etag)" : "";
-    }
-
     private void writeJacksonConstructor(JavaSourceWriter writer) {
         writer.writeLine("@com.fasterxml.jackson.annotation.JsonCreator");
         writer.writeBlockBeginln("public " + getClassName() + "(" + methodParameterDeclarationsForJackson() + ")");
@@ -226,9 +232,8 @@ public class EntityClassGenerator {
         if (classDef.hasTag()) {
             writer.writeLine("+ " + writer.quoted(";etag=") + " + this.getEtag()");
         }
-        classDef.getFieldDefs().forEach(fieldDef -> {
-            writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName());
-        });
+        classDef.getFieldDefs()
+                .forEach(fieldDef -> writer.writeLine("+ " + writer.quoted(";" + fieldDef.getName() + "=") + " + this." + fieldDef.getName()));
 
         writer.writeLine(";")
                 .decIndentation()

@@ -13,9 +13,9 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SerialisationTest extends SimpleScenarioTest<SerialisationTest.State> {
+class SerialisationTest extends SimpleScenarioTest<SerialisationTest.State> {
     @Test
-    public void testToJson() {
+    void testToJson() {
         given().a_PersonDto_with_first_name_$_and_last_name_$_and_date_of_birth_$("Frits", "Jansma", "2001-11-21");
         when().that_PersonDto_is_serialized_to_JSON();
         then().the_result_JSON_is_$(
@@ -30,7 +30,7 @@ public class SerialisationTest extends SimpleScenarioTest<SerialisationTest.Stat
     }
 
     @Test
-    public void testFromJson() {
+    void testFromJson() {
         when().JSON_$_is_deserialized_into_a_$(
                 ObjectMapperHolder.getIntance().toJson(
                         PersonDto.create()

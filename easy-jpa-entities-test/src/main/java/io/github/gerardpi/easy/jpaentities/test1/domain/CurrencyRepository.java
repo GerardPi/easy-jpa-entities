@@ -2,7 +2,6 @@ package io.github.gerardpi.easy.jpaentities.test1.domain;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

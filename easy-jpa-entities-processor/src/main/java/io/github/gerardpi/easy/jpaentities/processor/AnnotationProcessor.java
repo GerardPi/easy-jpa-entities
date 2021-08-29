@@ -33,7 +33,7 @@ public class AnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        if (annotations.size() == 0) {
+        if (annotations.isEmpty()) {
             return false;
         }
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(EasyJpaEntities.class);
@@ -50,7 +50,7 @@ public class AnnotationProcessor extends AbstractProcessor {
                 note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
             }
         }
-        return false;
+        return true;
     }
 
     private FileObject createConfigFileObject(Element element) {
@@ -116,7 +116,7 @@ public class AnnotationProcessor extends AbstractProcessor {
         easyJpaEntitiesConfig.getEntityClassDefs().forEach(classDef -> {
             String fqn = easyJpaEntitiesConfig.getTargetPackage() + "." + classDef.getName();
             note(processingEnv, "Generating entity class " + fqn);
-            try (JavaSourceWriter writer = createClassWriter(processingEnv, fqn)) {
+            try (JavaSourceWriter writer = createJavaSourceWriter(processingEnv, fqn)) {
                 new EntityClassGenerator(classDef, easyJpaEntitiesConfig)
                         .write(writer);
             } catch (IOException e) {
@@ -130,7 +130,7 @@ public class AnnotationProcessor extends AbstractProcessor {
             if (classDef.getDtoTargetPackage().isPresent()) {
                 String fqn = classDef.getDtoTargetPackage().get() + "." + classDef.getName() + "Dto";
                 note(processingEnv, "Generating DTO class " + fqn);
-                try (JavaSourceWriter writer = createClassWriter(processingEnv, fqn)) {
+                try (JavaSourceWriter writer = createJavaSourceWriter(processingEnv, fqn)) {
                     new EntityClassGenerator(classDef, easyJpaEntitiesConfig, true)
                             .write(writer);
                 } catch (IOException e) {

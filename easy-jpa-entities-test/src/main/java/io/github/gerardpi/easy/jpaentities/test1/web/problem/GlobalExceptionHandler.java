@@ -1,7 +1,6 @@
 package io.github.gerardpi.easy.jpaentities.test1.web.problem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.collect.ImmutableList;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,8 +12,6 @@ import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     @ExceptionHandler(IllegalArgumentException.class)
     HttpEntity<RestApiMessageDto> handleIllegalArgumentException(Throwable e, HttpServletRequest request) {
         return handleException(e, request, "invalid arguments", HttpStatus.BAD_REQUEST);
@@ -47,7 +44,11 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_MODIFIED);
     }
 
-    private <T extends Throwable> HttpEntity<RestApiMessageDto> handleException(T throwable, HttpServletRequest request, String title, HttpStatus httpStatus) {
+    private <T extends Throwable> HttpEntity<RestApiMessageDto> handleException(
+            T throwable,
+            HttpServletRequest request,
+            String title,
+            HttpStatus httpStatus) {
         RestApiMessageDto error = RestApiMessageDto.create()
                 .setTitle(title)
                 .setPath(request.getPathInfo())
@@ -57,6 +58,7 @@ public class GlobalExceptionHandler {
                 .setStatusSeries(httpStatus.series().name())
                 .setTimestamp(OffsetDateTime.now())
                 .setTraceId("" + OffsetDateTime.now().toInstant().toEpochMilli())
+                .setMessages(ImmutableList.of(throwable.getMessage()))
                 .build();
         return ResponseEntity
                 .status(error.getStatusCode())

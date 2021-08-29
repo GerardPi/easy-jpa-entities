@@ -17,11 +17,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static io.github.gerardpi.easy.jpaentities.test1.web.ControllerUtils.toUri;
+
 @RestController
 @RequestMapping(PersonController.URI)
 public class PersonController {
     public static final String URI = "/api/persons";
-    private static final Function<Person, PersonDto> TO_DTO = (person) -> PersonDto
+    private static final Function<Person, PersonDto> TO_DTO = person -> PersonDto
             .from(person)
             .setDateOfBirth(person.getDateOfBirth())
             .setName(person.getName()).build();
@@ -34,12 +36,12 @@ public class PersonController {
     }
 
     @PostMapping
-    HttpEntity<Void> createPerson(@RequestBody PersonDto personDto) {
+    public HttpEntity<Void> createPerson(@RequestBody PersonDto personDto) {
         Person person = fromDto(personDto);
         Person savedPerson = personRepository.save(person);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
-                .location(java.net.URI.create(URI + "/" + savedPerson.getId()))
+                .location(toUri(URI, savedPerson.getId().toString()))
                 .build();
     }
 
@@ -47,13 +49,13 @@ public class PersonController {
      * Note that, if a field is missing from the DTO, it will not be changed.
      */
     @PatchMapping
-    HttpEntity<Void> partiallyUpdatePerson(UUID id, @RequestBody PersonDto personDto) {
+    public HttpEntity<Void> partiallyUpdatePerson(UUID id, @RequestBody PersonDto personDto) {
         Person existingPerson = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Person updatedPerson = copyUpdatesToPerson(personDto, existingPerson);
         Person savedPerson = personRepository.save(updatedPerson);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
-                .location(java.net.URI.create(URI + "/" + savedPerson.getId()))
+                .location(toUri(URI, savedPerson.getId().toString()))
                 .build();
     }
 
@@ -66,22 +68,22 @@ public class PersonController {
      * Using a PUT to replace is idempotent, meaning that all fields will be overwritten.
      */
     @PutMapping
-    HttpEntity<Void> replacePerson(UUID id, @RequestBody PersonDto personDto) {
+    public HttpEntity<Void> replacePerson(UUID id, @RequestBody PersonDto personDto) {
         Person existingPerson = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Person updatedPerson = toPerson(personDto, existingPerson);
         Person savedPerson = personRepository.save(updatedPerson);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
-                .location(java.net.URI.create(URI + "/" + savedPerson.getId()))
+                .location(toUri(URI, savedPerson.getId().toString()))
                 .build();
     }
 
     @GetMapping("/{id}")
-    HttpEntity<PersonDto> getPerson(@PathVariable UUID id,
+    public HttpEntity<PersonDto> getPerson(@PathVariable UUID id,
                                     @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) Optional<String> ifNoneMatchHeader) {
-        String path = URI + "/" + id;
         PersonDto personDto = getDtoForId(id);
-        ControllerUtils.assertEtagDifferent(ifNoneMatchHeader, personDto.getEtag(), path);
+        ControllerUtils.assertEtagDifferent(ifNoneMatchHeader, personDto.getEtag(),
+                toUri(URI, id.toString()).toString());
         return ControllerUtils.okResponse(personDto);
     }
 
@@ -95,12 +97,12 @@ public class PersonController {
     }
 
     @GetMapping
-    Page<PersonDto> getPersons(@PageableDefault(size = 10, sort = "name.last") Pageable pageable) {
+    public Page<PersonDto> getPersons(@PageableDefault(size = 10, sort = "name.last") Pageable pageable) {
         return personRepository.findAll(pageable).map(TO_DTO);
     }
 
     @DeleteMapping
-    HttpEntity<Void> deletePerson(@PathVariable UUID id, @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) Integer expectedEtag) {
+    public HttpEntity<Void> deletePerson(@PathVariable UUID id, @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) Integer expectedEtag) {
         Person person = getById(id);
         ControllerUtils.assertEtagEqual(person, expectedEtag);
         personRepository.delete(person);

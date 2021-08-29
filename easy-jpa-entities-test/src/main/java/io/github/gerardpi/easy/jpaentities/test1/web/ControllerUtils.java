@@ -7,8 +7,8 @@ import io.github.gerardpi.easy.jpaentities.test1.web.problem.EntityTagMismatchEx
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -48,5 +48,9 @@ public final class ControllerUtils {
     }
     private ControllerUtils() {
         // No instantiation allowed/
+    }
+
+    public static URI toUri(String prefix, String suffix) {
+        return URI.create(prefix + "/" + suffix);
     }
 }

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 // Order of configuration classes is important. Some beans are overridden.
 @SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
-public class PersistenceTests extends SimpleScenarioTest<PersistenceTests.State> {
+class PersistenceTests extends SimpleScenarioTest<PersistenceTests.State> {
     @Autowired
     private Repositories repositories;
     @Autowired
@@ -40,13 +40,13 @@ public class PersistenceTests extends SimpleScenarioTest<PersistenceTests.State>
     }
 
     @Test
-    public void the_database_contains_some_currencies() {
+    void the_database_contains_some_currencies() {
         when().a_currency_with_code_$_and_name_$_is_stored_in_the_database("EUR", "Euro");
         then().that_currency_$_can_be_fetched_from_the_database_using_the_currency_code_$("Euro", "EUR");
     }
 
     @Test
-    public void the_optimistic_locking_value_is_increased_with_each_update_and_the_is_modified_flag_work_as_expected() {
+    void the_optimistic_locking_value_is_increased_with_each_update_and_the_is_modified_flag_work_as_expected() {
         given().an_item_$_with_name_is_stored_in_the_database$(1, "kaas");
         when().fetching_that_item_$_from_the_database(1);
         then().that_item_$_modified("is not")

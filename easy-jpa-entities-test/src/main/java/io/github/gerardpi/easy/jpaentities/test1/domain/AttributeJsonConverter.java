@@ -14,19 +14,19 @@ public abstract class AttributeJsonConverter<T> implements AttributeConverter<T,
     private final CollectionType collectionType;
     private final MapType mapType;
 
-    public AttributeJsonConverter(Class<T> targetClass) {
+    protected AttributeJsonConverter(Class<T> targetClass) {
         this(targetClass, null, null);
     }
 
-    public AttributeJsonConverter(CollectionType collectionType) {
+    protected AttributeJsonConverter(CollectionType collectionType) {
         this(null, collectionType, null);
     }
 
-    public AttributeJsonConverter(MapType mapType) {
+    protected AttributeJsonConverter(MapType mapType) {
         this(null, null, mapType);
     }
 
-    public AttributeJsonConverter(Class<T> targetClass, CollectionType collectionType, MapType mapType) {
+    protected AttributeJsonConverter(Class<T> targetClass, CollectionType collectionType, MapType mapType) {
         this.objectMapperHolder = ObjectMapperHolder.INSTANCE;
         this.targetClass = targetClass;
         this.collectionType = collectionType;

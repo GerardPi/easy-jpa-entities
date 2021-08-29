@@ -1,6 +1,5 @@
 package io.github.gerardpi.easy.jpaentities.test1.web.headrequest;
 
-import io.github.gerardpi.easy.jpaentities.test1.web.headrequest.ForceGetRequestWrapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 

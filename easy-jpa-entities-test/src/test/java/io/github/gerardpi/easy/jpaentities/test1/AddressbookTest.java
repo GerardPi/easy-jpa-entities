@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = { TestConfig.BEAN_DEF_OVERRIDING_ENABLED })
 // Order of configuration classes is important. Some beans are overridden.
 @SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
-public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
+class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     @Autowired
     private Repositories repositories;
     @Autowired
@@ -46,7 +46,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     }
 
     @Test
-    public void optimisticLockingVersionNumberIncreasesWithUpdates() {
+    void optimisticLockingVersionNumberIncreasesWithUpdates() {
         when().person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma", "2001-11-23");
         then().that_$_$_has_ID_$(Person.class, 1, "00000000-1111-2222-3333-444444444444");
         then().that_$_with_number_$_has_optimistic_locking_version_number_$(Person.class, 1, 0);
@@ -64,7 +64,7 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
     }
 
     @Test
-    public void personAddressCanBeUsedToLinkAPersonToAnAddress() {
+    void personAddressCanBeUsedToLinkAPersonToAnAddress() {
         given().person_$_is_created_with_first_name_$_and_last_name_$_in_the_database(1, "Frits", "Jansma", "2001-11-27")
                 .and().creating_an_address_$_with_data_$_$_$_$_$(1, "NL", "Amsterdam", "1234AA", "Damstraat", "1");
         when().a_relation_is_created_$_between_person_$_and_address_$_with_types(1, 1, 1, Arrays.asList("RESIDENCE", "PROPERTY"));
@@ -95,11 +95,11 @@ public class AddressbookTest extends SimpleScenarioTest<AddressbookTest.State> {
             switch (entityClass.getSimpleName()) {
                 case "Person":
                     Person person = repositories.getPersonRepository().findById(savedEntities.getPersonId(number)).get();
-                    assertThat(this.savedEntities.getPersonId(number).toString()).isEqualTo(expectedId);
+                    assertThat(this.savedEntities.getPersonId(number)).hasToString(expectedId);
                     break;
                 case "Address":
                     Address address = repositories.getAddressRepository().findById(savedEntities.getAddressId(number)).get();
-                    assertThat(this.savedEntities.getAddressId(number).toString()).isEqualTo(expectedId);
+                    assertThat(this.savedEntities.getAddressId(number)).hasToString(expectedId);
                     break;
                 default:
                     throw new IllegalStateException("No clue what to do");

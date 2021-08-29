@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This test uses EqualsVerifier.
  * For more details, refer to https://jqno.nl/equalsverifier/
  */
-public class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqualsVerificationTest.State> {
+class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqualsVerificationTest.State> {
     @Test
-    public void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Person() {
+    void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Person() {
         given().an_entity_class_$(Person.class)
                 .which_has_a_field_$_that_is_never_null("id")
                 .and()
@@ -38,7 +38,7 @@ public class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqual
     }
 
     @Test
-    public void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Address() {
+    void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Address() {
         given().an_entity_class_$(Address.class)
                 .which_has_a_field_$_that_is_never_null("id")
                 .and()
@@ -58,7 +58,7 @@ public class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqual
     }
 
     @Test
-    public void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Currency() {
+    void check_that_the_id_is_the_significant_part_that_is_used_for_equals_and_hashCode_in_entity_Currency() {
         given().an_entity_class_$(Currency.class)
                 .which_has_a_field_$_that_is_never_null("id")
                 .and()

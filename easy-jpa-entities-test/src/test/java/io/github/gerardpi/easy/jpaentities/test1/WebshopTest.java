@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = { TestConfig.BEAN_DEF_OVERRIDING_ENABLED })
 // Order of configuration classes is important. Some beans are overridden.
 @SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
-public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
+class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
     private static final Logger LOG = LoggerFactory.getLogger(WebshopTest.class);
     private static final String OFFSET_DATE_TIME_SUFFIX = ".901351+02:00";
     @Autowired
@@ -47,7 +47,7 @@ public class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
     }
 
     @Test
-    public void the_database_contains_orders_for_a_person() {
+    void the_database_contains_orders_for_a_person() {
         String dateTimeOrder1 = "2021-05-10T18:15:33" + OFFSET_DATE_TIME_SUFFIX;
         String dateTimeOrder2 = "2021-05-10T19:40:02" + OFFSET_DATE_TIME_SUFFIX;
         given().a_person_$_with_first_name_$_and_last_name_$(1, "A", "B")

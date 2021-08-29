@@ -10,9 +10,9 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class YamlSerializationTest {
+class YamlSerializationTest {
     @Test
-    public void test() {
+    void test() {
         EasyJpaEntitiesConfig easyJpaEntitiesConfig = new EasyJpaEntitiesConfig.Builder(
                 "targetPackage", false, Arrays.asList("a", "b", "c"),
                 UUID.class.getName(), true,

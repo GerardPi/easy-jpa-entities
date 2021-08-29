@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.gerardpi.easy.jpaentities.test1.json.ObjectMapperHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +34,8 @@ public class DemoApplication implements WebMvcConfigurer {
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.stream()
-                .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
-                .map(c -> (MappingJackson2HttpMessageConverter) c)
+                .filter(MappingJackson2HttpMessageConverter.class::isInstance)
+                .map(MappingJackson2HttpMessageConverter.class::cast)
                 .forEach(c -> c.setObjectMapper(ObjectMapperHolder.getIntance().getObjectMapper()));
         LoggerFactory.getLogger(ObjectMapperHolder.class).info("Setting an initial objectMapper");
     }
