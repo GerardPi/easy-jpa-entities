@@ -1,0 +1,45 @@
+==== io.github.gerardpi.easy.jpaentities.test1.SerialisationTest ====
+
+===== Test from json =====
+
+When JSON 
+
+....
+
+          ----------------------------------------------------------------------
+          {
+                    "name": {
+                              "last": "Fritz",
+                              "first": "Kees"
+                    },
+                    "dateOfBirth": "1998-10-22"
+          }
+          ----------------------------------------------------------------------
+
+....
+
+is deserialized into a pass:[class io.github.gerardpi.easy.jpaentities.test1.web.PersonDto] +
+Then that PersonDto has first name pass:["Kees"] and last name pass:["Fritz"] and date of birth pass:["1998-10-22"] +
+
+===== Test to json =====
+
+Given a PersonDto with first name pass:["Frits"] and last name pass:["Jansma"] and date of birth pass:["2001-11-21"] +
+When that PersonDto is serialized to JSON +
+Then the result JSON is 
+
+....
+
+          ----------------------------------------------------------------------
+          {
+                    "name": {
+                              "last": "Jansma",
+                              "first": "Frits"
+                    },
+                    "dateOfBirth": "2001-11-21"
+          }
+          ----------------------------------------------------------------------
+
+....
+
++
+

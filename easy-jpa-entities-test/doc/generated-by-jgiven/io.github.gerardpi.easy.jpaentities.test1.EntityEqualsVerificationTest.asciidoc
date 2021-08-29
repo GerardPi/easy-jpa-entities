@@ -1,0 +1,35 @@
+==== io.github.gerardpi.easy.jpaentities.test1.EntityEqualsVerificationTest ====
+
+===== Check that the id is the significant part that is used for equals and hashCode in entity Address =====
+
+Given an entity class pass:["class io.github.gerardpi.easy.jpaentities.test1.domain.Address"] +
+which has a field pass:["id"] that is never null +
+and which has a field pass:["etag"] that is ignored by equals method +
+and which has a field pass:["countryCode"] that is ignored by equals method +
+and which has a field pass:["city"] that is ignored by equals method +
+and which has a field pass:["postalCode"] that is ignored by equals method +
+and which has a field pass:["street"] that is ignored by equals method +
+and which has a field pass:["houseNumber"] that is ignored by equals method +
+When verifying that entity class +
+Then that entity class is ok +
+
+===== Check that the id is the significant part that is used for equals and hashCode in entity Currency =====
+
+Given an entity class pass:["class io.github.gerardpi.easy.jpaentities.test1.domain.Currency"] +
+which has a field pass:["id"] that is never null +
+and which does not possess a field pass:["etag"] +
+and which has a field pass:["name"] that is ignored by equals method +
+and which has a field pass:["code"] that is ignored by equals method +
+When verifying that entity class +
+Then that entity class is ok +
+
+===== Check that the id is the significant part that is used for equals and hashCode in entity Person =====
+
+Given an entity class pass:["class io.github.gerardpi.easy.jpaentities.test1.domain.Person"] +
+which has a field pass:["id"] that is never null +
+and which has a field pass:["etag"] that is ignored by equals method +
+and which has a field pass:["name"] that is ignored by equals method +
+and which has a field pass:["dateOfBirth"] that is ignored by equals method +
+When verifying that entity class +
+Then that entity class is ok +
+

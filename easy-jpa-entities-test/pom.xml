@@ -192,7 +192,7 @@
     </build>
     <profiles>
         <profile>
-            <id>coverage-and-test-reporting</id>
+            <id>test-reporting</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
@@ -204,14 +204,25 @@
                         <version>${jgiven.version}</version>
                         <executions>
                             <execution>
+                                <id>html report generation</id>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
+                                <configuration>
+                                    <format>html</format>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>feature adoc generation</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <format>asciidoc</format>
+                                    <outputDirectory>doc/generated-by-jgiven</outputDirectory>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <format>html</format>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

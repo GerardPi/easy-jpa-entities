@@ -87,11 +87,12 @@ include::doc/release-notes.adoc[]
 
 .Build code like so assuming that you have maven available from your PATH:
 . Clone https://git-scm.com/[GIT] repository
-. `http://maven.apache.org/[mvn] verify -Pcoverage-and-test-reporting`
+. `http://maven.apache.org/[mvn] verify -Ptest-reporting`
 
 .Subsequently, the following reports are available `target` directory of both modules:
+. https://www.jacoco.org/jacoco/[Jacoco] test coverage reporting (in `target/site/jacoco`),
 . https://jgiven.org/[JGiven] test reporting (in `target/jgiven-reports`) and
-. https://www.jacoco.org/jacoco/[Jacoco] test coverage reporting (in `target/site/jacoco`)
+. Test scenarios are generated in https://asciidoctor.org/[asciidoctor] format in `doc/generated-by-jgiven/`. This is also committed to the repository as it is documentation that can be viewed from the repository.
 
 
 == Reference
