@@ -65,8 +65,8 @@ image:doc/easy-jpa-entities-proces.svg[]
 Create an interface, and include a YAML file with the same name with the entity definitions.
 
 .Example:
-* *Annotated file*: `easy-jpa-entities-test/src/main/java/io/github/gerardpi/easy/jpaentities/test1/_AnAnnotatedInterface.java` (this is the file to be found by the annotations processor)
-* *Definitions file*: `easy-jpa-entities-test/src/main/resources/io/github/gerardpi/easy/jpaentities/test1/_AnAnnotatedInterface.yaml` (this file contains the actual definitions)
+* *Annotated file*: `easy-jpa-entities-test/src/main/java/io/github/gerardpi/easy/jpaentities/test1/EasyJpaEntitiesWithAnnotation.java` (this is the file to be found by the annotations processor)
+* *Definitions file*: `easy-jpa-entities-test/src/main/resources/io/github/gerardpi/easy/jpaentities/test1/EasyJpaEntitiesWithAnnotation.yaml` (this file contains the actual definitions)
 
 At compile time, the Java sources are being generated.
 
@@ -79,7 +79,21 @@ image::https://travis-ci.com/GerardPi/easy-jpa-entities.svg?branch=master[]
 
 include::doc/release-notes.adoc[]
 
+== Test reporting and code coverage
+
+.Reporting:
+* Test reporting consists of human-readable scenarios that indicate how the software is tested and which form detailed documentation for the sources.
+* Test coverage: what % the source code is actually hit by tests.
+
+.Build code like so assuming that you have maven available from your PATH:
+. Clone https://git-scm.com/[GIT] repository
+. `http://maven.apache.org/[mvn] verify -Pcoverage-and-test-reporting`
+
+.Subsequently, the following reports are available `target` directory of both modules:
+. https://jgiven.org/[JGiven] test reporting (in `target/jgiven-reports`) and
+. https://www.jacoco.org/jacoco/[Jacoco] test coverage reporting (in `target/site/jacoco`)
+
+
 == Reference
 
 * https://spring.io/projects/spring-boot
-* https://jgiven.org/
