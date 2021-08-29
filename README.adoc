@@ -94,6 +94,7 @@ include::doc/release-notes.adoc[]
 . https://jgiven.org/[JGiven] test reporting (in `target/jgiven-reports`) and
 . Test scenarios are generated in https://asciidoctor.org/[asciidoctor] format in `doc/generated-by-jgiven/`. This is also committed to the repository as it is documentation that can be viewed from the repository.
 
+NOTE: Asciidoctor files can be viewed using a plugin in Intellij IDEA, your favourite browser. It is also converted to HTML when you click the file in Github.
 
 == Reference
 
