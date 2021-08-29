@@ -138,24 +138,6 @@ public class EntityClassDef {
         private String name;
         private String dtoTargetPackage;
 
-        public Builder(
-                String name,
-                List<EntityFieldDef.Builder> fieldDefBuilders,
-                String extendsFromClass,
-                boolean readOnly, String annotation,
-                List<String> annotations,
-                String defaultFieldType,
-                String dtoTargetPackage
-        ) {
-            this.name = name;
-            this.fieldDefBuilders = fieldDefBuilders;
-            this.extendsFromClass = extendsFromClass;
-            this.readOnly = readOnly;
-            this.annotations = toImmutableList(annotation, annotations);
-            this.defaultFieldType = defaultFieldType;
-            this.dtoTargetPackage = dtoTargetPackage;
-        }
-
         @JsonCreator
         public Builder(
                 @JsonProperty(value = "fieldDefs", required = true) List<EntityFieldDef.Builder> fieldDefBuilders,
@@ -165,7 +147,13 @@ public class EntityClassDef {
                 @JsonProperty(value = "annotations") List<String> annotations,
                 @JsonProperty("readOnly") boolean readOnly,
                 @JsonProperty(value = "dtoTargetPackage", defaultValue = "") String dtoTargetPackage) {
-            this(null, fieldDefBuilders, extendsFromClass, readOnly, annotation, annotations, defaultFieldType, dtoTargetPackage);
+            this.name = null;
+            this.fieldDefBuilders = fieldDefBuilders;
+            this.extendsFromClass = extendsFromClass;
+            this.readOnly = readOnly;
+            this.annotations = toImmutableList(annotation, annotations);
+            this.defaultFieldType = defaultFieldType;
+            this.dtoTargetPackage = dtoTargetPackage;
         }
 
         private static List<String> toImmutableList(String annotation, List<String> annotations) {

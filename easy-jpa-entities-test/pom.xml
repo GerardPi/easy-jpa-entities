@@ -20,6 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <jgiven.version>1.1.0</jgiven.version>
     </properties>
 
     <dependencyManagement>
@@ -83,7 +84,7 @@
         <dependency>
             <groupId>com.tngtech.jgiven</groupId>
             <artifactId>jgiven-junit5</artifactId>
-            <version>1.1.0</version>
+            <version>${jgiven.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -166,6 +167,21 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.tngtech.jgiven</groupId>
+                <artifactId>jgiven-maven-plugin</artifactId>
+                <version>${jgiven.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <format>html</format>
+                </configuration>
             </plugin>
         </plugins>
     </build>

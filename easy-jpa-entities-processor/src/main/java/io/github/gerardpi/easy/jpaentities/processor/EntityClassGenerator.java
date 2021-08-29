@@ -69,16 +69,25 @@ public class EntityClassGenerator {
                     .writeLine("//         details: https://github.com/GerardPi/easy-jpa-entities");
         }
 
-        if (forDtoClasses) {
-            writer.writeImport(config.getTargetPackage(), classDef.getSuperClass(true).get());
-            writer.writeImport(config.getTargetPackage(), classDef.getSuperClass(false).get());
-        }
+        writeImports(writer);
         if (isForEntity()) {
             writer
                     .writeLine("@javax.persistence.Entity")
                     .writeLine("@javax.persistence.Access(javax.persistence.AccessType.FIELD)");
             classDef.getAnnotations().forEach(annotation -> writer.writeLine("@" + annotation));
         }
+    }
+    private void writeImports(JavaSourceWriter writer) {
+        if (forDtoClasses) {
+            writer.writeImport(config.getTargetPackage(), getSuperclass(true));
+            writer.writeImport(config.getTargetPackage(), getSuperclass(false));
+        }
+    }
+
+    private String getSuperclass(boolean forDtoClas) {
+        return classDef.getSuperClass(forDtoClas)
+                .orElseThrow(() -> new IllegalStateException("Expected a superclass to be available for "
+                        + EntityClassDef.class.getSimpleName() + classDef));
     }
 
     private boolean isForEntity() {
