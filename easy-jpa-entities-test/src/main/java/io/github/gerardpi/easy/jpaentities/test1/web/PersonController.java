@@ -51,7 +51,7 @@ public class PersonController {
     @PatchMapping
     public HttpEntity<Void> partiallyUpdatePerson(UUID id, @RequestBody PersonDto personDto) {
         Person existingPerson = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Person updatedPerson = copyUpdatesToPerson(personDto, existingPerson);
+        Person updatedPerson = personDto.copyToBuilderNotNull(existingPerson).build();
         Person savedPerson = personRepository.save(updatedPerson);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
@@ -69,9 +69,10 @@ public class PersonController {
      */
     @PutMapping
     public HttpEntity<Void> replacePerson(UUID id, @RequestBody PersonDto personDto) {
-        Person existingPerson = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Person updatedPerson = toPerson(personDto, existingPerson);
-        Person savedPerson = personRepository.save(updatedPerson);
+        Person savedPerson = personRepository.save(personDto.copyToBuilder(
+                personRepository
+                        .findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))).build());
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
                 .location(toUri(URI, savedPerson.getId().toString()))
@@ -112,19 +113,5 @@ public class PersonController {
     private Person fromDto(PersonDto dto) {
         Person.Builder personBuilder = dto.isNew() ? Person.create(this.uuidGenerator.generate()) : Person.create(dto.getId());
         return personBuilder.setDateOfBirth(dto.getDateOfBirth()).setName(dto.getName()).build();
-    }
-
-    private Person copyUpdatesToPerson(PersonDto dto, Person person) {
-        return person.modify()
-                .setNameIfNotNull(dto.getName())
-                .setDateOfBirthIfNotNull(dto.getDateOfBirth())
-                .build();
-    }
-
-    private Person toPerson(PersonDto dto, Person person) {
-        return person.modify()
-                .setName(dto.getName())
-                .setDateOfBirth(dto.getDateOfBirth())
-                .build();
     }
 }

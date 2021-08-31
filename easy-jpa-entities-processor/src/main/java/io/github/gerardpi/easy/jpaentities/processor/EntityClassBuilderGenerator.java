@@ -111,6 +111,10 @@ public class EntityClassBuilderGenerator {
 
         writeBuilderConstructorForNew(writer);
         writeBuilderCopyConstructor(writer, getClassName());
+
+        if (forDtoClasses) {
+            writeBuilderCopyConstructor(writer, config.getTargetPackage() + "." + classDef.getName());
+        }
         writeBuilderCopyConstructorFromEntity(writer);
         writer.emptyLine();
         writeBuilderSetters(writer);
@@ -133,7 +137,11 @@ public class EntityClassBuilderGenerator {
         if (classDef.isEntity()) {
             writer.writeLine("this.id = existing.getId();");
             if (classDef.hasTag()) {
-                writer.writeLine("this.etag = existing.getEtag();");
+                if (forDtoClasses) {
+                    writer.writeLine("this.etag = \"\" + existing.getEtag();");
+                } else {
+                    writer.writeLine("this.etag = existing.getEtag();");
+                }
             } else if (classDef.isPersistableEntity()) {
                 writer.writeLine("this.isPersisted = true;");
             }
@@ -141,24 +149,34 @@ public class EntityClassBuilderGenerator {
                 writer.writeLine("this.isModified = false;");
             }
         }
-        writeAssignmentsInBuilderConstructor(ASSIGNEE_PREFIX_THIS, "existing.", writer);
+        if (forDtoClasses) {
+            writeAssignmentsInBuilderConstructorUsingGetters(ASSIGNEE_PREFIX_THIS, "existing.", writer);
+        } else {
+            writeAssignmentsInBuilderConstructorUsingFields(ASSIGNEE_PREFIX_THIS, "existing.", writer);
+        }
         writer.writeBlockEnd();
     }
 
     private void writeBuilderCopyConstructorFromEntity(JavaSourceWriter writer) {
         if (forDtoClasses) {
             if (classDef.hasTag()) {
-                writer.emptyLine()
-                        .writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass().getName() + " id, java.lang.Integer etag)")
-                        .writeLine("this.id = id;")
-                        .writeLine("this.etag = \"\" + etag;");
+                writer.emptyLine().writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass().getName() + " id, java.lang.Integer etag)");
             } else {
-                writer.emptyLine()
-                        .writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass() + " id)")
-                        .writeLine("this.id = existing.getId();");
-
+                writer.emptyLine().writeBlockBeginln(PRIVATE_BUILDER + config.getIdClass() + " id)");
             }
+            writeAssignmentIdAndEtag(writer);
             writer.writeBlockEnd();
+        }
+    }
+
+    private void writeAssignmentIdAndEtag(JavaSourceWriter writer) {
+        if (classDef.hasTag()) {
+            writer.emptyLine()
+                    .writeLine("this.id = id;")
+                    .writeLine("this.etag = \"\" + etag;");
+        } else {
+            writer.emptyLine()
+                    .writeLine("this.id = existing.getId();");
         }
     }
 
@@ -223,12 +241,20 @@ public class EntityClassBuilderGenerator {
                 .writeBlockEnd();
     }
 
-    private void writeAssignmentsInBuilderConstructor(String assigneePrefix, String assignedValuePrefix, JavaSourceWriter writer) {
-        classDef.getFieldDefs().forEach(fieldDef -> builderAssign(assigneePrefix, assignedValuePrefix, fieldDef, writer));
+    private void writeAssignmentsInBuilderConstructorUsingFields(String assigneePrefix, String assignedValuePrefix, JavaSourceWriter writer) {
+        classDef.getFieldDefs().forEach(fieldDef -> builderAssignFromFields(assigneePrefix, assignedValuePrefix, fieldDef, writer));
     }
 
-    private void builderAssign(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, JavaSourceWriter writer) {
+    private void writeAssignmentsInBuilderConstructorUsingGetters(String assigneePrefix, String assignedValuePrefix, JavaSourceWriter writer) {
+        classDef.getFieldDefs().forEach(fieldDef -> builderAssignFromGetters(assigneePrefix, assignedValuePrefix, fieldDef, writer));
+    }
+
+    private void builderAssignFromFields(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, JavaSourceWriter writer) {
         writer.writeLine(assigneePrefix + entityFieldDef.getName() + " = " + assignedFieldPrefix + entityFieldDef.getName() + ";");
+    }
+
+    private void builderAssignFromGetters(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, JavaSourceWriter writer) {
+        writer.writeLine(assigneePrefix + entityFieldDef.getName() + " = " + assignedFieldPrefix + "get" + capitalize(entityFieldDef.getName()) + "();");
     }
 
     private void writeBuilderFieldDeclarations(JavaSourceWriter writer) {
@@ -244,7 +270,36 @@ public class EntityClassBuilderGenerator {
                 .emptyLine()
                 .writeBlockBeginln("public Builder modify()")
                 .writeLine("return new Builder(this);")
-                .writeBlockEnd();
+                .writeBlockEnd()
+                .emptyLine();
+        if (forDtoClasses) {
+            String entityClassName = config.getTargetPackage() + "." + classDef.getName();
+            String entityBuilderClassName = config.getTargetPackage() + "." + classDef.getName() + ".Builder";
+            writer.writeBlockBeginln("public Builder fromEntity(" + entityClassName + " existing)")
+                    .writeLine("return new Builder(existing);")
+                    .writeBlockEnd()
+                    .emptyLine();
+
+            writer.writeBlockBeginln("public " + entityBuilderClassName + " copyToBuilder(" + entityClassName + " existing)")
+                    .writeLine("return existing.modify()");
+
+            classDef.getFieldDefs().forEach(fieldDef -> {
+                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())");
+            });
+            writer
+                    .writeLine(";")
+                    .writeBlockEnd()
+                    .emptyLine();
+            writer.writeBlockBeginln("public " + entityBuilderClassName + " copyToBuilderNotNull(" + entityClassName + " existing)")
+                    .writeLine(entityBuilderClassName + " builder = existing.modify();");
+            classDef.getFieldDefs().forEach(fieldDef ->
+                writer.writeLine("java.util.Optional.ofNullable(get"
+                        + capitalize(fieldDef.getName()) + "()).ifPresent(newValue -> builder.set"
+                        + capitalize(fieldDef.getName()) + "(newValue));"));
+            writer.writeLine("return builder;")
+                    .writeBlockEnd()
+                    .emptyLine();
+        }
     }
 
     private void writeCreateFromPersistableEntity(JavaSourceWriter writer) {
