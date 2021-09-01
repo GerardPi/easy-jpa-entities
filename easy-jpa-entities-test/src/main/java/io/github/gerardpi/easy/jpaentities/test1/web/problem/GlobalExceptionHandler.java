@@ -9,9 +9,16 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private final Supplier<OffsetDateTime> dateTimeSupplier;
+
+    GlobalExceptionHandler(Supplier<OffsetDateTime> dateTimeSupplier) {
+        this.dateTimeSupplier = dateTimeSupplier;
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     HttpEntity<RestApiMessageDto> handleIllegalArgumentException(Throwable e, HttpServletRequest request) {
         return handleException(e, request, "invalid arguments", HttpStatus.BAD_REQUEST);
@@ -49,6 +56,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request,
             String title,
             HttpStatus httpStatus) {
+        OffsetDateTime dateTime = dateTimeSupplier.get();
         RestApiMessageDto error = RestApiMessageDto.create()
                 .setTitle(title)
                 .setPath(request.getPathInfo())
@@ -56,8 +64,8 @@ public class GlobalExceptionHandler {
                 .setStatusCode(httpStatus.value())
                 .setStatusName(httpStatus.getReasonPhrase())
                 .setStatusSeries(httpStatus.series().name())
-                .setTimestamp(OffsetDateTime.now())
-                .setTraceId("" + OffsetDateTime.now().toInstant().toEpochMilli())
+                .setTimestamp(dateTime)
+                .setTraceId("" + dateTime.toInstant().toEpochMilli())
                 .setMessages(ImmutableList.of(throwable.getMessage()))
                 .build();
         return ResponseEntity

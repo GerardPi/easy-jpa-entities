@@ -11,6 +11,7 @@ import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
 import io.github.gerardpi.easy.jpaentities.test1.domain.PersonName;
 import io.github.gerardpi.easy.jpaentities.test1.json.ObjectMapperHolder;
 import io.github.gerardpi.easy.jpaentities.test1.web.PersonDto;
+import io.github.gerardpi.easy.jpaentities.test1.web.problem.RestApiMessageDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.function.Supplier;
 
 import static io.github.gerardpi.easy.jpaentities.test1.TestFunctions.storeAndReturnPerson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +53,8 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     private UuidGenerator uuidGenerator;
     @Autowired
     private Repositories repositories;
+    @Autowired
+    private Supplier<OffsetDateTime> testDateTimeSupplier;
     @ScenarioStage
     private State state;
     @Autowired
@@ -60,7 +66,30 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     public void init() {
         ((FixedUuidSeriesGenerator) uuidGenerator).reset();
         repositories.clear();
-        state.init(uuidGenerator, repositories, new MockMvcExecutor(wac), savedEntities);
+        state.init(uuidGenerator, repositories, new MockMvcExecutor(wac), savedEntities,
+                (TestDateTimeSupplier) testDateTimeSupplier);
+    }
+
+    @Test
+    void get_person_not_found() {
+        OffsetDateTime givenDateTime = OffsetDateTime.parse("2021-09-01T21:11:28.0+02:00");
+        given().the_the_current_date_and_time_is_$(givenDateTime);
+        when().an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed("GET", "/api/persons/",
+                FixedUuidSeriesGenerator.generateWith(200).toString());
+        then().the_HTTP_status_code_is_$(HttpStatus.NOT_FOUND)
+                .and().the_response_contains_body_equals_$(
+                        ObjectMapperHolder.getIntance().toJson(
+                                RestApiMessageDto.create()
+                                        .setTitle("item was not found")
+                                        .setPath("/api/persons/00000200-1111-2222-3333-444444444444")
+                                        .setMethod("GET")
+                                        .setStatusCode(404)
+                                        .setStatusSeries("CLIENT_ERROR")
+                                        .setStatusName("Not Found")
+                                        .addMessage("No 'Person' for ID '00000200-1111-2222-3333-444444444444' exists.")
+                                        .setTimestamp(givenDateTime)
+                                        .setTraceId("" + givenDateTime.toInstant().toEpochMilli())
+                                        .build()));
     }
 
     @Test
@@ -132,21 +161,26 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         private Repositories repositories;
         private Exception exception;
         private ResultActions resultActions;
+        private TestDateTimeSupplier testDateTimeSupplier;
 
         private static MockMvc createMockMvc(Object controller, String uri) {
             return MockMvcBuilders.standaloneSetup(controller)
                     .defaultRequest(get(uri).accept(MediaType.APPLICATION_JSON))
                     .alwaysExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                     .build();
-
         }
 
         @Hidden
-        void init(UuidGenerator uuidGenerator, Repositories repositories, MockMvcExecutor mockMvcExecutor, SavedEntities savedEntities) {
+        void init(UuidGenerator uuidGenerator,
+                  Repositories repositories,
+                  MockMvcExecutor mockMvcExecutor,
+                  SavedEntities savedEntities,
+                  TestDateTimeSupplier testDateTimeSupplier) {
             this.savedEntities = savedEntities;
             this.repositories = repositories;
             this.uuidGenerator = uuidGenerator;
             this.mockMvcExecutor = mockMvcExecutor;
+            this.testDateTimeSupplier = testDateTimeSupplier;
         }
 
         State person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_and_date_of_birth_$_in_the_database(
@@ -162,7 +196,12 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         }
 
         State an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed(String httpMethod, String uri, int testId) {
-            this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri + "/" + savedEntities.getPersonId(testId));
+            an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed(httpMethod, uri, savedEntities.getPersonId(testId).toString());
+            return self();
+        }
+
+        State an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed(String httpMethod, String uri, String id) {
+            this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri + "/" + id);
             return self();
         }
 
@@ -220,5 +259,13 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
             return self();
         }
 
+        State the_the_current_date_and_time_is_$(OffsetDateTime givenDateTime) {
+            testDateTimeSupplier.fixDateTime(givenDateTime);
+            return self();
+        }
+        State the_the_current_date_and_time_is_$(String givenDateTime) {
+            testDateTimeSupplier.fixDateTime(OffsetDateTime.parse(givenDateTime));
+            return self();
+        }
     }
 }

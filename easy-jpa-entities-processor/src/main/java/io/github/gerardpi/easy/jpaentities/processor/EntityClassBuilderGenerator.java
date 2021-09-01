@@ -17,6 +17,8 @@ public class EntityClassBuilderGenerator {
     public static final String IS_MODIFIED = "isModified";
     public static final String ASSIGNEE_PREFIX_THIS = "this.";
     public static final String RETURN_THIS = "return this;";
+    public static final String EXISTING = " existing)";
+    public static final String PUBLIC = "public ";
     private final EntityClassDef classDef;
     private final EasyJpaEntitiesConfig config;
     private final boolean forDtoClasses;
@@ -133,7 +135,7 @@ public class EntityClassBuilderGenerator {
     private void writeBuilderCopyConstructor(JavaSourceWriter writer, String classNameCopySource) {
         writer
                 .emptyLine()
-                .writeBlockBeginln(PRIVATE_BUILDER + classNameCopySource + " existing)");
+                .writeBlockBeginln(PRIVATE_BUILDER + classNameCopySource + EXISTING);
         if (classDef.isEntity()) {
             writer.writeLine("this.id = existing.getId();");
             if (classDef.hasTag()) {
@@ -216,7 +218,7 @@ public class EntityClassBuilderGenerator {
     }
 
     private void writeBuilderBuildMethod(JavaSourceWriter writer) {
-        writer.writeBlockBeginln("public " + getClassName() + " build()")
+        writer.writeBlockBeginln(PUBLIC + getClassName() + " build()")
                 .writeLine("return new " + getClassName() + "(this);")
                 .writeBlockEnd();
     }
@@ -275,31 +277,29 @@ public class EntityClassBuilderGenerator {
         if (forDtoClasses) {
             String entityClassName = config.getTargetPackage() + "." + classDef.getName();
             String entityBuilderClassName = config.getTargetPackage() + "." + classDef.getName() + ".Builder";
-            writer.writeBlockBeginln("public static Builder fromEntity(" + entityClassName + " existing)")
+            writer.writeBlockBeginln("public static Builder fromEntity(" + entityClassName + EXISTING)
                     .writeLine("return new Builder(existing)")
                     .incIndentation();
-            classDef.getFieldDefs().forEach(fieldDef -> {
-                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(existing.get" + capitalize(fieldDef.getName()) + "())");
-            });
+            classDef.getFieldDefs().forEach(fieldDef ->
+                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(existing.get" + capitalize(fieldDef.getName()) + "())"));
             writer
                     .writeLine(";")
                     .decIndentation()
                     .writeBlockEnd()
                     .emptyLine();
 
-            writer.writeBlockBeginln("public " + entityBuilderClassName + " toEntity(" + entityClassName + " existing)")
+            writer.writeBlockBeginln(PUBLIC + entityBuilderClassName + " toEntity(" + entityClassName + EXISTING)
                     .writeLine("return existing.modify()")
                     .incIndentation();
 
-            classDef.getFieldDefs().forEach(fieldDef -> {
-                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())");
-            });
+            classDef.getFieldDefs().forEach(fieldDef ->
+                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())"));
             writer
                     .writeLine(";")
                     .decIndentation()
                     .writeBlockEnd()
                     .emptyLine();
-            writer.writeBlockBeginln("public " + entityBuilderClassName + " toEntityNotNull(" + entityClassName + " existing)")
+            writer.writeBlockBeginln(PUBLIC + entityBuilderClassName + " toEntityNotNull(" + entityClassName + EXISTING)
                     .writeLine(entityBuilderClassName + " builder = existing.modify();");
             classDef.getFieldDefs().forEach(fieldDef ->
                 writer.writeLine("java.util.Optional.ofNullable(get"

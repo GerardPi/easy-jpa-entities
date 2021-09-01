@@ -20,7 +20,7 @@ public class FixedUuidSeriesGenerator implements UuidGenerator {
     public static final String UUID_SUFFIX = "1111-2222-3333-444444444444";
     @Override
     public UUID generate() {
-        return UUID.fromString(String.format("%08d-%s", counter.getAndIncrement(), UUID_SUFFIX));
+        return generateWith(counter.getAndIncrement());
     }
 
     public static boolean matchesInFirst8Positions(UUID uuid1, UUID uuid2) {
@@ -37,5 +37,9 @@ public class FixedUuidSeriesGenerator implements UuidGenerator {
     public void reset() {
         LOG.info("{} reset to 0", getClass().getName());
         counter.set(0);
+    }
+
+    public static UUID generateWith(int counter) {
+        return UUID.fromString(String.format("%08d-%s", counter, UUID_SUFFIX));
     }
 }

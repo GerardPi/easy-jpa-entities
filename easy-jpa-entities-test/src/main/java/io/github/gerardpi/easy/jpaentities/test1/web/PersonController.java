@@ -69,10 +69,7 @@ public class PersonController {
      */
     @PutMapping
     public HttpEntity<Void> replacePerson(UUID id, @RequestBody PersonDto personDto) {
-        Person savedPerson = personRepository.save(
-                personDto.toEntity(
-                        personRepository.findById(id)
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))).build());
+        Person savedPerson = personRepository.save(personDto.toEntity(personRepository.getPersonById(id)).build());
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
                 .location(toUri(URI, savedPerson.getId().toString()))

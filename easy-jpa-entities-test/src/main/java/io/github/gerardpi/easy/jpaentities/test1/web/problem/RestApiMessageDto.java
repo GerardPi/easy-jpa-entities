@@ -1,6 +1,9 @@
 package io.github.gerardpi.easy.jpaentities.test1.web.problem;
 
+import com.google.common.collect.ImmutableList;
+
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RestApiMessageDto {
@@ -21,7 +24,7 @@ public class RestApiMessageDto {
         this.statusName = builder.statusName;
         this.statusSeries = builder.statusSeries;
         this.title = builder.title;
-        this.messages = builder.messages;
+        this.messages = ImmutableList.copyOf(builder.messages);
         this.timestamp = builder.timestamp;
         this.traceId = builder.traceId;
     }
@@ -66,6 +69,7 @@ public class RestApiMessageDto {
         return new Builder();
     }
 
+    public
     static class Builder {
         private String path;
         private String method;
@@ -78,6 +82,7 @@ public class RestApiMessageDto {
         private String traceId;
 
         private Builder() {
+            this.messages = new ArrayList<>();
             // Use create method in parent class.
         }
 
@@ -108,6 +113,10 @@ public class RestApiMessageDto {
 
         public Builder setTitle(String title) {
             this.title = title;
+            return this;
+        }
+        public Builder addMessage(String message) {
+            this.messages.add(message);
             return this;
         }
 

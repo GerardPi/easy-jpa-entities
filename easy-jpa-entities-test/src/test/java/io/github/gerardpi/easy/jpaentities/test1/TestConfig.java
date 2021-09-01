@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
+import java.util.function.Supplier;
+
 @Configuration
 @EnableTransactionManagement
 @Transactional
@@ -24,5 +27,10 @@ public class TestConfig {
     @Bean
     UuidGenerator uuidGenerator() {
         return new FixedUuidSeriesGenerator();
+    }
+
+    @Bean
+    Supplier<OffsetDateTime> dateTimeSupplier() {
+        return new TestDateTimeSupplier();
     }
 }
