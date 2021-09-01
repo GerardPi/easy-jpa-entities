@@ -37,7 +37,7 @@ public class PersonController {
 
     @PostMapping
     public HttpEntity<Void> createPerson(@RequestBody PersonDto personDto) {
-        Person person = fromDto(personDto);
+        Person person = personDto.toEntity(Person.create(uuidGenerator.generate()).build()).build();
         Person savedPerson = personRepository.save(person);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
@@ -51,7 +51,7 @@ public class PersonController {
     @PatchMapping
     public HttpEntity<Void> partiallyUpdatePerson(UUID id, @RequestBody PersonDto personDto) {
         Person existingPerson = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Person updatedPerson = personDto.copyToBuilderNotNull(existingPerson).build();
+        Person updatedPerson = personDto.toEntityNotNull(existingPerson).build();
         Person savedPerson = personRepository.save(updatedPerson);
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
@@ -69,10 +69,10 @@ public class PersonController {
      */
     @PutMapping
     public HttpEntity<Void> replacePerson(UUID id, @RequestBody PersonDto personDto) {
-        Person savedPerson = personRepository.save(personDto.copyToBuilder(
-                personRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))).build());
+        Person savedPerson = personRepository.save(
+                personDto.toEntity(
+                        personRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))).build());
         return ResponseEntity.ok()
                 .eTag("" + savedPerson.getEtag())
                 .location(toUri(URI, savedPerson.getId().toString()))
@@ -81,7 +81,7 @@ public class PersonController {
 
     @GetMapping("/{id}")
     public HttpEntity<PersonDto> getPerson(@PathVariable UUID id,
-                                    @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) Optional<String> ifNoneMatchHeader) {
+                                           @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) Optional<String> ifNoneMatchHeader) {
         PersonDto personDto = getDtoForId(id);
         ControllerUtils.assertEtagDifferent(ifNoneMatchHeader, personDto.getEtag(),
                 toUri(URI, id.toString()).toString());
@@ -108,10 +108,5 @@ public class PersonController {
         ControllerUtils.assertEtagEqual(person, expectedEtag);
         personRepository.delete(person);
         return ControllerUtils.okNoContent();
-    }
-
-    private Person fromDto(PersonDto dto) {
-        Person.Builder personBuilder = dto.isNew() ? Person.create(this.uuidGenerator.generate()) : Person.create(dto.getId());
-        return personBuilder.setDateOfBirth(dto.getDateOfBirth()).setName(dto.getName()).build();
     }
 }

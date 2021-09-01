@@ -33,7 +33,7 @@ public final class ControllerUtils {
     }
     public static <T extends EntityDtoWithTag> HttpEntity<T> okResponse(T entityDto) {
         return ResponseEntity.ok()
-                .cacheControl(cacheForOneHour())
+                .cacheControl(cacheForOneMinute())
                 .eTag(entityDto.getEtag())
                 .lastModified(ZonedDateTime.now())
                 .body(entityDto);
@@ -43,8 +43,8 @@ public final class ControllerUtils {
         return ResponseEntity.noContent().build();
     }
 
-    public static CacheControl cacheForOneHour() {
-        return CacheControl.maxAge(1, TimeUnit.HOURS);
+    public static CacheControl cacheForOneMinute() {
+        return CacheControl.maxAge(1, TimeUnit.MINUTES);
     }
     private ControllerUtils() {
         // No instantiation allowed/

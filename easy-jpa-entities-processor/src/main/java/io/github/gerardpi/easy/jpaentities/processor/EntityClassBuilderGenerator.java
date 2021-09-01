@@ -275,22 +275,31 @@ public class EntityClassBuilderGenerator {
         if (forDtoClasses) {
             String entityClassName = config.getTargetPackage() + "." + classDef.getName();
             String entityBuilderClassName = config.getTargetPackage() + "." + classDef.getName() + ".Builder";
-            writer.writeBlockBeginln("public Builder fromEntity(" + entityClassName + " existing)")
-                    .writeLine("return new Builder(existing);")
+            writer.writeBlockBeginln("public static Builder fromEntity(" + entityClassName + " existing)")
+                    .writeLine("return new Builder(existing)")
+                    .incIndentation();
+            classDef.getFieldDefs().forEach(fieldDef -> {
+                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(existing.get" + capitalize(fieldDef.getName()) + "())");
+            });
+            writer
+                    .writeLine(";")
+                    .decIndentation()
                     .writeBlockEnd()
                     .emptyLine();
 
-            writer.writeBlockBeginln("public " + entityBuilderClassName + " copyToBuilder(" + entityClassName + " existing)")
-                    .writeLine("return existing.modify()");
+            writer.writeBlockBeginln("public " + entityBuilderClassName + " toEntity(" + entityClassName + " existing)")
+                    .writeLine("return existing.modify()")
+                    .incIndentation();
 
             classDef.getFieldDefs().forEach(fieldDef -> {
                 writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())");
             });
             writer
                     .writeLine(";")
+                    .decIndentation()
                     .writeBlockEnd()
                     .emptyLine();
-            writer.writeBlockBeginln("public " + entityBuilderClassName + " copyToBuilderNotNull(" + entityClassName + " existing)")
+            writer.writeBlockBeginln("public " + entityBuilderClassName + " toEntityNotNull(" + entityClassName + " existing)")
                     .writeLine(entityBuilderClassName + " builder = existing.modify();");
             classDef.getFieldDefs().forEach(fieldDef ->
                 writer.writeLine("java.util.Optional.ofNullable(get"

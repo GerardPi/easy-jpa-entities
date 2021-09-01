@@ -71,7 +71,10 @@ Create an interface, and include a YAML file with the same name with the entity 
 At compile time, the Java sources are being generated.
 
 Refer to the example code in easy-jpa-entities-test/ for details.
-Tests are written using https://jgiven.org/[jgiven]. These tests generate a scenario that looks a lot like https://en.wikipedia.org/wiki/Cucumber_(software)#Gherkin_language[Gherkin]. Have a look at the builds in the CI environment.
+Tests are written using https://jgiven.org/[jgiven].
+These tests generate a scenario that looks a lot like
+https://en.wikipedia.org/wiki/Cucumber_(software)#Gherkin_language[Gherkin].
+Have a look at the builds in the CI environment.
 
 == CI environment
 
