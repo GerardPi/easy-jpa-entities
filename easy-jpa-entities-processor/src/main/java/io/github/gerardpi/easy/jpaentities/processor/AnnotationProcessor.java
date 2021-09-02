@@ -1,5 +1,6 @@
 package io.github.gerardpi.easy.jpaentities.processor;
 
+import com.google.common.base.Preconditions;
 import io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
 
@@ -23,6 +24,7 @@ public class AnnotationProcessor {
 
     void processElement(final Element element) {
         final EasyJpaEntities easyJpaEntitiesAnnotation = element.getAnnotation(EasyJpaEntities.class);
+        Preconditions.checkArgument(easyJpaEntitiesAnnotation != null, "No annotation of type '" + EasyJpaEntities.class.getName() + "' was found.");
         setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
         if (element.getKind().isInterface()) {
             note(processingEnv, "Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");

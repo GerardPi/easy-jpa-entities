@@ -292,32 +292,28 @@ public class EntityClassBuilderGenerator {
 
     private void writeFromEntity(final String entityClassName, final JavaSourceWriter writer) {
         writer.writeBlockBeginln("public static Builder fromEntity(" + entityClassName + EXISTING)
-                .writeLine("return new Builder(existing)")
-                .incIndentation();
-        classDef.getFieldDefs().forEach(fieldDef ->
-                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(existing.get" + capitalize(fieldDef.getName()) + "())"));
-        writer
-                .writeLine(";")
-                .decIndentation()
+                .writeLinesAsOneStatement(
+                        "return new Builder(existing)",
+                        classDef.getFieldDefs().stream()
+                                .map(fieldDef -> ".set" + capitalize(fieldDef.getName()) + "(existing.get" + capitalize(fieldDef.getName()) + "())")
+                                .collect(Collectors.toList()))
                 .writeBlockEnd();
     }
 
     private void writeToEntity(final String entityBuilderClassName, final String entityClassName, final JavaSourceWriter writer) {
         writer.writeBlockBeginln(PUBLIC + entityBuilderClassName + " toEntity(" + entityClassName + EXISTING)
-                .writeLine("return existing.modify()")
-                .incIndentation();
-
-        classDef.getFieldDefs().forEach(fieldDef ->
-                writer.writeLine(".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())"));
-        writer
-                .writeLine(";")
-                .decIndentation()
+                .writeLinesAsOneStatement(
+                        "return existing.modify()",
+                        classDef.getFieldDefs().stream()
+                                .map(fieldDef -> ".set" + capitalize(fieldDef.getName()) + "(this.get" + capitalize(fieldDef.getName()) + "())")
+                                .collect(Collectors.toList()))
                 .writeBlockEnd();
 
     }
 
     private void writeToEntityNotNull(final String entityBuilderClassName, final String entityClassName, final JavaSourceWriter writer) {
-        writer.writeBlockBeginln(PUBLIC + entityBuilderClassName + " toEntityNotNull(" + entityClassName + EXISTING)
+        writer.writeLine("@SuppressWarnings(\"java:S1612\") // Suppress Sonar Lint 'Lambdas should be replaced with method references': false positive")
+                .writeBlockBeginln(PUBLIC + entityBuilderClassName + " toEntityNotNull(" + entityClassName + EXISTING)
                 .writeLine(entityBuilderClassName + " builder = existing.modify();");
         classDef.getFieldDefs().forEach(fieldDef ->
                 writer.writeLine("java.util.Optional.ofNullable(get"

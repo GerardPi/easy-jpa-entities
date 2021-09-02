@@ -17,11 +17,11 @@ class JavaSourceWriter implements AutoCloseable {
     private final LineWriter writer;
 
 
-    JavaSourceWriter(LineWriter writer) {
+    JavaSourceWriter(final LineWriter writer) {
         this.writer = writer;
     }
 
-    static String capitalize(String part) {
+    static String capitalize(final String part) {
         if (part != null) {
             if (part.length() > 1) {
                 return Character.toString(part.charAt(0)).toUpperCase()
@@ -33,32 +33,8 @@ class JavaSourceWriter implements AutoCloseable {
         return "";
     }
 
-    @Override
-    public void close() throws IOException {
-        writer.close();
-    }
-
-    JavaSourceWriter writeLine(String line) {
-        writer.line(line);
-        return this;
-    }
-
-    JavaSourceWriter emptyLine() {
-        writer.emptyLine();
-        return this;
-    }
-
-    JavaSourceWriter assignNull(EntityFieldDef fieldDef) {
-        return assign(THIS_PREFIX, fieldDef.getName(), "", "null");
-    }
-
-    JavaSourceWriter assign(String assigneePrefix, String assigneeFieldName, String assignedFieldPrefix, String valueFieldName) {
-        writer.line(assigneePrefix + assigneeFieldName + " = " + assignedFieldPrefix + valueFieldName + ";");
-        return this;
-    }
-
-    String immutable(String fieldPrefix, EntityFieldDef fieldDef, boolean assignedValueMustBeImmutable) {
-        CollectionDef collectionDef = fieldDef.fetchCollectionDef().orElseThrow(() -> new IllegalArgumentException("No " + CollectionDef.class + " could be found"));
+    static String immutable(final String fieldPrefix, final EntityFieldDef fieldDef, final boolean assignedValueMustBeImmutable) {
+        final CollectionDef collectionDef = fieldDef.fetchCollectionDef().orElseThrow(() -> new IllegalArgumentException("No " + CollectionDef.class + " could be found"));
         if (collectionDef.isSortedSet()) {
             return assignedValueMustBeImmutable
                     ? ImmutableSortedSet.class.getName() + COPY_OF + fieldPrefix + fieldDef.getName() + ")"
@@ -77,7 +53,65 @@ class JavaSourceWriter implements AutoCloseable {
                 + "'.");
     }
 
-    JavaSourceWriter writeAssignmentsToNull(List<EntityFieldDef> fieldDefs) {
+    static String quoted(final String value) {
+        return "\"" + value + "\"";
+    }
+
+    static String blockBegin(final String line) {
+        return line + BLOCK_BEGIN;
+    }
+
+    /**
+     * Write lines, last line ends with a semicolon.
+     */
+    JavaSourceWriter writeLinesAsOneStatement(final List<String> lines) {
+        if (!lines.isEmpty()) {
+            if (lines.size() > 1) {
+                lines.subList(0, lines.size() - 1).forEach(this::writeLine);
+            }
+            writeLine(lines.get(lines.size() - 1) + ";");
+        }
+        return this;
+    }
+
+    JavaSourceWriter writeLinesAsOneStatement(final String firstLine, final List<String> lines) {
+        writeLine(firstLine)
+                .incIndentation();
+        writeLinesAsOneStatement(lines);
+        decIndentation();
+        return this;
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
+
+    JavaSourceWriter write(final String text) {
+        writer.write(text);
+        return this;
+    }
+
+    JavaSourceWriter writeLine(final String line) {
+        writer.line(line);
+        return this;
+    }
+
+    JavaSourceWriter emptyLine() {
+        writer.emptyLine();
+        return this;
+    }
+
+    JavaSourceWriter assignNull(final EntityFieldDef fieldDef) {
+        return assign(THIS_PREFIX, fieldDef.getName(), "", "null");
+    }
+
+    JavaSourceWriter assign(final String assigneePrefix, final String assigneeFieldName, final String assignedFieldPrefix, final String valueFieldName) {
+        writer.line(assigneePrefix + assigneeFieldName + " = " + assignedFieldPrefix + valueFieldName + ";");
+        return this;
+    }
+
+    JavaSourceWriter writeAssignmentsToNull(final List<EntityFieldDef> fieldDefs) {
         fieldDefs.forEach(fieldDef -> {
             if (!fieldDef.isWriteOnce()) {
                 assignNull(fieldDef);
@@ -88,12 +122,12 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    JavaSourceWriter writeImport(String packageName, String className) {
+    JavaSourceWriter writeImport(final String packageName, final String className) {
         writeLine("import " + packageName + "." + className + ";");
         return this;
     }
 
-    JavaSourceWriter assign(String assigneePrefix, String assignedFieldPrefix, EntityFieldDef entityFieldDef, boolean assignedValueMustBeImmutable) {
+    JavaSourceWriter assign(final String assigneePrefix, final String assignedFieldPrefix, final EntityFieldDef entityFieldDef, final boolean assignedValueMustBeImmutable) {
         if (entityFieldDef.fetchCollectionDef().isPresent()) {
             writer.line(assigneePrefix + entityFieldDef.getName() + " = " + immutable(assignedFieldPrefix, entityFieldDef, assignedValueMustBeImmutable) + ";");
         } else {
@@ -102,15 +136,7 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    String quoted(String value) {
-        return "\"" + value + "\"";
-    }
-
-    String blockBegin(String line) {
-        return line + BLOCK_BEGIN;
-    }
-
-    JavaSourceWriter writeBlockBeginln(String line) {
+    JavaSourceWriter writeBlockBeginln(final String line) {
         writer.line(blockBegin(line)).incIndentation();
         return this;
     }
@@ -120,7 +146,6 @@ class JavaSourceWriter implements AutoCloseable {
         writer.line(BLOCK_END);
         return this;
     }
-
 
     public JavaSourceWriter incIndentation() {
         writer.incIndentation();
