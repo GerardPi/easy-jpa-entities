@@ -17,6 +17,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jgiven.version>1.1.0</jgiven.version>
+        <jacoco.version>0.8.7</jacoco.version>
     </properties>
 
     <scm>
@@ -194,7 +195,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -203,7 +204,7 @@
                     </execution>
                     <!-- attached to Maven test phase -->
                     <execution>
-                        <id>report</id>
+                        <id>entities-processor-report</id>
                         <phase>test</phase>
                         <goals>
                             <goal>report</goal>
@@ -265,13 +266,23 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>feature adoc generation</id>
+                                <id>feature adoc report generation</id>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
                                 <configuration>
                                     <format>asciidoc</format>
-                                    <outputDirectory>doc/generated-by-jgiven</outputDirectory>
+                                    <outputDirectory>doc/generated-by-jgiven/adoc</outputDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>feature file generation</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <format>text</format>
+                                    <outputDirectory>doc/generated-by-jgiven/txt</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>

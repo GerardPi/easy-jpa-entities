@@ -1,9 +1,0 @@
-= JGiven Documentation =
-
-:toc: left
-
-== Scenarios ==
-
-=== Classes ===
-
-include::allClasses.asciidoc[]

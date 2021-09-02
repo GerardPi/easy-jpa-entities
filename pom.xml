@@ -16,6 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <jacoco.version>0.8.7</jacoco.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/easy-jpa-entities-test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <licenses>
@@ -51,6 +53,7 @@
     <modules>
         <module>easy-jpa-entities-processor</module>
         <module>easy-jpa-entities-test</module>
+        <module>easy-jpa-entities-jacoco-aggregate</module>
     </modules>
 </project>
 
