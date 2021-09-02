@@ -1,0 +1,14 @@
+include::io.github.gerardpi.easy.jpaentities.test1.WebshopTest.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.FixedUuidSeriesGeneratorTest.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.PersistenceTests.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.SerialisationTest.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.EntityEqualsVerificationTest.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.AddressbookTest.asciidoc[]
+
+include::io.github.gerardpi.easy.jpaentities.test1.PersonControllerTest.asciidoc[]
+
