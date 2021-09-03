@@ -31,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 import static io.github.gerardpi.easy.jpaentities.test1.TestFunctions.storeAndReturnPerson;
@@ -48,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
 class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State> {
     private static final Logger LOG = LoggerFactory.getLogger(PersonControllerTest.class);
-
+    private final SavedEntities savedEntities = new SavedEntities();
     @Autowired
     private UuidGenerator uuidGenerator;
     @Autowired
@@ -60,8 +59,6 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
     @Autowired
     private WebApplicationContext wac;
 
-    private SavedEntities savedEntities = new SavedEntities();
-
     @BeforeEach
     public void init() {
         ((FixedUuidSeriesGenerator) uuidGenerator).reset();
@@ -72,7 +69,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
 
     @Test
     void get_person_not_found() {
-        OffsetDateTime givenDateTime = OffsetDateTime.parse("2021-09-01T21:11:28.0+02:00");
+        final OffsetDateTime givenDateTime = OffsetDateTime.parse("2021-09-01T21:11:28.0+02:00");
         given().the_the_current_date_and_time_is_$(givenDateTime);
         when().an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed("GET", "/api/persons/",
                 FixedUuidSeriesGenerator.generateWith(200).toString());
@@ -104,7 +101,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         then().the_HTTP_status_code_is_$(HttpStatus.OK)
                 .and().the_number_of_items_received_is_$(2);
         when().an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed("GET", "/api/persons/", 1);
-        Person person1 = repositories.getPersonRepository().findById(savedEntities.getPersonId(1)).get();
+        final Person person1 = repositories.getPersonRepository().findById(savedEntities.getPersonId(1)).get();
         then().the_response_contains_body_equals_$(
                         ObjectMapperHolder.getIntance().toJson(
                                 PersonDto
@@ -121,7 +118,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
                 .and().no_exception_was_thrown();
         when().an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed("GET", "/api/persons/", 2);
 
-        Person person2 = repositories.getPersonRepository().findById(savedEntities.getPersonId(2)).get();
+        final Person person2 = repositories.getPersonRepository().findById(savedEntities.getPersonId(2)).get();
         then().the_response_contains_body_equals_$(
                         ObjectMapperHolder.getIntance().toJson(
                                 PersonDto
@@ -163,7 +160,7 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         private ResultActions resultActions;
         private TestDateTimeSupplier testDateTimeSupplier;
 
-        private static MockMvc createMockMvc(Object controller, String uri) {
+        private static MockMvc createMockMvc(final Object controller, final String uri) {
             return MockMvcBuilders.standaloneSetup(controller)
                     .defaultRequest(get(uri).accept(MediaType.APPLICATION_JSON))
                     .alwaysExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -171,11 +168,11 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         }
 
         @Hidden
-        void init(UuidGenerator uuidGenerator,
-                  Repositories repositories,
-                  MockMvcExecutor mockMvcExecutor,
-                  SavedEntities savedEntities,
-                  TestDateTimeSupplier testDateTimeSupplier) {
+        void init(final UuidGenerator uuidGenerator,
+                  final Repositories repositories,
+                  final MockMvcExecutor mockMvcExecutor,
+                  final SavedEntities savedEntities,
+                  final TestDateTimeSupplier testDateTimeSupplier) {
             this.savedEntities = savedEntities;
             this.repositories = repositories;
             this.uuidGenerator = uuidGenerator;
@@ -184,28 +181,28 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
         }
 
         State person_$_is_stored_in_the_database_with_first_name_$_and_last_name_$_and_date_of_birth_$_in_the_database(
-                @Quoted int testId, @Quoted String nameFirst, @Quoted String nameLast, @Quoted String dateOfBirth) {
-            Person person = storeAndReturnPerson(nameFirst, nameLast, LocalDate.parse(dateOfBirth), uuidGenerator, repositories.getPersonRepository());
+                @Quoted final int testId, @Quoted final String nameFirst, @Quoted final String nameLast, @Quoted final String dateOfBirth) {
+            final Person person = storeAndReturnPerson(nameFirst, nameLast, LocalDate.parse(dateOfBirth), uuidGenerator, repositories.getPersonRepository());
             this.savedEntities.putPersonId(testId, person.getId());
             return self();
         }
 
-        State an_HTTP_$_on_$_is_performed(@Quoted String httpMethod, @Quoted String uri) {
+        State an_HTTP_$_on_$_is_performed(@Quoted final String httpMethod, @Quoted final String uri) {
             this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri);
             return self();
         }
 
-        State an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed(String httpMethod, String uri, int testId) {
+        State an_HTTP_$_on_$_with_the_id_for_entity_$_is_performed(@Quoted final String httpMethod, @Quoted final String uri, @Quoted final int testId) {
             an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed(httpMethod, uri, savedEntities.getPersonId(testId).toString());
             return self();
         }
 
-        State an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed(String httpMethod, String uri, String id) {
+        State an_HTTP_$_on_$_with_the_id_for_entity_with_id_$_is_performed(@Quoted final String httpMethod, @Quoted final String uri, @Quoted final String id) {
             this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri + "/" + id);
             return self();
         }
 
-        State the_HTTP_status_code_is_$(@Quoted HttpStatus httpStatus) {
+        State the_HTTP_status_code_is_$(@Quoted final HttpStatus httpStatus) {
             assertThat(resultActions).isNotNull();
             assertThat(resultActions.andReturn().getResponse().getStatus()).isEqualTo(httpStatus.value());
             return self();
@@ -216,10 +213,10 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
             return self();
         }
 
-        State in_the_response_$_is_equal_to_$(@Quoted String jsonPath, @Quoted String expectedValue) {
+        State in_the_response_$_is_equal_to_$(@Quoted final String jsonPath, @Quoted final String expectedValue) {
             try {
                 resultActions.andExpect(jsonPath(jsonPath, is(expectedValue)));
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.info("Caught exception '{}': '{}'" + e.getClass().getName(), e.getMessage());
                 this.exception = e;
             }
@@ -227,20 +224,20 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
             return self();
         }
 
-        State the_number_of_items_received_is_$(int expectedSize) {
+        State the_number_of_items_received_is_$(final int expectedSize) {
             try {
                 resultActions
                         .andExpect(jsonPath("$.content").isArray())
                         .andExpect(jsonPath("$.content", hasSize(expectedSize))
                         );
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOG.info("Caught exception '{}': '{}'" + e.getClass().getName(), e.getMessage());
                 this.exception = e;
             }
             return self();
         }
 
-        State an_HTTP_$_on_$_is_performed_with_body_$(@Quoted String httpMethod, @Quoted String uri, @Format(JgivenJsonPrettyFormatter.class) String personDtoJson) {
+        State an_HTTP_$_on_$_is_performed_with_body_$(@Quoted final String httpMethod, @Quoted final String uri, @Format(JgivenJsonPrettyFormatter.class) final String personDtoJson) {
             //this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri, personDtoJson);
             this.resultActions = mockMvcExecutor.executeHttpRequest(httpMethod, uri,
                     ImmutableMap.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE),
@@ -248,22 +245,23 @@ class PersonControllerTest extends SimpleScenarioTest<PersonControllerTest.State
             return self();
         }
 
-        State the_response_contains_body_equals_$(@Format(JgivenJsonPrettyFormatter.class) String expectedJson) {
+        State the_response_contains_body_equals_$(@Format(JgivenJsonPrettyFormatter.class) final String expectedJson) {
             try {
                 assertThat(this.resultActions.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8))
                         .isEqualTo(expectedJson);
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 LOG.info("Caught exception '{}': '{}'" + e.getClass().getName(), e.getMessage());
                 this.exception = e;
             }
             return self();
         }
 
-        State the_the_current_date_and_time_is_$(OffsetDateTime givenDateTime) {
+        State the_the_current_date_and_time_is_$(@Quoted final OffsetDateTime givenDateTime) {
             testDateTimeSupplier.fixDateTime(givenDateTime);
             return self();
         }
-        State the_the_current_date_and_time_is_$(String givenDateTime) {
+
+        State the_the_current_date_and_time_is_$(final String givenDateTime) {
             testDateTimeSupplier.fixDateTime(OffsetDateTime.parse(givenDateTime));
             return self();
         }

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
@@ -21,13 +20,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 // Allow for overriding beans for testing purposes.
-@TestPropertySource(properties = { TestConfig.BEAN_DEF_OVERRIDING_ENABLED })
+@TestPropertySource(properties = {TestConfig.BEAN_DEF_OVERRIDING_ENABLED})
 // Order of configuration classes is important. Some beans are overridden.
 @SpringBootTest(classes = {DemoApplication.class, TestConfig.class})
 class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
@@ -48,8 +46,8 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
 
     @Test
     void the_database_contains_orders_for_a_person() {
-        String dateTimeOrder1 = "2021-05-10T18:15:33" + OFFSET_DATE_TIME_SUFFIX;
-        String dateTimeOrder2 = "2021-05-10T19:40:02" + OFFSET_DATE_TIME_SUFFIX;
+        final String dateTimeOrder1 = "2021-05-10T18:15:33" + OFFSET_DATE_TIME_SUFFIX;
+        final String dateTimeOrder2 = "2021-05-10T19:40:02" + OFFSET_DATE_TIME_SUFFIX;
         given().a_person_$_with_first_name_$_and_last_name_$(1, "A", "B")
                 .an_item_$_with_name_$(1, "kaas");
         when()
@@ -71,15 +69,15 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
         private UuidGenerator uuidGenerator;
 
         @Hidden
-        void init(UuidGenerator uuidGenerator, Repositories repositories) {
+        void init(final UuidGenerator uuidGenerator, final Repositories repositories) {
             this.uuidGenerator = uuidGenerator;
             this.repositories = repositories;
             repositories.clear();
         }
 
-        State a_person_$_with_first_name_$_and_last_name_$(@Quoted int number, @Quoted String nameFirst, @Quoted String nameLast) {
-            PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
-            Person person = Person.create(uuidGenerator.generate())
+        State a_person_$_with_first_name_$_and_last_name_$(@Quoted final int number, @Quoted final String nameFirst, @Quoted final String nameLast) {
+            final PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
+            final Person person = Person.create(uuidGenerator.generate())
                     .setDateOfBirth(LocalDate.now())
                     .setName(name)
                     .build();
@@ -87,8 +85,8 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State an_item_$_with_name_$(int itemNumber, @Quoted String name) {
-            Item item = Item.create(uuidGenerator.generate(), "CHS01")
+        State an_item_$_with_name_$(final int itemNumber, @Quoted final String name) {
+            final Item item = Item.create(uuidGenerator.generate(), "CHS01")
                     .setName(name)
                     .setImageNames(new TreeSet<>())
                     .setAttributes(new TreeMap<>())
@@ -98,8 +96,8 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State an_order_$_with_date_and_time_$_is_stored_for_person_$(int itemOrderKey, @Quoted String orderDateTimeStr, int personKey) {
-            ItemOrder itemOrder = ItemOrder.create(uuidGenerator.generate())
+        State an_order_$_with_date_and_time_$_is_stored_for_person_$(@Quoted final int itemOrderKey, @Quoted final String orderDateTimeStr, final int personKey) {
+            final ItemOrder itemOrder = ItemOrder.create(uuidGenerator.generate())
                     .setPersonId(this.savedEntities.getPersonId(personKey))
                     .setDateTime(OffsetDateTime.parse(orderDateTimeStr))
                     .build();
@@ -107,8 +105,8 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State that_order_$_contains_$_pieces_of_$_which_cost_$_a_piece(int itemOrderKey, int itemNumber, int itemCount, @Quoted BigDecimal amountPerItem) {
-            ItemOrderLine itemOrderLine = ItemOrderLine.create(uuidGenerator.generate())
+        State that_order_$_contains_$_pieces_of_$_which_cost_$_a_piece(@Quoted final int itemOrderKey, @Quoted final int itemNumber, @Quoted final int itemCount, @Quoted final BigDecimal amountPerItem) {
+            final ItemOrderLine itemOrderLine = ItemOrderLine.create(uuidGenerator.generate())
                     .setItemOrderId(savedEntities.getItemOrderId(1))
                     .setItemId(savedEntities.getItemId(itemNumber))
                     .setAmountPerItem(amountPerItem)
@@ -118,10 +116,10 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State person_$_has_$_orders_with_a_total_amount_of_$(int personKey, int expectedOrderCount, @Quoted BigDecimal expectedTotalAmount) {
-            List<ItemOrder> itemOrders = repositories.getItemOrderRepository().findByPersonId(savedEntities.getPersonId(personKey));
+        State person_$_has_$_orders_with_a_total_amount_of_$(@Quoted final int personKey, @Quoted final int expectedOrderCount, @Quoted final BigDecimal expectedTotalAmount) {
+            final List<ItemOrder> itemOrders = repositories.getItemOrderRepository().findByPersonId(savedEntities.getPersonId(personKey));
             assertThat(itemOrders).hasSize(expectedOrderCount);
-            BigDecimal actualTotalAmount = itemOrders.stream()
+            final BigDecimal actualTotalAmount = itemOrders.stream()
                     .map(itemOrder ->
                             repositories.getItemOrderLineRepository().findByItemOrderId(itemOrder.getId()).stream()
                                     .map(orderLine -> orderLine.getAmountPerItem().multiply(new BigDecimal(orderLine.getCount())))
@@ -131,9 +129,9 @@ class WebshopTest extends SimpleScenarioTest<WebshopTest.State> {
             return self();
         }
 
-        State the_order_$_has_date_and_time_$(int itemOrderKey, @Quoted String expectedDateTimeOrderStr) {
-            OffsetDateTime expectedDateTime = OffsetDateTime.parse(expectedDateTimeOrderStr);
-            ItemOrder itemOrder = repositories.getItemOrderRepository().findById(savedEntities.getItemOrderId(itemOrderKey)).get();
+        State the_order_$_has_date_and_time_$(@Quoted final int itemOrderKey, @Quoted final String expectedDateTimeOrderStr) {
+            final OffsetDateTime expectedDateTime = OffsetDateTime.parse(expectedDateTimeOrderStr);
+            final ItemOrder itemOrder = repositories.getItemOrderRepository().findById(savedEntities.getItemOrderId(itemOrderKey)).get();
             assertThat(itemOrder.getDateTime()).isEqualTo(expectedDateTime);
             return self();
         }

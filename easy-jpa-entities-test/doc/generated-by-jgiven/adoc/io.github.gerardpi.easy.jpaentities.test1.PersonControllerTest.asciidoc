@@ -2,8 +2,8 @@
 
 ===== Get person not found =====
 
-Given the the current date and time is pass:[2021-09-01T21:11:28+02:00] +
-When an HTTP pass:[GET] on pass:[/api/persons/] with the id for entity with id pass:[00000200-1111-2222-3333-444444444444] is performed +
+Given the the current date and time is pass:["2021-09-01T21:11:28+02:00"] +
+When an HTTP pass:["GET"] on pass:["/api/persons/"] with the id for entity with id pass:["00000200-1111-2222-3333-444444444444"] is performed +
 Then the HTTP status code is pass:["404 NOT_FOUND"] +
 and the response contains body equals 
 
@@ -36,7 +36,7 @@ and person pass:["2"] is stored in the database with first name pass:["Albert"] 
 When an HTTP pass:["GET"] on pass:["/api/persons"] is performed +
 Then the HTTP status code is pass:["200 OK"] +
 and the number of items received is pass:[2] +
-When an HTTP pass:[GET] on pass:[/api/persons/] with the id for entity pass:[1] is performed +
+When an HTTP pass:["GET"] on pass:["/api/persons/"] with the id for entity pass:["1"] is performed +
 Then the response contains body equals 
 
 ....
@@ -63,7 +63,7 @@ and in the response pass:["name.last"] is equal to pass:["Jansma"] +
 and in the response pass:["dateOfBirth"] is equal to pass:["2001-11-23"] +
 and the HTTP status code is pass:["200 OK"] +
 and no exception was thrown +
-When an HTTP pass:[GET] on pass:[/api/persons/] with the id for entity pass:[2] is performed +
+When an HTTP pass:["GET"] on pass:["/api/persons/"] with the id for entity pass:["2"] is performed +
 Then the response contains body equals 
 
 ....
