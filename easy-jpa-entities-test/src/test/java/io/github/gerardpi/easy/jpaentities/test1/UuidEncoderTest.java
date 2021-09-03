@@ -1,4 +1,4 @@
-package io.github.gerardpi.easy.jpaentities;
+package io.github.gerardpi.easy.jpaentities.test1;
 
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.Quoted;
@@ -27,6 +27,7 @@ class UuidEncoderTest extends SimpleScenarioTest<UuidEncoderTest.State> {
         when().decoding_a_base64_encoded_string_$_to_UUID(ENC_UUID_1);
         when().the_resulting_UUID_is_$(UUID_1);
     }
+
     @Test
     void happy_flow_convert_to_base64_and_back_2() {
         when().encoding_a_UUID_represented_by_string_$(UUID_2);
@@ -51,32 +52,32 @@ class UuidEncoderTest extends SimpleScenarioTest<UuidEncoderTest.State> {
             sut = new UuidEncoder();
         }
 
-        State encoding_a_UUID_represented_by_string_$(@Quoted String givenUuid) {
-            this.uuidAsBase64EncodedString = sut.encode(UUID.fromString(givenUuid));
+        State encoding_a_UUID_represented_by_string_$(@Quoted final String givenUuid) {
+            this.uuidAsBase64EncodedString = UuidEncoder.encode(UUID.fromString(givenUuid));
             return self();
         }
 
-        State that_ID_as_a_base64_encoded_string_is_$(@Quoted String expectedUuidAsString) {
+        State that_ID_as_a_base64_encoded_string_is_$(@Quoted final String expectedUuidAsString) {
             assertThat(this.uuidAsBase64EncodedString).isEqualTo(expectedUuidAsString);
             return self();
         }
 
-        State decoding_a_base64_encoded_string_$_to_UUID(@Quoted String givenBase64EncodedUuid) {
+        State decoding_a_base64_encoded_string_$_to_UUID(@Quoted final String givenBase64EncodedUuid) {
             try {
-                uuid = sut.decode(givenBase64EncodedUuid);
-            } catch (IllegalArgumentException e) {
+                uuid = UuidEncoder.decode(givenBase64EncodedUuid);
+            } catch (final IllegalArgumentException e) {
                 LOG.info("Caught a {}: '{}", e.getClass().getSimpleName(), e.getMessage());
                 this.throwable = e;
             }
             return self();
         }
 
-        State the_resulting_UUID_is_$(@Quoted String expectedUuid) {
+        State the_resulting_UUID_is_$(@Quoted final String expectedUuid) {
             assertThat(uuid).hasToString(expectedUuid);
             return self();
         }
 
-        State and_error_occurs_and_the_error_message_starts_with_$(String expectedMessagePrefix) {
+        State and_error_occurs_and_the_error_message_starts_with_$(final String expectedMessagePrefix) {
             assertThat(this.throwable).isNotNull();
             assertThat(this.throwable.getMessage()).startsWith(expectedMessagePrefix);
             return self();

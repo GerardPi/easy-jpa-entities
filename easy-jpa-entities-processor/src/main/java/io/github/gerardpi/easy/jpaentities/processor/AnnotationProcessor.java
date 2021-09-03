@@ -4,54 +4,53 @@ import com.google.common.base.Preconditions;
 import io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
 
-import static io.github.gerardpi.easy.jpaentities.processor.ProcessorUtils.*;
-
 @SupportedAnnotationTypes({"io.github.gerardpi.easy.jpaentities.annotation.EasyJpaEntities"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AnnotationProcessor {
-    private final ProcessingEnvironment processingEnv;
+    private final AnnotationProcessorIo io;
+    private final AnnotationProcessorLogger log;
 
-    public AnnotationProcessor(final ProcessingEnvironment processingEnv) {
-        this.processingEnv = processingEnv;
+    public AnnotationProcessor(final AnnotationProcessorIo io) {
+        this.io = io;
+        this.log = io.getLogger();
     }
 
     void processElement(final Element element) {
         final EasyJpaEntities easyJpaEntitiesAnnotation = element.getAnnotation(EasyJpaEntities.class);
         Preconditions.checkArgument(easyJpaEntitiesAnnotation != null, "No annotation of type '" + EasyJpaEntities.class.getName() + "' was found.");
-        setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
+        log.setSlf4jLoggingEnabled(easyJpaEntitiesAnnotation.slf4jLoggingEnabled());
         if (element.getKind().isInterface()) {
-            note(processingEnv, "Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");
+            log.info("Found annotation " + EasyJpaEntities.class + " on element '" + element + "'");
 
-            final EasyJpaEntitiesConfig easyJpaEntitiesConfig = new AnnotationProcessorConfigLoader(processingEnv)
+            final EasyJpaEntitiesConfig easyJpaEntitiesConfig = new AnnotationProcessorConfigLoader(io, log)
                     .loadConfig(createConfigFileObject(element), element.getEnclosingElement().toString());
             generateClasses(easyJpaEntitiesConfig);
         } else {
-            note(processingEnv, "The annotation " + EasyJpaEntities.class + " can only be used on an interface");
+            log.info("The annotation " + EasyJpaEntities.class + " can only be used on an interface");
         }
     }
 
     private FileObject createConfigFileObject(final Element element) {
-        final String typeName = ProcessorUtils.getTypeName(element);
-        final String fullyQualifiedPackagename = getPackageName(processingEnv, element);
-        note(processingEnv, "Fully qualified packagename='" + fullyQualifiedPackagename + "'");
+        final String typeName = AnnotationProcessorIo.getTypeName(element);
+        final String fullyQualifiedPackagename = io.getPackageName(element);
+        log.info("Fully qualified packagename='" + fullyQualifiedPackagename + "'");
         final String yamlFilename = typeName + ".yaml";
-        note(processingEnv, "YAML file to read is = '" + yamlFilename + "'");
-        return ProcessorUtils.get(processingEnv, fullyQualifiedPackagename, yamlFilename)
+        log.info("YAML file to read is = '" + yamlFilename + "'");
+        return io.get(fullyQualifiedPackagename, yamlFilename)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFilename + "'"));
     }
 
     private void generateClasses(final EasyJpaEntitiesConfig easyJpaEntitiesConfig) {
-        note(processingEnv, "Generating mapped superclasses ...");
-        final JavaSourceGenerator sourceGenerator = new JavaSourceGenerator(processingEnv);
+        log.info("Generating mapped superclasses ...");
+        final JavaSourceGenerator sourceGenerator = io.createJavaSourceGenerator();
         sourceGenerator.generateMappedSuperclasses(easyJpaEntitiesConfig);
-        note(processingEnv, "Generating entity classes ...");
+        log.info("Generating entity classes ...");
         sourceGenerator.generateEntityClasses(easyJpaEntitiesConfig);
         sourceGenerator.generateDtoClasses(easyJpaEntitiesConfig);
     }

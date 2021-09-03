@@ -1,4 +1,4 @@
-package com.github.gerardpi.easy;
+package io.github.gerardpi.easy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.gerardpi.easy.jpaentities.processor.PersistableDefsDeserializer;
@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 class YamlSerializationTest {
     @Test
     void test() {
-        EasyJpaEntitiesConfig easyJpaEntitiesConfig = new EasyJpaEntitiesConfig.Builder(
+        final EasyJpaEntitiesConfig easyJpaEntitiesConfig = new EasyJpaEntitiesConfig.Builder(
                 "targetPackage", false, Arrays.asList("a", "b", "c"),
                 UUID.class.getName(), true,
                 false, null)
                 .build();
         try {
             System.out.println(PersistableDefsDeserializer.createYamlObjectMapper().writeValueAsString(easyJpaEntitiesConfig));
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             fail();
         }
     }

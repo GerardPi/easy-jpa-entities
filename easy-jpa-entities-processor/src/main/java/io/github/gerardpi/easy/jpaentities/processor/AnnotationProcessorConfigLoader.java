@@ -3,7 +3,6 @@ package io.github.gerardpi.easy.jpaentities.processor;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EasyJpaEntitiesConfig;
 import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.tools.FileObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -13,41 +12,43 @@ import java.util.stream.Collectors;
 
 import static io.github.gerardpi.easy.jpaentities.processor.PersistableDefsDeserializer.slurpEntityClassDefFromYaml;
 import static io.github.gerardpi.easy.jpaentities.processor.PersistableDefsDeserializer.slurpFromYaml;
-import static io.github.gerardpi.easy.jpaentities.processor.ProcessorUtils.note;
 
 class AnnotationProcessorConfigLoader {
-    private final ProcessingEnvironment processingEnv;
+    private final AnnotationProcessorIo io;
+    private final AnnotationProcessorLogger log;
 
-    public AnnotationProcessorConfigLoader(ProcessingEnvironment processingEnv) {
-        this.processingEnv = processingEnv;
+    public AnnotationProcessorConfigLoader(final AnnotationProcessorIo io, final AnnotationProcessorLogger log) {
+        this.io = io;
+        this.log = log;
     }
 
-    EasyJpaEntitiesConfig loadConfig(FileObject inputYamlFileObject, String defaultTargetPackage) {
+    EasyJpaEntitiesConfig loadConfig(final FileObject inputYamlFileObject, final String defaultTargetPackage) {
         try {
-            EasyJpaEntitiesConfig config = loadConfig(inputYamlFileObject.openInputStream(), inputYamlFileObject.getName(), defaultTargetPackage);
-            note(processingEnv, "Loaded " + config.getEntityClassDefs().size() + " instances of " + EntityClassDef.class.getSimpleName());
+            final EasyJpaEntitiesConfig config = loadConfig(inputYamlFileObject.openInputStream(), inputYamlFileObject.getName(), defaultTargetPackage);
+            log.info("Loaded " + config.getEntityClassDefs().size() + " instances of " + EntityClassDef.class.getSimpleName());
             return config;
-        } catch (IOException | UncheckedIOException e) {
-            String msg = "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'";
-            ProcessorUtils.error(processingEnv, msg);
+        } catch (final IOException | UncheckedIOException e) {
+            final String msg = "Can not read from '" + inputYamlFileObject.getName() + "': '" + e.getMessage() + "'";
+            log.error(msg);
             throw new IllegalStateException(msg);
         }
     }
 
-    private EasyJpaEntitiesConfig loadConfig(InputStream inputStream, String inputFilename, String defaultTargetPackage) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            EasyJpaEntitiesConfig.Builder builder = slurpFromYaml(reader, inputFilename, processingEnv)
+    private EasyJpaEntitiesConfig loadConfig(final InputStream inputStream, final String inputFilename, final String defaultTargetPackage) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            final EasyJpaEntitiesConfig.Builder builder = slurpFromYaml(reader, inputFilename, log)
                     .setDefaultIfNoTargetPackageSpecified(defaultTargetPackage);
-            List<EntityClassDef> entityClassDefs = loadEntityClassDefs(builder.getEntityClassDefNames(),
+            final List<EntityClassDef> entityClassDefs = loadEntityClassDefs(builder.getEntityClassDefNames(),
                     builder.getTargetPackage(), builder.getDefaultFieldType());
             return builder
                     .setEntityClassDefs(entityClassDefs)
                     .build();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
-    private List<EntityClassDef> loadEntityClassDefs(List<String> entityClassDefNames, String targetPackage, String defaultFieldType) {
+
+    private List<EntityClassDef> loadEntityClassDefs(final List<String> entityClassDefNames, final String targetPackage, final String defaultFieldType) {
         return entityClassDefNames.stream()
                 .map(e -> loadEntityClassDef(e, targetPackage, defaultFieldType))
                 .filter(Optional::isPresent)
@@ -55,18 +56,18 @@ class AnnotationProcessorConfigLoader {
                 .collect(Collectors.toList());
     }
 
-    private Optional<EntityClassDef> loadEntityClassDef(String entityClassDefName, String targetPackage, String defaultFieldType) {
-        String yamlFileName = entityClassDefName + ".yaml";
-        FileObject yamlFileObject = ProcessorUtils.get(processingEnv, targetPackage, yamlFileName)
+    private Optional<EntityClassDef> loadEntityClassDef(final String entityClassDefName, final String targetPackage, final String defaultFieldType) {
+        final String yamlFileName = entityClassDefName + ".yaml";
+        final FileObject yamlFileObject = io.get(targetPackage, yamlFileName)
                 .orElseThrow(() -> new IllegalStateException("Can not fetch resource '" + yamlFileName + "'"));
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
-            EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), processingEnv)
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(yamlFileObject.openInputStream(), StandardCharsets.UTF_8))) {
+            final EntityClassDef entityClassDef = slurpEntityClassDefFromYaml(reader, yamlFileObject.getName(), log)
                     .setName(entityClassDefName)
                     .setDefaultFieldTypeIfNotSpecified(defaultFieldType)
                     .build();
             return Optional.of(entityClassDef);
-        } catch (IOException e) {
-            ProcessorUtils.error(processingEnv, "Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
+        } catch (final IOException e) {
+            log.error("Can not read from '" + yamlFileName + "': '" + e.getMessage() + "'");
         }
         return Optional.empty();
     }
