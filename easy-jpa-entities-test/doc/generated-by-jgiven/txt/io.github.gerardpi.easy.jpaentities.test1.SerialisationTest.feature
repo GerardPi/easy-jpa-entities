@@ -11,7 +11,7 @@
                     "dateOfBirth": "1998-10-22"
           }
           ----------------------------------------------------------------------
- is deserialized into a class io.github.gerardpi.easy.jpaentities.test1.web.PersonDto
+ is deserialized into a class io.github.gerardpi.easy.jpaentities.test1.web.addressbook.PersonDto
    Then that PersonDto has first name "Kees" and last name "Fritz" and date of birth "1998-10-22"
 
 

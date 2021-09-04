@@ -1,8 +1,9 @@
 package io.github.gerardpi.easy.jpaentities.test1.web;
 
 import io.github.gerardpi.easy.jpaentities.test1.UuidGenerator;
-import io.github.gerardpi.easy.jpaentities.test1.domain.Address;
-import io.github.gerardpi.easy.jpaentities.test1.domain.AddressRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Address;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.AddressRepository;
+import io.github.gerardpi.easy.jpaentities.test1.web.addressbook.AddressDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,15 +29,15 @@ public class AddressController {
     private final UuidGenerator uuidGenerator;
     private final AddressRepository personRepository;
 
-    public AddressController(UuidGenerator uuidGenerator, AddressRepository personRepository) {
+    public AddressController(final UuidGenerator uuidGenerator, final AddressRepository personRepository) {
         this.uuidGenerator = uuidGenerator;
         this.personRepository = personRepository;
     }
 
     @PostMapping
-    public HttpEntity<Void> createAddress(@RequestBody AddressDto addressDto) {
-        Address newAddress = addressDto.toEntity(Address.create(uuidGenerator.generate()).build()).build();
-        Address savedAddress = personRepository.save(newAddress);
+    public HttpEntity<Void> createAddress(@RequestBody final AddressDto addressDto) {
+        final Address newAddress = addressDto.toEntity(Address.create(uuidGenerator.generate()).build()).build();
+        final Address savedAddress = personRepository.save(newAddress);
         return ResponseEntity.ok()
                 .eTag("" + savedAddress.getEtag())
                 .location(toUri(URI, savedAddress.getId().toString()))
@@ -47,10 +48,10 @@ public class AddressController {
      * Note that, if a field is missing from the DTO, it will not be changed.
      */
     @PatchMapping
-    public HttpEntity<Void> partiallyUpdateAddress(UUID id, @RequestBody AddressDto addressDto) {
-        Address existingAddress = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        Address updatedAddress = addressDto.toEntityNotNull(existingAddress).build();
-        Address savedAddress = personRepository.save(updatedAddress);
+    public HttpEntity<Void> partiallyUpdateAddress(final UUID id, @RequestBody final AddressDto addressDto) {
+        final Address existingAddress = personRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        final Address updatedAddress = addressDto.toEntityNotNull(existingAddress).build();
+        final Address savedAddress = personRepository.save(updatedAddress);
         return ResponseEntity.ok()
                 .eTag("" + savedAddress.getEtag())
                 .location(toUri(URI, savedAddress.getId().toString()))
@@ -66,8 +67,8 @@ public class AddressController {
      * Using a PUT to replace is idempotent, meaning that all fields will be overwritten.
      */
     @PutMapping
-    public HttpEntity<Void> replaceAddress(UUID id, @RequestBody AddressDto addressDto) {
-        Address savedAddress = personRepository.save(addressDto.toEntity(
+    public HttpEntity<Void> replaceAddress(final UUID id, @RequestBody final AddressDto addressDto) {
+        final Address savedAddress = personRepository.save(addressDto.toEntity(
                 personRepository.findById(id)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))).build());
         return ResponseEntity.ok()
@@ -77,31 +78,31 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
-    public HttpEntity<AddressDto> getAddress(@PathVariable UUID id,
-                                             @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) Optional<String> ifNoneMatchHeader) {
-        AddressDto addressDto = getDtoForId(id);
+    public HttpEntity<AddressDto> getAddress(@PathVariable final UUID id,
+                                             @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) final Optional<String> ifNoneMatchHeader) {
+        final AddressDto addressDto = getDtoForId(id);
         ControllerUtils.assertEtagDifferent(ifNoneMatchHeader, addressDto.getEtag(),
                 toUri(URI, id.toString()).toString());
         return ControllerUtils.okResponse(addressDto);
     }
 
-    private AddressDto getDtoForId(UUID id) {
+    private AddressDto getDtoForId(final UUID id) {
         return TO_DTO.apply(getById(id));
     }
 
-    private Address getById(UUID id) {
+    private Address getById(final UUID id) {
         return personRepository.findById(id)
                 .orElseThrow(() -> ExceptionFactory.ENTITY_NOT_FOUND_BY_ID.apply(id, Address.class));
     }
 
     @GetMapping
-    public Page<AddressDto> getAddresss(@PageableDefault(size = 10, sort = "name.last") Pageable pageable) {
+    public Page<AddressDto> getAddresss(@PageableDefault(size = 10, sort = "name.last") final Pageable pageable) {
         return personRepository.findAll(pageable).map(TO_DTO);
     }
 
     @DeleteMapping
-    public HttpEntity<Void> deleteAddress(@PathVariable UUID id, @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) Integer expectedEtag) {
-        Address person = getById(id);
+    public HttpEntity<Void> deleteAddress(@PathVariable final UUID id, @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) final Integer expectedEtag) {
+        final Address person = getById(id);
         ControllerUtils.assertEtagEqual(person, expectedEtag);
         personRepository.delete(person);
         return ControllerUtils.okNoContent();

@@ -94,13 +94,13 @@ public class EntityClassGenerator {
 
     private void writeImports(final JavaSourceWriter writer) {
         if (forDtoClasses) {
-            writer.writeImport(config.getTargetPackage(), getSuperclass(true));
-            writer.writeImport(config.getTargetPackage(), getSuperclass(false));
+            writer.writeImport(getSuperclass(true));
+            writer.writeImport(getSuperclass(false));
         }
     }
 
     private String getSuperclass(final boolean forDtoClas) {
-        return classDef.getSuperClass(forDtoClas)
+        return classDef.getSuperClass(forDtoClas, config.getCommonPackage())
                 .orElseThrow(() -> new IllegalStateException("Expected a superclass to be available for "
                         + EntityClassDef.class.getSimpleName() + classDef));
     }
@@ -117,7 +117,7 @@ public class EntityClassGenerator {
     }
 
     private void writeClassDeclaration(final JavaSourceWriter writer) {
-        final String extendsPart = classDef.getSuperClass(forDtoClasses)
+        final String extendsPart = classDef.getSuperClass(forDtoClasses, config.getCommonPackage())
                 .map(superClass -> " extends " + superClass)
                 .orElse(" implements java.io.Serializable");
         writer.writeBlockBeginln("public class " + getClassName() + extendsPart);

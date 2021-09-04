@@ -1,0 +1,9 @@
+extendsFromClass: "PersistableEntityWithTag"
+dtoTargetPackage: io.github.gerardpi.easy.jpaentities.test1.web.addressbook
+fieldDefs:
+  - name: "name"
+    type: "io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonName"
+    annotation: javax.persistence.Embedded
+  - name: "dateOfBirth"
+    type: "java.time.LocalDate"
+    annotation: javax.persistence.Column(columnDefinition = "DATE")

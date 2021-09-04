@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class EasyJpaEntitiesConfig {
     private final List<String> entityClassDefNames;
     private final String targetPackage;
+    private final String commonPackage;
     private final boolean includeConstructorWithParameters;
     /**
      * If jackson-module-paranamer is used, Jackson @JsonProperty annotations are not required.
@@ -28,7 +29,7 @@ public class EasyJpaEntitiesConfig {
     private final String defaultFieldType;
     private final boolean includeCommentWithTimestamp;
 
-    public EasyJpaEntitiesConfig(Builder builder) {
+    public EasyJpaEntitiesConfig(final Builder builder) {
         this.entityClassDefNames = builder.entityClassDefNames;
         this.targetPackage = builder.targetPackage;
         this.includeConstructorWithParameters = builder.includeConstructorWithParameters;
@@ -39,6 +40,7 @@ public class EasyJpaEntitiesConfig {
         this.defaultFieldType = builder.defaultFieldType;
         this.includeCommentWithTimestamp = builder.includeCommentWithTimestamp;
         this.dtoWithJsonPropertyAnnotations = builder.dtoWithJsonPropertyAnnotations;
+        this.commonPackage = builder.commonPackage;
     }
 
 
@@ -56,6 +58,10 @@ public class EasyJpaEntitiesConfig {
 
     public String getTargetPackage() {
         return targetPackage;
+    }
+
+    public String getCommonPackage() {
+        return commonPackage;
     }
 
     public boolean isIncludeConstructorWithParameters() {
@@ -93,23 +99,25 @@ public class EasyJpaEntitiesConfig {
         private final boolean includeConstructorWithParameters;
         private final Class<?> idClass;
         private final String defaultFieldType;
-        private List<String> entityClassDefNames;
+        private final List<String> entityClassDefNames;
+        private final String commonPackage;
+        private final boolean includeCommentWithTimestamp;
+        private final boolean dtoWithJsonPropertyAnnotations;
         private String targetPackage;
         private List<EntityClassDef> entityClassDefs;
         private boolean hasOptLockablePersistable;
-        private boolean includeCommentWithTimestamp;
         private boolean hasPersistable;
-        private boolean dtoWithJsonPropertyAnnotations;
 
         @JsonCreator
         public Builder(
-                @JsonProperty(value = "targetPackage") String targetPackage,
-                @JsonProperty(value = "includeConstructorWithParameters", defaultValue = "false") boolean includeConstructorWithParameters,
-                @JsonProperty(value = "entityClassDefNames", required = true) List<String> entityClassDefNames,
-                @JsonProperty(value = "idClass", defaultValue = "java.util.UUID") String idClassName,
-                @JsonProperty(value = "includeCommentWithTimestamp", defaultValue = "true") boolean includeCommentWithTimestamp,
-                @JsonProperty(value = "dtoWithJsonPropertyAnnotation", defaultValue = "false") boolean dtoWithJsonPropertyAnnotations,
-                @JsonProperty(value = "defaultType") String defaultFieldType) {
+                @JsonProperty(value = "targetPackage") final String targetPackage,
+                @JsonProperty(value = "includeConstructorWithParameters", defaultValue = "false") final boolean includeConstructorWithParameters,
+                @JsonProperty(value = "entityClassDefNames", required = true) final List<String> entityClassDefNames,
+                @JsonProperty(value = "idClass", defaultValue = "java.util.UUID") final String idClassName,
+                @JsonProperty(value = "includeCommentWithTimestamp", defaultValue = "true") final boolean includeCommentWithTimestamp,
+                @JsonProperty(value = "dtoWithJsonPropertyAnnotation", defaultValue = "false") final boolean dtoWithJsonPropertyAnnotations,
+                @JsonProperty(value = "defaultType") final String defaultFieldType,
+                @JsonProperty(value = "commonPackage", defaultValue = "") final String commonPackage) {
             this.targetPackage = targetPackage;
             this.includeConstructorWithParameters = includeConstructorWithParameters;
             this.entityClassDefNames = entityClassDefNames == null ? Collections.emptyList() : entityClassDefNames;
@@ -117,25 +125,26 @@ public class EasyJpaEntitiesConfig {
             this.defaultFieldType = defaultFieldType == null ? String.class.getName() : defaultFieldType;
             this.includeCommentWithTimestamp = includeCommentWithTimestamp;
             this.dtoWithJsonPropertyAnnotations = dtoWithJsonPropertyAnnotations;
+            this.commonPackage = "".equals(commonPackage) ? targetPackage : commonPackage;
         }
 
-        private static Class<?> idClassForName(String idClassName) {
+        private static Class<?> idClassForName(final String idClassName) {
             try {
                 return Class.forName(idClassName == null ? UUID.class.getName() : idClassName);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new IllegalStateException(e);
             }
         }
 
-        public Builder setDefaultIfNoTargetPackageSpecified(String defaultTargetPackage) {
+        public Builder setDefaultIfNoTargetPackageSpecified(final String defaultTargetPackage) {
             if (this.targetPackage == null) {
                 this.targetPackage = defaultTargetPackage;
             }
             return this;
         }
 
-        public Builder setEntityClassDefs(List<EntityClassDef> newEntityClassDefs) {
-            List<EntityClassDef> optLockableClassDefs = newEntityClassDefs.stream()
+        public Builder setEntityClassDefs(final List<EntityClassDef> newEntityClassDefs) {
+            final List<EntityClassDef> optLockableClassDefs = newEntityClassDefs.stream()
                     .filter(EntityClassDef::hasTag)
                     .collect(Collectors.toList());
 

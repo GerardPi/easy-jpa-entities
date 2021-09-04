@@ -1,8 +1,8 @@
 package io.github.gerardpi.easy.jpaentities.test1;
 
-import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
-import io.github.gerardpi.easy.jpaentities.test1.domain.PersonName;
-import io.github.gerardpi.easy.jpaentities.test1.domain.PersonRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonName;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonRepository;
 
 import java.time.LocalDate;
 
@@ -12,20 +12,20 @@ public final class TestFunctions {
         // No instantation allowed.
     }
 
-    public static Person storeAndReturnPerson(String nameFirst, String nameLast, LocalDate dateOfBirth, UuidGenerator uuidGenerator, PersonRepository personRepository) {
-        PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
-        Person person = Person.create(uuidGenerator.generate())
+    public static Person storeAndReturnPerson(final String nameFirst, final String nameLast, final LocalDate dateOfBirth, final UuidGenerator uuidGenerator, final PersonRepository personRepository) {
+        final PersonName name = PersonName.create().setFirst(nameFirst).setLast(nameLast).build();
+        final Person person = Person.create(uuidGenerator.generate())
                 .setDateOfBirth(dateOfBirth)
                 .setName(name)
                 .build();
         return personRepository.save(person);
     }
 
-    public static boolean matchesOrDoesNotMatch(String isOrIsNotEqual) {
+    public static boolean matchesOrDoesNotMatch(final String isOrIsNotEqual) {
         return textToBoolean("matches", "does not match", isOrIsNotEqual);
     }
 
-    private static boolean textToBoolean(String trueText, String falseText, String textToCheck) {
+    private static boolean textToBoolean(final String trueText, final String falseText, final String textToCheck) {
         if (trueText.equals(textToCheck)) {
             return true;
         }

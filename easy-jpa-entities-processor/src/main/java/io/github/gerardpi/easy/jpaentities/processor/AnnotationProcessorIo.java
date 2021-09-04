@@ -66,7 +66,16 @@ final class AnnotationProcessorIo {
             final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(fullyQualifiedName);
             return sourceFile.openWriter();
         } catch (final IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("Problem when trying to create '" + fullyQualifiedName + "'", e);
+        }
+    }
+
+    boolean isSourcePresent(final String fullyQualifiedName) {
+        try {
+            processingEnv.getFiler().createSourceFile(fullyQualifiedName);
+            return false;
+        } catch (final IOException e) {
+            return true;
         }
     }
 

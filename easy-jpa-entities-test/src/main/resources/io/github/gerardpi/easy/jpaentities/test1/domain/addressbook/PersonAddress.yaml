@@ -1,0 +1,15 @@
+extendsFromClass: "PersistableEntityWithTag"
+fieldDefs:
+  - name: "addressId"
+    type: "java.util.UUID"
+    notNull: true
+    annotation: javax.persistence.JoinColumn(nullable = false, table = "address", referencedColumnName = "id")
+  - name: "personId"
+    type: "java.util.UUID"
+    notNull: true
+    annotation: javax.persistence.JoinColumn(nullable = false, table = "person", referencedColumnName = "id")
+  - name: "types"
+    singular: "type"
+    type: java.util.SortedSet<io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonAddressType>
+    annotation: javax.persistence.Convert(converter = io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.SortedPersonAddressTypeSetConverter.class)
+    notNull: true

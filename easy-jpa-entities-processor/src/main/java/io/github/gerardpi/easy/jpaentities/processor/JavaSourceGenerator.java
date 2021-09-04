@@ -5,8 +5,15 @@ import io.github.gerardpi.easy.jpaentities.processor.entitydefs.EntityClassDef;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
 
 class JavaSourceGenerator {
+    public static final String PROBLEM_WHEN_GENERATING_FORMAT = "Problem when generating '%s'";
+    /**
+     * A Java source file must only be generated once.
+     */
+    private static final List<String> fqnsGenerated = new ArrayList<>();
     private final AnnotationProcessorIo io;
     private final AnnotationProcessorLogger log;
 
@@ -23,7 +30,7 @@ class JavaSourceGenerator {
                 new EntityClassGenerator(classDef, easyJpaEntitiesConfig)
                         .write(writer);
             } catch (final IOException e) {
-                throw new UncheckedIOException(e);
+                throw new UncheckedIOException(String.format(PROBLEM_WHEN_GENERATING_FORMAT, fqn), e);
             }
         });
     }
@@ -37,7 +44,7 @@ class JavaSourceGenerator {
                     new EntityClassGenerator(classDef, easyJpaEntitiesConfig, true)
                             .write(writer);
                 } catch (final IOException e) {
-                    throw new UncheckedIOException(e);
+                    throw new UncheckedIOException(String.format(PROBLEM_WHEN_GENERATING_FORMAT, fqn), e);
                 }
             } else {
                 log.info("No DTO class generated for '" + classDef.getName() + "'");
@@ -55,12 +62,17 @@ class JavaSourceGenerator {
     }
 
     private void writeSuperclass(final EasyJpaEntitiesConfig config, final String superClassName, final SuperclassGenerator superclassGenerator) {
-        log.info("Generating base class " + superClassName);
-        final String fqn = config.getTargetPackage() + "." + superClassName;
-        try (final LineWriter writer = io.createLineWriter(fqn)) {
-            superclassGenerator.write(superClassName, writer);
-        } catch (final IOException e) {
-            throw new UncheckedIOException(e);
+        final String fqn = config.getCommonPackage() + "." + superClassName;
+        if (fqnsGenerated.contains(fqn)) {
+            log.info("Base class '" + fqn + "' already exists");
+        } else {
+            log.info("Generating base class " + superClassName);
+            try (final LineWriter writer = io.createLineWriter(fqn)) {
+                superclassGenerator.write(superClassName, writer);
+                fqnsGenerated.add(fqn);
+            } catch (final IOException e) {
+                throw new UncheckedIOException(String.format(PROBLEM_WHEN_GENERATING_FORMAT, fqn), e);
+            }
         }
     }
 }

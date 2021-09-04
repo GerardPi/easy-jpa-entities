@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -20,9 +23,10 @@ public class EntityClassDef {
     private final String extendsFromClass;
     private final boolean readOnly; // Can only be used to read from database
     private final String dtoTargetPackage;
+
     private final List<String> annotations;
 
-    private EntityClassDef(String name, List<EntityFieldDef> fieldDefs, String extendsFromClass, boolean readOnly, List<String> annotations, String dtoTargetPackage) {
+    private EntityClassDef(final String name, final List<EntityFieldDef> fieldDefs, final String extendsFromClass, final boolean readOnly, final List<String> annotations, final String dtoTargetPackage) {
         this.name = name;
         this.fieldDefs = fieldDefs;
         this.extendsFromClass = extendsFromClass;
@@ -31,7 +35,7 @@ public class EntityClassDef {
         this.dtoTargetPackage = dtoTargetPackage;
     }
 
-    private EntityClassDef(Builder builder) {
+    private EntityClassDef(final Builder builder) {
         this(requireNonNull(builder.name, "A name is required"),
                 requireNonNull(builder.getFieldDefs(), "A collection of field definitions is required. It may be an empty collection."),
                 builder.extendsFromClass,
@@ -40,11 +44,11 @@ public class EntityClassDef {
                 builder.dtoTargetPackage);
     }
 
-    public boolean isPersistableEntityWithTag(String superClassName) {
+    public static boolean isPersistableEntityWithTag(final String superClassName) {
         return CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG.equals(superClassName);
     }
 
-    public boolean isPersistableEntityClass(String superClassName) {
+    public static boolean isPersistableEntityClass(final String superClassName) {
         return CLASSNAME_PERSISTABLE_ENTITY.equals(superClassName);
     }
 
@@ -82,15 +86,17 @@ public class EntityClassDef {
     }
 
 
-    public Optional<String> getSuperClass(boolean forDtoClass) {
+    public Optional<String> getSuperClass(final boolean forDtoClass, final String commonPackage) {
         return getExtendsFromClass()
                 .map(superClass -> {
                     if (forDtoClass) {
                         return Optional.of(isPersistableEntityWithTag(superClass)
-                                ? CLASSNAME_ENTITY_DTO_WITH_TAG : CLASSNAME_ENTITY_DTO);
+                                ? commonPackage + "." + CLASSNAME_ENTITY_DTO_WITH_TAG
+                                : commonPackage + "." + CLASSNAME_ENTITY_DTO);
                     }
                     return Optional.of(isPersistableEntityWithTag(superClass)
-                            ? CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG : CLASSNAME_PERSISTABLE_ENTITY);
+                            ? commonPackage + "." + CLASSNAME_PERSISTABLE_ENTITY_WITH_TAG
+                            : commonPackage + "." + CLASSNAME_PERSISTABLE_ENTITY);
                 })
                 .orElseGet(Optional::empty);
     }
@@ -134,19 +140,19 @@ public class EntityClassDef {
         private final String extendsFromClass;
         private final boolean readOnly; // Can only be used to read from database
         private final List<String> annotations;
+        private final String dtoTargetPackage;
         private String defaultFieldType;
         private String name;
-        private String dtoTargetPackage;
 
         @JsonCreator
         public Builder(
-                @JsonProperty(value = "fieldDefs", required = true) List<EntityFieldDef.Builder> fieldDefBuilders,
-                @JsonProperty(value = "extendsFromClass") String extendsFromClass,
-                @JsonProperty(value = "annotation") String annotation,
-                @JsonProperty(value = "defaultType") String defaultFieldType,
-                @JsonProperty(value = "annotations") List<String> annotations,
-                @JsonProperty("readOnly") boolean readOnly,
-                @JsonProperty(value = "dtoTargetPackage", defaultValue = "") String dtoTargetPackage) {
+                @JsonProperty(value = "fieldDefs", required = true) final List<EntityFieldDef.Builder> fieldDefBuilders,
+                @JsonProperty(value = "extendsFromClass") final String extendsFromClass,
+                @JsonProperty(value = "annotation") final String annotation,
+                @JsonProperty(value = "defaultType") final String defaultFieldType,
+                @JsonProperty(value = "annotations") final List<String> annotations,
+                @JsonProperty("readOnly") final boolean readOnly,
+                @JsonProperty(value = "dtoTargetPackage", defaultValue = "") final String dtoTargetPackage) {
             this.name = null;
             this.fieldDefBuilders = fieldDefBuilders;
             this.extendsFromClass = extendsFromClass;
@@ -156,8 +162,8 @@ public class EntityClassDef {
             this.dtoTargetPackage = dtoTargetPackage;
         }
 
-        private static List<String> toImmutableList(String annotation, List<String> annotations) {
-            List<String> allAnnotations = new ArrayList<>();
+        private static List<String> toImmutableList(final String annotation, final List<String> annotations) {
+            final List<String> allAnnotations = new ArrayList<>();
             if (annotations != null) {
                 allAnnotations.addAll(annotations);
             }
@@ -167,7 +173,7 @@ public class EntityClassDef {
             return Collections.unmodifiableList(allAnnotations);
         }
 
-        public Builder setName(String name) {
+        public Builder setName(final String name) {
             this.name = name;
             return this;
         }
@@ -185,7 +191,7 @@ public class EntityClassDef {
                     .collect(Collectors.toList());
         }
 
-        public Builder setDefaultFieldTypeIfNotSpecified(String defaultFieldType) {
+        public Builder setDefaultFieldTypeIfNotSpecified(final String defaultFieldType) {
             if (this.defaultFieldType == null) {
                 this.defaultFieldType = defaultFieldType;
             }

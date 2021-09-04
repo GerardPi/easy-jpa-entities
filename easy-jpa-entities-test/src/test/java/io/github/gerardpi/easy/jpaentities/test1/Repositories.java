@@ -1,6 +1,13 @@
 package io.github.gerardpi.easy.jpaentities.test1;
 
-import io.github.gerardpi.easy.jpaentities.test1.domain.*;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.AddressRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonAddressRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.PersonRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.webshop.CurrencyRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.webshop.ItemOrderLineRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.webshop.ItemOrderRepository;
+import io.github.gerardpi.easy.jpaentities.test1.domain.webshop.ItemRepository;
+import io.github.gerardpi.easy.jpaentities.test1.persistence.PersistableEntityWithTag;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -20,13 +27,13 @@ public class Repositories {
     private final CurrencyRepository currencyRepository;
 
     public Repositories(
-            PersonRepository personRepository,
-            AddressRepository addressRepository,
-            PersonAddressRepository personAddressRepository,
-            ItemRepository itemRepository,
-            ItemOrderRepository itemOrderRepository,
-            ItemOrderLineRepository itemOrderLineRepository,
-            CurrencyRepository currencyRepository) {
+            final PersonRepository personRepository,
+            final AddressRepository addressRepository,
+            final PersonAddressRepository personAddressRepository,
+            final ItemRepository itemRepository,
+            final ItemOrderRepository itemOrderRepository,
+            final ItemOrderLineRepository itemOrderLineRepository,
+            final CurrencyRepository currencyRepository) {
         this.itemRepository = itemRepository;
         this.itemOrderRepository = itemOrderRepository;
         this.itemOrderLineRepository = itemOrderLineRepository;
@@ -78,7 +85,7 @@ public class Repositories {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PersistableEntityWithTag> Optional<T> fetchEntity(Class<T> entityClass, UUID id) {
+    public <T extends PersistableEntityWithTag> Optional<T> fetchEntity(final Class<T> entityClass, final UUID id) {
         switch (entityClass.getSimpleName()) {
             case "Item":
                 return (Optional<T>) itemRepository.findById(id);
@@ -97,7 +104,7 @@ public class Repositories {
         }
     }
 
-    public <T extends PersistableEntityWithTag> PersistableEntityWithTag getEntity(Class<T> entityClass, UUID id) {
+    public <T extends PersistableEntityWithTag> PersistableEntityWithTag getEntity(final Class<T> entityClass, final UUID id) {
         return fetchEntity(entityClass, id).orElseThrow(() -> new IllegalArgumentException("Could not find entity " + entityClass.getName() + " with id '" + id + "'"));
     }
 }

@@ -16,7 +16,7 @@ class YamlSerializationTest {
         final EasyJpaEntitiesConfig easyJpaEntitiesConfig = new EasyJpaEntitiesConfig.Builder(
                 "targetPackage", false, Arrays.asList("a", "b", "c"),
                 UUID.class.getName(), true,
-                false, null)
+                false, null, "commonPackage")
                 .build();
         try {
             System.out.println(PersistableDefsDeserializer.createYamlObjectMapper().writeValueAsString(easyJpaEntitiesConfig));

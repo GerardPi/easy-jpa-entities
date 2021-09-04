@@ -18,7 +18,7 @@ When JSON
 
 ....
 
-is deserialized into a pass:[class io.github.gerardpi.easy.jpaentities.test1.web.PersonDto] +
+is deserialized into a pass:[class io.github.gerardpi.easy.jpaentities.test1.web.addressbook.PersonDto] +
 Then that PersonDto has first name pass:["Kees"] and last name pass:["Fritz"] and date of birth pass:["1998-10-22"] +
 
 ===== Test to json =====

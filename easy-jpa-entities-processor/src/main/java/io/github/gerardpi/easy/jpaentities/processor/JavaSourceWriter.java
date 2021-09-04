@@ -122,8 +122,8 @@ class JavaSourceWriter implements AutoCloseable {
         return this;
     }
 
-    JavaSourceWriter writeImport(final String packageName, final String className) {
-        writeLine("import " + packageName + "." + className + ";");
+    JavaSourceWriter writeImport(final String className) {
+        writeLine("import " + className + ";");
         return this;
     }
 

@@ -1,0 +1,7 @@
+---
+commonPackage: io.github.gerardpi.easy.jpaentities.test1.persistence
+entityClassDefNames:
+  - Item
+  - ItemOrder
+  - ItemOrderLine
+  - Currency

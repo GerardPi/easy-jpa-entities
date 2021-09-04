@@ -3,9 +3,9 @@ package io.github.gerardpi.easy.jpaentities.test1;
 import com.tngtech.jgiven.Stage;
 import com.tngtech.jgiven.annotation.Quoted;
 import com.tngtech.jgiven.junit5.SimpleScenarioTest;
-import io.github.gerardpi.easy.jpaentities.test1.domain.Address;
-import io.github.gerardpi.easy.jpaentities.test1.domain.Currency;
-import io.github.gerardpi.easy.jpaentities.test1.domain.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Address;
+import io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person;
+import io.github.gerardpi.easy.jpaentities.test1.domain.webshop.Currency;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.api.SingleTypeEqualsVerifierApi;
 import org.junit.jupiter.api.Test;
@@ -72,34 +72,34 @@ class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqualsVerifi
     }
 
     static class State extends Stage<State> {
+        private final List<String> fieldsIgnoredInEquals = new ArrayList<>();
         private Class<?> entityClass;
         private SingleTypeEqualsVerifierApi<?> entityClassVerifyer;
-        private final List<String> fieldsIgnoredInEquals = new ArrayList<>();
         private AssertionError assertionError;
 
-        State an_entity_class_$(@Quoted Class<?> entityClass) {
+        State an_entity_class_$(@Quoted final Class<?> entityClass) {
             this.entityClass = entityClass;
             this.entityClassVerifyer = EqualsVerifier.forClass(entityClass);
             return self();
         }
 
-        State which_has_a_field_$_that_is_never_null(@Quoted String neverNullField) {
+        State which_has_a_field_$_that_is_never_null(@Quoted final String neverNullField) {
             this.entityClassVerifyer.withNonnullFields(neverNullField);
             return self();
         }
 
-        State which_has_a_field_$_that_is_ignored_by_equals_method(@Quoted String fieldIgnoredInEquals) {
+        State which_has_a_field_$_that_is_ignored_by_equals_method(@Quoted final String fieldIgnoredInEquals) {
             this.fieldsIgnoredInEquals.add(fieldIgnoredInEquals);
             return self();
         }
 
-        State which_does_not_possess_a_field_$(@Quoted String fieldNotPresent) {
+        State which_does_not_possess_a_field_$(@Quoted final String fieldNotPresent) {
             try {
-                List<String> fields = Stream.of(this.entityClass.getDeclaredFields())
+                final List<String> fields = Stream.of(this.entityClass.getDeclaredFields())
                         .map(Field::toString)
                         .collect(Collectors.toList());
                 assertThat(fields.contains(fieldNotPresent)).isFalse();
-            } catch (SecurityException e) {
+            } catch (final SecurityException e) {
                 throw new IllegalStateException(e);
             }
             return self();
@@ -109,7 +109,7 @@ class EntityEqualsVerificationTest extends SimpleScenarioTest<EntityEqualsVerifi
             entityClassVerifyer.withIgnoredFields(fieldsIgnoredInEquals.toArray(new String[]{}));
             try {
                 entityClassVerifyer.verify();
-            } catch (AssertionError assertionError) {
+            } catch (final AssertionError assertionError) {
                 this.assertionError = assertionError;
             }
             return self();

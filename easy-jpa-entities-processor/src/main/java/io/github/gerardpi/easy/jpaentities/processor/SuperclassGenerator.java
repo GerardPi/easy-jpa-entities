@@ -12,34 +12,34 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class SuperclassGenerator {
-   private final EasyJpaEntitiesConfig config;
+    private final EasyJpaEntitiesConfig config;
 
-    SuperclassGenerator(EasyJpaEntitiesConfig config) {
+    SuperclassGenerator(final EasyJpaEntitiesConfig config) {
         this.config = config;
     }
 
-    public void write(String superClassName, LineWriter writer) {
-        String resourceName = superClassName + "-java.txt";
-        writer.line("package " + config.getTargetPackage() + ";");
+    public void write(final String superClassName, final LineWriter writer) {
+        final String resourceName = superClassName + "-java.txt";
+        writer.line("package " + config.getCommonPackage() + ";");
         if (config.isIncludeCommentWithTimestamp()) {
             writer
                     .line("// Generated")
                     .line("//         date/time: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                     .line("//         details: https://github.com/GerardPi/easy-jpa-entities");
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(SuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(SuperclassGenerator.class.getResourceAsStream(resourceName), StandardCharsets.UTF_8))) {
             reader.lines()
                     .map(this::replace)
                     .forEach(writer::line);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
 
-    private String replace(String line) {
+    private String replace(final String line) {
         String result = line;
-        for (Map.Entry<String, String> replacement : config.getTagReplacementMap().entrySet()) {
+        for (final Map.Entry<String, String> replacement : config.getTagReplacementMap().entrySet()) {
             result = result.replace(replacement.getKey(), replacement.getValue());
         }
         return result;

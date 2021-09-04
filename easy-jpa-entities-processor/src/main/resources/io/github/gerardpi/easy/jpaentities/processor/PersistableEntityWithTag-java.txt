@@ -22,13 +22,13 @@ public abstract class PersistableEntityWithTag implements Serializable {
   @javax.persistence.Transient
   private final boolean isModified;
 
-  PersistableEntityWithTag(##_ID_CLASS_## id, Integer etag, boolean isModified) {
+  protected PersistableEntityWithTag(##_ID_CLASS_## id, Integer etag, boolean isModified) {
     this.id = id;
     this.etag = etag;
     this.isModified = isModified;
   }
 
-  PersistableEntityWithTag() {
+  protected PersistableEntityWithTag() {
     // ORM requires this default constructor
     this.id = null;
     this.etag = null;
