@@ -1,0 +1,86 @@
+package io.github.gerardpi.easy.jpaentities.test1.persistence;
+import java.util.UUID;
+import java.io.Serializable;
+
+import javax.persistence.Id;
+import javax.persistence.Version;
+import javax.persistence.MappedSuperclass;
+
+/**
+ * This is a base class for JPA Optimistic Lockable (= contains @Version field) entities to be used in Spring-data.
+ * It has an optimistic locking field that is initially null and is incremented by the ORM.
+ */
+@MappedSuperclass
+public abstract class PersistableEntityWithTag implements Serializable {
+  public static final String PROPNAME_ID = "id";
+  @Id
+  private final UUID id;
+
+  public static final String PROPNAME_ETAG = "etag";
+  @Version
+  private final Integer etag;
+
+  @javax.persistence.Transient
+  private final boolean isModified;
+
+  protected PersistableEntityWithTag(UUID id, Integer etag, boolean isModified) {
+    this.id = id;
+    this.etag = etag;
+    this.isModified = isModified;
+  }
+
+  protected PersistableEntityWithTag() {
+    // ORM requires this default constructor
+    this.id = null;
+    this.etag = null;
+    this.isModified = false;
+  }
+
+  /**
+   * This method indicates that the entity with the current values was the result of
+   * creating a modified version from an existing entity using a Builder (then the return value is true),
+   * or freshly fetched from the database (the the return value is false).
+   */
+  public boolean isModified() {
+      return this.isModified;
+  }
+
+  public java.lang.Integer getEtag() {
+    return this.etag;
+  }
+
+  public UUID getId() {
+    return this.id;
+  }
+
+  @Override
+  public String toString() {
+    return "id=" + id.toString()
+      + "; etag=" + etag;
+  }
+
+  /**
+   * Object equality check, this is done using the ID property of the objects.
+   * Should be overriden with care, call super.equals if you want id equality
+   * to count.
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public final boolean equals(Object otherObject) {
+    if (this == otherObject) {
+      return true;
+    }
+    if (!(otherObject instanceof PersistableEntityWithTag)) {
+      return false;
+    }
+
+    PersistableEntityWithTag otherEntity = (PersistableEntityWithTag) otherObject;
+    // Id is never null.
+    return getId().equals(otherEntity.getId());
+  }
+
+  public final int hashCode() {
+    // Id is never null.
+    return id.hashCode();
+  }
+}

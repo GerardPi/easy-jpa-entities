@@ -1,0 +1,74 @@
+package io.github.gerardpi.easy.jpaentities.test1.persistence;
+import java.util.UUID;
+import java.util.Objects;
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+public abstract class EntityDtoWithTag implements Serializable {
+  public static final String PROPNAME_ID = "id";
+  private final UUID id;
+
+  public static final String PROPNAME_ETAG = "etag";
+  private final String etag;
+
+  protected EntityDtoWithTag(UUID id, String etag) {
+    this.id = id;
+    this.etag = etag;
+  }
+
+  protected EntityDtoWithTag() {
+    this.id = null;
+    this.etag = null;
+  }
+
+  /**
+   * This method return eTag as a String to be used in HTTP headers.
+   * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag
+   * @returns An empty string if no etag is present.
+   */
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getEtag() {
+    return this.etag;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public UUID getId() {
+    return this.id;
+  }
+
+  @Override
+  public String toString() {
+    return "id=" + id
+      + "; etag=" + etag;
+  }
+
+  @JsonIgnore
+  public boolean isNew () {
+    return this.id == null;
+  }
+
+  /**
+   * Object equality check, this is done using the ID property of the objects.
+   * Should be overriden with care, call super.equals if you want id equality
+   * to count.
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public final boolean equals(Object otherObject) {
+    if (this == otherObject) {
+      return true;
+    }
+    if (!(otherObject instanceof EntityDtoWithTag)) {
+      return false;
+    }
+
+    EntityDtoWithTag otherEntity = (EntityDtoWithTag) otherObject;
+    return Objects.equals(this, otherEntity);
+  }
+
+  public final int hashCode() {
+    return id == null ? Objects.hashCode(this) : id.hashCode();
+  }
+}

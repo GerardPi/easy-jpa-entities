@@ -1,0 +1,14 @@
+==== io.github.gerardpi.easy.jpaentities.test1.webshop.WebshopTest ====
+
+===== The database contains orders for a person =====
+
+Given a person pass:["1"] with first name pass:["A"] and last name pass:["B"] +
+an item pass:[1] with name pass:["kaas"] +
+When an order pass:["1"] with date and time pass:["2021-05-10T18:15:33.901351+02:00"] is stored for person pass:[1] +
+and that order pass:["1"] contains pass:["1"] pieces of pass:["1"] which cost pass:["10.12"] a piece +
+and an order pass:["2"] with date and time pass:["2021-05-10T19:40:02.901351+02:00"] is stored for person pass:[1] +
+and that order pass:["2"] contains pass:["1"] pieces of pass:["2"] which cost pass:["12.73"] a piece +
+Then person pass:["1"] has pass:["2"] orders with a total amount of pass:["35.58"] +
+and the order pass:["1"] has date and time pass:["2021-05-10T18:15:33.901351+02:00"] +
+and the order pass:["2"] has date and time pass:["2021-05-10T19:40:02.901351+02:00"] +
+

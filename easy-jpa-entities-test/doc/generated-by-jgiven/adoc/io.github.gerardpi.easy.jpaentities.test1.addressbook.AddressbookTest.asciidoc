@@ -1,0 +1,26 @@
+==== io.github.gerardpi.easy.jpaentities.test1.addressbook.AddressbookTest ====
+
+===== Optimistic locking version number increases with updates =====
+
+When person pass:["1"] is created with first name pass:["Frits"] and last name pass:["Jansma"] in the database pass:["2001-11-23"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person] pass:[1] has ID pass:["00000000-1111-2222-3333-444444444444"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person] with number pass:[1] has optimistic locking version number pass:["0"] +
+When updating a person pass:["1"] with first name pass:["Klaas"] +
+and updating a person pass:["1"] with date of birth pass:["1985-01-01"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person] with number pass:[1] has optimistic locking version number pass:["2"] +
+and the person with key pass:["1"] has date of birth pass:["1985-01-01"] +
+When updating a person pass:["1"] with first name pass:["Piet"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Person] with number pass:[1] has optimistic locking version number pass:["3"] +
+When creating an address pass:[1] with data pass:["NL"] pass:["Amsterdam"] pass:["1234AA"] pass:["Damstraat"] pass:["1"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Address] pass:[1] has ID pass:["00000001-1111-2222-3333-444444444444"] +
+and that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Address] with number pass:[1] has optimistic locking version number pass:["0"] +
+When updating an address pass:["1"] with pass:["postalCode"] pass:["1234AB"] +
+Then that pass:[class io.github.gerardpi.easy.jpaentities.test1.domain.addressbook.Address] with number pass:[1] has optimistic locking version number pass:["1"] +
+
+===== Person address can be used to link a person to an address =====
+
+Given person pass:["1"] is created with first name pass:["Frits"] and last name pass:["Jansma"] in the database pass:["2001-11-27"] +
+and creating an address pass:[1] with data pass:["NL"] pass:["Amsterdam"] pass:["1234AA"] pass:["Damstraat"] pass:["1"] +
+When a relation is created pass:["1"] between person pass:["1"] and address pass:["1"] with types pass:["[RESIDENCE, PROPERTY]"] +
+Then the person pass:["1"] can be found via address pass:["1"] using postal code pass:["NL"] and house number pass:["1234AA"] pass:["1"] +
+

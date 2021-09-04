@@ -6,24 +6,23 @@
 
 This is a Java library that generates https://www.baeldung.com/jpa-entities[JPA] entities.
 
-Purpose:: Using it for persistence in an application that uses https://spring.io/projects/spring-data-jpa[Spring Data JPA]
-using immutable entities that you don't write yourself.
+Purpose:: Generated sources can be used as entity (and DTO) clases in an application that uses https://spring.io/projects/spring-data-jpa[Spring Data JPA].
 Generated entities are _anemic_ classes: no behaviour is present.
 
-What you should add yourself:: YAML file that contains definitions for your entities and let an annotation processor generate the entity classes for you.
-And, of course, you must provide a fully configured database with the correct tables.
+What you should add yourself:: YAML file containing definitions for your entities.
+And, of course, you must provide the rest of the application as well as a fully configured database with the correct tables.
 
 After usage:: You can keep the easy-jpa-entities-processor as a part of your build.
 If you really must, you can copy and paste the generated code into your sources.
 In that case the easy-jpa-entities-processor dependency can be erased from your sources.
 
-Benefits:: Entity classes
+Benefits:: The entity classes
 * are generated for you, including the builder, from specifications in YAML format
 * are immutable
 * are all the same
 * are convenient to use.
-In your code, your are required to use a builder to create a changed instance.
-Only some properties can be changed: not the ID, not the https://www.baeldung.com/jpa-optimistic-locking[optimistic locking] version number, or any other field that is not allowed to change.
+In your code, you're required to use a builder to create a changed instance.
+Only some properties can be changed using the builder: not the ID, not the https://www.baeldung.com/jpa-optimistic-locking[optimistic locking] version number, or any other field that is not allowed to change.
 * contain a flag that indicates if they were just fetched from the database or were changed but not stored in the database yet (= modified).
 
 Drawbacks::
@@ -100,13 +99,14 @@ Have a look at the builds in the CI environment.
 
 == Testing
 
-Testing annotation processors is not easy.
+Testing an annotation processor can be difficult:
 https://dzone.com/articles/the-problem-with-annotation-processors
 
-Testing an annotation processor is quite involved.
 The result should be a bunch of Java classes with the correct contents.
-So testing the annotation processor's output when it is actually used seems to be the simplest way.
+So testing the annotation processor's output by using it seems to be the simplest way.
 This implies that test coverage reported by Jacoco reporting in easy-jpa-entities-processor is low.
+
+The test module also contains a test that just compares the expected Java sources with the actual sources to be sure.
 
 == CI environment
 
