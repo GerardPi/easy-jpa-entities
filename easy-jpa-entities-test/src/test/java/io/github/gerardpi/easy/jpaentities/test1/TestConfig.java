@@ -14,23 +14,23 @@ import java.util.function.Supplier;
 @EnableTransactionManagement
 @Transactional
 public class TestConfig {
-    private static final Logger LOG = LoggerFactory.getLogger(TestConfig.class);
     /**
      * Allow for overriding beans for testing purposes.
      */
     public static final String BEAN_DEF_OVERRIDING_ENABLED = "spring.main.allow-bean-definition-overriding=true";
+    private static final Logger LOG = LoggerFactory.getLogger(TestConfig.class);
 
     public TestConfig() {
         LOG.info("######## {} ##########", TestConfig.class.getSimpleName());
     }
 
     @Bean
-    UuidGenerator uuidGenerator() {
+    static UuidGenerator uuidGenerator() {
         return new FixedUuidSeriesGenerator();
     }
 
     @Bean
-    Supplier<OffsetDateTime> dateTimeSupplier() {
+    static Supplier<OffsetDateTime> dateTimeSupplier() {
         return new TestDateTimeSupplier();
     }
 }

@@ -6,6 +6,8 @@ include::io.github.gerardpi.easy.jpaentities.test1.addressbook.PersonControllerT
 
 include::io.github.gerardpi.easy.jpaentities.test1.webshop.PersistenceTests.asciidoc[]
 
+include::io.github.gerardpi.easy.jpaentities.test1.addressbook.AddressEntityAndDtoTest.asciidoc[]
+
 include::io.github.gerardpi.easy.jpaentities.test1.SerialisationTest.asciidoc[]
 
 include::io.github.gerardpi.easy.jpaentities.test1.UuidEncoderTest.asciidoc[]
